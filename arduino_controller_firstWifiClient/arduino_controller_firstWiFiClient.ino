@@ -25,10 +25,11 @@ const char *password = "10542284208956097103";
 const uint8_t port = 80;
 WiFiServer server(port);
 
-void setup() {
+void setup()
+{
   Serial.begin(BAUDRATE);
 
-  gondola = new Gondola((Coordinate){0.0, 0.0, 0.0});
+  gondola = new Gondola(Coordinate(0.0, 0.0, 0.0));
 
   for (int a = 0; a < NUM_ANCHORS; a++)
   {
@@ -65,12 +66,13 @@ void setup() {
   Serial.println("/");
 
   ESP.wdtDisable(); // Disable SW Watchdog of ESP module
-  wdt_enable(1000); // re-enable watchdog
+  // wdt_enable(1000); // re-enable watchdog
+  wdt_disable();
 }
 
 void loop()
 {
-  wdt_reset();
+  // wdt_reset();
   // Check if a client has connected
   WiFiClient client = server.available();
   if (!client)
@@ -82,6 +84,7 @@ void loop()
   Serial.println("new client");
   while (!client.available())
   {
+    yield();
     delay(1);
   }
 
@@ -94,6 +97,53 @@ void loop()
     Serial.print("request= ");
     Serial.println(request);
   }
+
+  // Return the response
+  client.println("HTTP/1.1 200 OK");
+  client.println("Content-Type: text/html");
+  client.println(""); //  do not forget this one
+  client.println("<!DOCTYPE HTML>");
+  client.println("<html>");
+
+  if (gondola != NULL)
+  {
+    Coordinate Coord = gondola->get_position();
+    client.println("Gondolas actual position: x=");
+    client.println(Coord.x);
+    client.println(" y=");
+    client.println(Coord.y);
+    client.println(" z=");
+    client.println(Coord.z);
+  }
+  else
+  {
+    client.println("Gondola is not initialsed... stop.");
+  }
+
+  client.println("<br><br>");
+  client.println("New position:");
+  client.println("<form>");
+  client.println("<label for=\"x\">X:");
+  client.println("<input type=\"text\" id=\"x\" name=\"x\">");
+  client.println("</label>");
+  client.println("<label for=\"y\">Y:");
+  client.println("<input type=\"text\" id=\"y\" name=\"y\">");
+  client.println("</label>");
+  client.println("<label for=\"z\">Z:");
+  client.println("<input type=\"text\" id=\"z\" name=\"z\">");
+  client.println("</label>");
+  client.println("<br><br>");
+  client.println("<label for=\"speed\">Speed:");
+  client.println("<input type=\"text\" id=\"speed\" name=\"speed\">");
+  client.println("</label>");
+  client.println("<br><br>");
+  client.println("<button type=\"submit\">Move!</button>");
+  client.println("</form>");
+  client.println("</html>");
+
+  delay(1);
+  Serial.println("Client disconnected");
+  Serial.println("");
 
   // Match the request
   Coordinate new_position;
@@ -161,25 +211,37 @@ void loop()
   boolean steps_left = 1;
 
   Serial.println("begin");
-  wdt_disable(); // we disable the watchdog, since the next loop can take tens
+  // wdt_disable(); // we disable the watchdog, since the next loop can take tens
                  // of seconds
+ int i = 0;
   while ((millis() < (start_time + travel_time)) || steps_left > 0)
   {
+    yield();
     steps_left = 0;
     for (int a = 0; a < NUM_ANCHORS; a++)
     {
       anchors[a]->start_step(start_time, travel_time);
     }
-    delayMicroseconds(STEP_DELAY); // leave the pins up for abit in order to be detected
+    yield();
+    delay(STEP_DELAY / 1000); // leave the pins up for abit in order to be detected
     for (int a = 0; a < NUM_ANCHORS; a++)
     {
       anchors[a]->end_step();
       steps_left += anchors[a]->missing_steps();
     }
+    yield();
+
+    Serial.print(i++);
+    Serial.print(" millis= ");
+    Serial.print(millis());
+    Serial.print(" steps left= ");
+    Serial.print(steps_left);
+    Serial.println("");
+    yield();
   }
   Serial.println("end");
-  wdt_reset();
-  wdt_enable(2000); // re-enable watchdog
+  // wdt_reset();
+  // wdt_enable(2000); // re-enable watchdog
   Serial.println("end2");
 
   gondola->set_position(new_position);
@@ -192,51 +254,4 @@ void loop()
     Serial.print(", missing steps ");
     Serial.println(steps_left);
   }
-
-  // Return the response
-  client.println("HTTP/1.1 200 OK");
-  client.println("Content-Type: text/html");
-  client.println(""); //  do not forget this one
-  client.println("<!DOCTYPE HTML>");
-  client.println("<html>");
-
-  if (gondola != NULL)
-  {
-    Coordinate Coord = gondola->get_position();
-    client.println("Gondolas actual position: x=");
-    client.println(Coord.x);
-    client.println(" y=");
-    client.println(Coord.y);
-    client.println(" z=");
-    client.println(Coord.z);
-  }
-  else
-  {
-    client.println("Gondola is not initialsed... stop.");
-  }
-
-  client.println("<br><br>");
-  client.println("New position:");
-  client.println("<form>");
-  client.println("<label for=\"x\">X:");
-  client.println("<input type=\"text\" id=\"x\" name=\"x\">");
-  client.println("</label>");
-  client.println("<label for=\"y\">Y:");
-  client.println("<input type=\"text\" id=\"y\" name=\"y\">");
-  client.println("</label>");
-  client.println("<label for=\"z\">Z:");
-  client.println("<input type=\"text\" id=\"z\" name=\"z\">");
-  client.println("</label>");
-  client.println("<br><br>");
-  client.println("<label for=\"speed\">Speed:");
-  client.println("<input type=\"text\" id=\"speed\" name=\"speed\">");
-  client.println("</label>");
-  client.println("<br><br>");
-  client.println("<button type=\"submit\">Move!</button>");
-  client.println("</form>");
-  client.println("</html>");
-
-  delay(1);
-  Serial.println("Client disconnected");
-  Serial.println("");
 }
