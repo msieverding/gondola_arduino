@@ -1,8 +1,14 @@
+#ifndef _CONFIG_HPP_
+#define _CONFIG_HPP_
+
+#if 1
+#include "config_wemos.hpp"
+#else
 // MACROS
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-// CONSTANTS 
+// CONSTANTS
 #define DEBUG 1
 
 // SERIAL SETTINGS
@@ -27,3 +33,5 @@ float x[] =         {0.0, 1.0, 0.0, 0.0};
 float y[] =         {0.0, 0.0, 1.0, 0.0};
 float z[] =         {0.0, 0.0, 0.0, 1.0};
 
+#endif /* ESP2866 */
+#endif /* _CONFIG_HPP_ */
