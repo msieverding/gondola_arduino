@@ -9,9 +9,9 @@
  *
  **/
 
-//#include "config.h"
-#include "config_wemos.h"
-#include "gondola.h"
+#include "config.hpp"
+#include "gondola.hpp"
+#include "anchor.hpp"
 #include <ESP8266WiFi.h>
 
 // Gondola
@@ -28,7 +28,7 @@ WiFiServer server(port);
 void setup() {
   Serial.begin(BAUDRATE);
 
-  gondola = new Gondola((coordinate){0.0, 0.0, 0.0});
+  gondola = new Gondola((Coordinate){0.0, 0.0, 0.0});
 
   for (int a = 0; a < NUM_ANCHORS; a++)
   {
@@ -96,7 +96,7 @@ void loop()
   }
 
   // Match the request
-  coordinate new_position;
+  Coordinate new_position;
   float travel_speed, travel_distance, travel_time;
   long start_time;
   String subs;
@@ -126,7 +126,7 @@ void loop()
     Serial.println(travel_speed);
   }
 
-  travel_distance = euclidean_distance(gondola->get_position(), new_position);
+  travel_distance = Coordinate::euclidean_distance(gondola->get_position(), new_position);
   travel_time = travel_distance / travel_speed;
 
   if (travel_distance == 0)
@@ -202,13 +202,13 @@ void loop()
 
   if (gondola != NULL)
   {
-    coordinate coord = gondola->get_position();
+    Coordinate Coord = gondola->get_position();
     client.println("Gondolas actual position: x=");
-    client.println(coord.x);
+    client.println(Coord.x);
     client.println(" y=");
-    client.println(coord.y);
+    client.println(Coord.y);
     client.println(" z=");
-    client.println(coord.z);
+    client.println(Coord.z);
   }
   else
   {
