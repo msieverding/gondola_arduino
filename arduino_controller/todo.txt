@@ -1,0 +1,2 @@
+gondola as singleton
+Coordinate member private

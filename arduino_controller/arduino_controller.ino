@@ -7,9 +7,10 @@
  *
  **/
 
-//#include "config.h"
-#include "config_wemos.h"
-#include "gondola.h"
+#include "config.hpp"
+#include "gondola.hpp"
+#include "anchor.hpp"
+
 
 Anchor *anchors[NUM_ANCHORS];
 Gondola *gondola;
@@ -19,7 +20,7 @@ void setup()
 {
   Serial.begin(BAUDRATE);
 
-  gondola = new Gondola((coordinate){0.0, 0.0, 0.0});
+  gondola = new Gondola((Coordinate){0.0, 0.0, 0.0});
 
   for (int a = 0; a < NUM_ANCHORS; a++)
   {
@@ -34,7 +35,7 @@ void loop()
   if (Serial.available() > 0)
   {
     char command[255];
-    coordinate new_position;
+    Coordinate new_position;
     float travel_speed, travel_distance, travel_time;
     long start_time;
 
@@ -53,7 +54,7 @@ void loop()
     travel_speed = atof(cmd);   // in cm/s
     cmd = strtok(NULL, TOKENS);
 
-    travel_distance = euclidean_distance(gondola->get_position(), new_position);
+    travel_distance = Coordinate::euclidean_distance(gondola->get_position(), new_position);
     travel_time = travel_distance / travel_speed;
 
     if (travel_distance == 0)
