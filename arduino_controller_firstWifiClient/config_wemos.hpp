@@ -1,12 +1,18 @@
 #ifndef _CONFIG_WEMOS_HPP_
 #define _CONFIG_WEMOS_HPP_
 
+#include <string>
 // MACROS
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 // CONSTANTS
 #define DEBUG 1
+
+// WiFi Connection SETTINGS
+static std::string WC_SSID("Virus.exe");
+static std::string WC_PASSPHRASE("10542284208956097103");
+static uint16_t WC_PORT = 80;
 
 // SERIAL SETTINGS
 #define TOKENS ":, \n"
