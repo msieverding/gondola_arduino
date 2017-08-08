@@ -50,16 +50,20 @@ void WebServer::handleRoot()
   {
     WebServer::prepareGondolaMainPage(answer);
   }
-  else
+  else if(validMoveArgs(server))
   {
     Coordinate newCoordinate;
     Gondola *gondola = s_Instance->m_Gondola;
 
     float speed = 0.0f;
-    readOutArgs(server, newCoordinate, speed);
+    readMoveOutArgs(server, newCoordinate, speed);
     prepareGondolaMovePage(answer, newCoordinate, speed);
     if (gondola)
       gondola->setTargetPosition(newCoordinate, speed);
+  }
+  else
+  {
+    handleNotFound();
   }
 
   server.send(200, "text/html", answer.c_str());
@@ -138,7 +142,28 @@ void WebServer::prepareGondolaMovePage(std::string &s, Coordinate &coord, float 
   prepareGondolaMainPage(s);
 }
 
-void WebServer::readOutArgs(ESP8266WebServer &server, Coordinate &coord, float &s)
+bool WebServer::validMoveArgs(ESP8266WebServer &server)
+{
+  if(!server.hasArg("x") && !server.hasArg("X"))
+  {
+    return false;
+  }
+  if(!server.hasArg("y") && !server.hasArg("Y"))
+  {
+    return false;
+  }
+  if(!server.hasArg("z") && !server.hasArg("Z"))
+  {
+    return false;
+  }
+  if(!server.hasArg("Speed") && !server.hasArg("speed") && !server.hasArg("SPEED"))
+  {
+    return false;
+  }
+  return true;
+}
+
+void WebServer::readMoveOutArgs(ESP8266WebServer &server, Coordinate &coord, float &s)
 {
   // get X coordinate. Consider lower and upper case
   if(server.hasArg("x"))

@@ -27,7 +27,8 @@ private:
   // Helper functions for building web pages
   static void prepareGondolaMainPage(std::string &s);
   static void prepareGondolaMovePage(std::string &s, Coordinate &coord, float &speed);
-  static void readOutArgs(ESP8266WebServer &server, Coordinate &coord, float &speed);
+  static bool validMoveArgs(ESP8266WebServer &server);
+  static void readMoveOutArgs(ESP8266WebServer &server, Coordinate &coord, float &speed);
 
   // Variables
   static WebServer         *s_Instance;
