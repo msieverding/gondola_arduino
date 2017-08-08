@@ -4,6 +4,7 @@
 #include <string>
 #include "Anchor.hpp"
 #include "Coordinate.hpp"
+#include <IPAddress.h>
 
 // MACROS
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
@@ -12,10 +13,18 @@
 // CONSTANTS
 #define DEBUG 1
 
-// WiFi Connection SETTINGS
+// WiFi CONNECTION SETTINGS
 static std::string WC_SSID("Virus.exe");
 static std::string WC_PASSPHRASE("10542284208956097103");
 static uint16_t WC_PORT = 80;
+
+// AP CONNECTION SETTING
+static IPAddress AP_IPAddress(192, 168, 5, 10);
+static IPAddress AP_Gateway(192, 168, 5, 1);
+static IPAddress AP_Netmask(255, 255, 255, 0);
+static std::string AP_Name("GondolaWifi");
+static std::string AP_Passphrase("TU_GRAZ_ITI");
+static std::string AP_URL("www.gondola.com");
 
 // SERIAL SETTINGS
 #define TOKENS ":, \n"
@@ -61,6 +70,6 @@ static uint8_t dir_pin[]     = {4};    // D2
 #define   CON_SERIAL  1
 #define   CON_WIFI    2
 #define   CON_AP      3
-#define   CONNECTION  CON_WIFI
+#define   CONNECTION  CON_AP
 
 #endif /* _CONFIG_WEMOS_HPP_ */

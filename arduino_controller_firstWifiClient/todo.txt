@@ -12,3 +12,4 @@ ideas:
 - Anchor klasse überarbeiten
 - evtl. kann man das movement noch weiter in die anchor verschieben?
 - interface um initiale position einzustellen
+- Config in EEPROM speichern

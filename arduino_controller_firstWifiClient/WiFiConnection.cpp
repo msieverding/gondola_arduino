@@ -19,10 +19,11 @@ WiFiConnection::WiFiConnection(WebServer *server, std::string ssid, std::string 
   Serial.println("");
   Serial.println("WiFi connected");
 
+  m_IPAddres = WiFi.localIP();
   // Print the IP address
   Serial.print("Use this URL to connect: ");
   Serial.print("http://");
-  Serial.print(WiFi.localIP());
+  Serial.print(m_IPAddres);
   Serial.println("/");
 }
 

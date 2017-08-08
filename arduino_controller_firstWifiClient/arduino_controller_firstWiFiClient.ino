@@ -16,6 +16,7 @@
 #include "Anchor.hpp"
 #include "WiFiConnection.hpp"
 #include "SerialConnection.hpp"
+#include "APConnection.hpp"
 #include "WebServer.hpp"
 
 // Gondola
@@ -36,11 +37,13 @@ void setup()
     gondola->addAnchor(i, {enable_pin[i], step_pin[i], dir_pin[i]});
   }
 
-#if CONNECTION == CON_WIFI
   server = WebServer::create(WC_PORT, gondola);
+#if CONNECTION == CON_WIFI
   connection = new WiFiConnection(server, WC_SSID, WC_PASSPHRASE);
 #elif CONNECTION == CON_SERIAL
   connection = new SerialConnection(BAUDRATE, gondola);
+#elif CONNECTION == CON_AP
+  connection = new APConnection(server, AP_Name, AP_Passphrase, AP_IPAddress, AP_Gateway, AP_Netmask);
 #endif
 }
 

@@ -18,7 +18,7 @@ private:
   WebServer          *m_WebServer;
   std::string         m_SSID;
   std::string         m_Passphrase;
-
+  IPAddress           m_IPAddres;
 };
 
 #endif /* _WIFI_CONNECTION_HPP_ */
