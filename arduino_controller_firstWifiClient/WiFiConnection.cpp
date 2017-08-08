@@ -25,6 +25,8 @@ WiFiConnection::WiFiConnection(WebServer *server, std::string ssid, std::string 
   Serial.print("http://");
   Serial.print(m_IPAddres);
   Serial.println("/");
+
+  setupDNS();
 }
 
 WiFiConnection::~WiFiConnection()
@@ -35,4 +37,22 @@ WiFiConnection::~WiFiConnection()
 void WiFiConnection::loop()
 {
   m_WebServer->loop();
+}
+
+void WiFiConnection::setupDNS()
+{
+  // Set up mDNS responder:
+  // - first argument is the domain name, in this example
+  //   the fully-qualified domain name is "esp8266.local"
+  // - second argument is the IP address to advertise
+  //   we send our IP address on the WiFi network
+  if (!MDNS.begin(WC_NAME.c_str()))
+  {
+    Serial.println("Error setting up MDNS responder!");
+    return;
+  }
+  Serial.println("mDNS responder started");
+
+  // Add service to MDNS-SD
+  MDNS.addService("http", "tcp", 80);
 }

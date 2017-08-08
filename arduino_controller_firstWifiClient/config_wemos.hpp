@@ -16,6 +16,7 @@
 // WiFi CONNECTION SETTINGS
 static std::string WC_SSID("Virus.exe");
 static std::string WC_PASSPHRASE("10542284208956097103");
+static std::string WC_NAME("gondola");
 static uint16_t WC_PORT = 80;
 
 // AP CONNECTION SETTING

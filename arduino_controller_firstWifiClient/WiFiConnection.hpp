@@ -5,6 +5,7 @@
 #include "Gondola.hpp"
 #include "WebServer.hpp"
 #include "IConnection.hpp"
+#include <ESP8266mDNS.h>
 
 class WiFiConnection : public IConnection
 {
@@ -14,6 +15,7 @@ public:
 
   virtual void loop();
 private:
+  void setupDNS();
 
   WebServer          *m_WebServer;
   std::string         m_SSID;
