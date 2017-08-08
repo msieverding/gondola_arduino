@@ -34,6 +34,7 @@ void CommandInterpreter::addCommand(std::string s, commandFunc cf)
   }
   else
   {
+    ptr = m_CommandList;
     while(ptr->next != NULL)
       ptr = ptr->next;
 

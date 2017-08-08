@@ -18,6 +18,7 @@
 #include "SerialConnection.hpp"
 #include "APConnection.hpp"
 #include "WebServer.hpp"
+#include "CommandInterpreter.hpp"
 
 // Gondola
 Gondola *gondola;
@@ -26,6 +27,11 @@ long time_budget;
 WebServer *server;
 IConnection *serial;
 IConnection *connection;
+
+void contypeCommand(std::string &s)
+{
+  Serial.println("Contype command");
+}
 
 void setup()
 {
@@ -41,11 +47,14 @@ void setup()
   serial = new SerialConnection(BAUDRATE, gondola);
 
   server = WebServer::create(WC_PORT, gondola);
+
 #if WIFI_MODE == WIFI_CONNECTION
   connection = new WiFiConnection(server, WC_SSID, WC_PASSPHRASE);
 #elif WIFI_MODE == WIFI_ACCESS_POINT
   connection = new APConnection(server, AP_Name, AP_Passphrase, AP_IPAddress, AP_Gateway, AP_Netmask);
 #endif
+
+  CommandInterpreter::get()->addCommand(std::string("contype"), contypeCommand);
 }
 
 void loop()

@@ -98,6 +98,7 @@ void Gondola::addAnchor(uint8_t id, pins_t pinSetup)
   }
   else
   {
+    ptr = m_Anchors;
     while(ptr->next != NULL)
       ptr = ptr->next;
 
