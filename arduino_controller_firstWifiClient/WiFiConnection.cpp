@@ -2,7 +2,7 @@
 
 
 WiFiConnection::WiFiConnection(WebServer *server, std::string ssid, std::string passphrase)
- : m_Server(server)
+ : m_WebServer(server)
  , m_SSID(ssid)
  , m_Passphrase(passphrase)
 {
@@ -29,4 +29,9 @@ WiFiConnection::WiFiConnection(WebServer *server, std::string ssid, std::string 
 WiFiConnection::~WiFiConnection()
 {
 
+}
+
+void WiFiConnection::loop()
+{
+  m_WebServer->loop();
 }

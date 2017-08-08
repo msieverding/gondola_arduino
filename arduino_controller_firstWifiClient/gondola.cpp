@@ -16,7 +16,7 @@ Gondola::Gondola(Coordinate newPosition)
   if (DEBUG)
   {
     Serial.print("Creating gondola at: ");
-    Serial.print(m_CurrentPosition.toString().c_str());
+    Serial.println(m_CurrentPosition.toString().c_str());
   }
 }
 

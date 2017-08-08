@@ -12,9 +12,10 @@ public:
   WiFiConnection(WebServer *server, std::string ssid, std::string passphrase);
   virtual ~WiFiConnection();
 
+  virtual void loop();
 private:
 
-  WebServer          *m_Server;
+  WebServer          *m_WebServer;
   std::string         m_SSID;
   std::string         m_Passphrase;
 

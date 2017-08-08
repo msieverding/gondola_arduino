@@ -3,6 +3,8 @@
 
 class IConnection
 {
+public:
+  virtual void loop() = 0;
 protected:
   IConnection() {}
   virtual ~IConnection() {}

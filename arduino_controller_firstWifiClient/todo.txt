@@ -11,3 +11,4 @@ ideas:
 - Coordinate getter methoden für x y z
 - Anchor klasse überarbeiten
 - evtl. kann man das movement noch weiter in die anchor verschieben?
+- interface um initiale position einzustellen

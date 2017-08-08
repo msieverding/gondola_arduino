@@ -56,4 +56,11 @@ static uint8_t enable_pin[]  = {0};    // D3
 static uint8_t step_pin[]    = {5};    // D1
 static uint8_t dir_pin[]     = {4};    // D2
 
+
+// Connection Setting
+#define   CON_SERIAL  1
+#define   CON_WIFI    2
+#define   CON_AP      3
+#define   CONNECTION  CON_WIFI
+
 #endif /* _CONFIG_WEMOS_HPP_ */
