@@ -54,8 +54,11 @@ void WebServer::handleRoot()
   }
   else
   {
-    Serial.println("More than 0 args currently not supported");
-    // TODO check for given args with hasArg and arg(name)
+    Coordinate newCoordinate;
+    float speed = 0.0f;
+    readOutArgs(server, newCoordinate, speed);
+    prepareGondolaMovePage(answer, newCoordinate, speed);
+    // TODO move gondola
   }
 
   server.send(200, "text/html", answer.c_str());
@@ -83,6 +86,7 @@ void WebServer::handleNotFound()
 
 void WebServer::prepareGondolaMainPage(std::string &s)
 {
+  s.append("<html>");
   if (!s_Instance->m_Gondola)
   {
     s.append("Gondola is not initialized.");
@@ -90,21 +94,12 @@ void WebServer::prepareGondolaMainPage(std::string &s)
     return;
   }
 
-  s.append("Gondolas actual position: ");
-  return;
+  s.append("<h1>Gondolas actual position: </h1>");
   {
     Coordinate Coord = s_Instance->m_Gondola->get_position();
     char buf[20];
     // Use dtostrf since Arduino doesn't support sprintf
-    s.append("<br>x= "),
-    dtostrf(Coord.x, 4, 2, buf);
-    s.append(buf);
-    s.append("<br>y= "),
-    dtostrf(Coord.y, 4, 2, buf);
-    s.append(buf);
-    s.append("<br>z= "),
-    dtostrf(Coord.z, 4, 2, buf);
-    s.append(buf);
+    s.append("<br>" + Coord.toString() + "<br>");
   }
 
   s.append("<br><br>");
@@ -127,4 +122,61 @@ void WebServer::prepareGondolaMainPage(std::string &s)
   s.append("<button type=\"submit\">Move!</button>");
   s.append("</form>");
   s.append("</html>");
+}
+
+void WebServer::prepareGondolaMovePage(std::string &s, Coordinate &coord, float &speed)
+{
+  char buf[20];
+  dtostrf(speed, 4, 2, buf);
+
+  s.append("<html>");
+  s.append("<h1>Move Request</h1>");
+  s.append("Move Gondola to: "+ coord.toString() + " with speed ");
+  s.append(buf);
+  s.append("<br><hr />");
+  prepareGondolaMainPage(s);
+}
+
+void WebServer::readOutArgs(ESP8266WebServer &server, Coordinate &coord, float &s)
+{
+  // get X coordinate. Consider lower and upper case
+  if(server.hasArg("x"))
+  {
+    coord.x = server.arg("x").toFloat();
+  }
+  else if(server.hasArg("X"))
+  {
+    coord.x = server.arg("X").toFloat();
+  }
+  // get Y coordinate. Consider lower and upper case
+  if(server.hasArg("y"))
+  {
+    coord.y = server.arg("y").toFloat();
+  }
+  else if(server.hasArg("Y"))
+  {
+    coord.y = server.arg("Y").toFloat();
+  }
+  // get Z coordinate. Consider lower and upper case
+  if(server.hasArg("z"))
+  {
+    coord.z = server.arg("z").toFloat();
+  }
+  else if(server.hasArg("Z"))
+  {
+    coord.z = server.arg("Z").toFloat();
+  }
+  // get Speed. Consider lower case, upper case and first letter in upper case
+  if (server.hasArg("speed"))
+  {
+    s = server.arg("speed").toFloat();
+  }
+  else if (server.hasArg("Speed"))
+  {
+    s = server.arg("Speed").toFloat();
+  }
+  else if (server.hasArg("SPEED"))
+  {
+    s = server.arg("SPEED").toFloat();
+  }
 }
