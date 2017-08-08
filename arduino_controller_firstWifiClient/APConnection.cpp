@@ -10,6 +10,8 @@ APConnection::APConnection(WebServer *server, std::string ssid, std::string pass
  , m_Netmask(netmask)
  , m_DnsServer()
 {
+  WiFi.mode(WIFI_AP_STA);
+  
   Serial.print("Setting soft-AP configuration ... ");
   Serial.println(WiFi.softAPConfig(m_IPAddress, m_Gateway, m_Netmask) ? "Ready" : "Failed!");
 
