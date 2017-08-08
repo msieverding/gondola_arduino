@@ -1,4 +1,4 @@
-#include "coordinate.hpp"
+#include "Coordinate.hpp"
 #include <tgmath.h> // for sqrt
 
 Coordinate::Coordinate()

@@ -2,8 +2,8 @@
 #define _CONFIG_WEMOS_HPP_
 
 #include <string>
-#include "anchor.hpp"
-#include "coordinate.hpp"
+#include "Anchor.hpp"
+#include "Coordinate.hpp"
 
 // MACROS
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))

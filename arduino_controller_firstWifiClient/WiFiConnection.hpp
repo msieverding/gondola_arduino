@@ -2,7 +2,7 @@
 #define _WIFI_CONNECTION_HPP_
 
 #include <ESP8266WiFi.h>
-#include "gondola.hpp"
+#include "Gondola.hpp"
 #include "WebServer.hpp"
 
 class WiFiConnection

@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include "config.hpp"
-#include "coordinate.hpp"
+#include "Coordinate.hpp"
 #include "Anchor.hpp"
 
 

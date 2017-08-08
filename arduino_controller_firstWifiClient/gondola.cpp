@@ -1,5 +1,5 @@
 #include "config.hpp"
-#include "gondola.hpp"
+#include "Gondola.hpp"
 #include <Arduino.h>
 
 Gondola::Gondola(Coordinate newPosition)

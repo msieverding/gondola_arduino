@@ -14,8 +14,8 @@
 // ESP Libraries
 
 // Own classes and libraries
-#include "gondola.hpp"
-#include "anchor.hpp"
+#include "Gondola.hpp"
+#include "Anchor.hpp"
 #include "WiFiConnection.hpp"
 #include "WebServer.hpp"
 
