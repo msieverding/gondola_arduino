@@ -8,7 +8,7 @@
 class APConnection : public IConnection
 {
 public:
-  APConnection(WebServer *server, std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask);
+  APConnection(WebServer *server, std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url);
   virtual ~APConnection();
 
   virtual void loop();
@@ -22,6 +22,7 @@ private:
   IPAddress        m_Gateway;
   IPAddress        m_Netmask;
   DNSServer        m_DnsServer;
+  std::string      m_URL;
 };
 
 #endif /* _AP_CONNECTION_HPP_ */

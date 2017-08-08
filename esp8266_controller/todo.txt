@@ -8,3 +8,5 @@ ideas:
 - Config in EEPROM https://github.com/esp8266/Arduino/tree/master/libraries/EEPROM
 - position beim spoolen updaten (wie geht das? Dazu muss ich wissen, wie man die position invers berechnen)
 - actual position zuzsätzlich direct in die felder schreiben
+- WiFiConnection von außen IP ändern.
+- Connection in ConnectionMgr packen und das dahin auslagern.

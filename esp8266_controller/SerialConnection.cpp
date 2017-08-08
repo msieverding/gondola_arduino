@@ -54,5 +54,5 @@ void SerialConnection::loop()
 void SerialConnection::moveCommand(std::string &s)
 {
   // TODO impl. move command
-  Serial.print("move Command");
+  Serial.println("-Move Command-");
 }

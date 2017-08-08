@@ -1,5 +1,6 @@
 #include "CommandInterpreter.hpp"
 #include <Arduino.h>
+#include <string.h>
 
 CommandInterpreter *CommandInterpreter::s_Instance = NULL;
 
@@ -44,8 +45,27 @@ void CommandInterpreter::addCommand(std::string s, commandFunc cf)
 
 void CommandInterpreter::interprete(std::string &s)
 {
+  String arduinoS(s.c_str());
   commandList_t *ptr = m_CommandList;
-  std::string commandWord(s.substr(0, s.find(" ")));
+  const char tokens[] = {' ', '\r', '\0', '\n'};
+  bool found = false;
+  std::string commandWord;
+  int32_t pos;
+
+  for (uint8_t i = 0; i < sizeof(tokens) / sizeof(tokens[0]) && std::string::npos; i++)
+  {
+    // unfortunatly string::find does not compile/link under arduino
+    // workaround: use arduino String and indexOf
+    pos = arduinoS.indexOf(tokens[i]);
+    if (pos >= 0)
+    {
+      commandWord = s.substr(0, pos);
+      found = true;
+      break;
+    }
+  }
+  if (!found)     // if no token is present. take wohle input
+    commandWord = s;
 
   while(ptr != NULL)
   {

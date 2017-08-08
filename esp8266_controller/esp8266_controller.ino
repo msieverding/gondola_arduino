@@ -30,7 +30,43 @@ IConnection *connection;
 
 void contypeCommand(std::string &s)
 {
-  Serial.println("Contype command");
+  String arduinoS(s.c_str());
+  Serial.println("-Contype command-");
+  uint32_t pos1 = arduinoS.indexOf(' ');
+  uint32_t pos2 = arduinoS.indexOf(' ', pos1 + 1);
+  Serial.print("pos2 ");
+  Serial.println(pos2);
+  if (pos1 < 0 || pos2 < 0)
+  {
+    Serial.println("Invalid command.");
+    return;
+  }
+  String subs = arduinoS.substring(pos1 + 1, pos2);
+  Serial.print("first arg: ");
+  Serial.println(subs.c_str());
+  for (uint8_t i = 0; i < subs.length(); i++)
+  {
+    Serial.print(subs.c_str()[i], HEX);
+    Serial.print(" ");
+    Serial.println(subs.c_str()[i]);
+  }
+  Serial.println("end");
+  if (subs.equals("AP"))
+  {
+    Serial.println("delete old connection");
+    delete(connection);
+    Serial.print("Address of connection");
+    Serial.println((int)connection, HEX);
+    connection = new APConnection(server, AP_Name, AP_Passphrase, AP_IPAddress, AP_Gateway, AP_Netmask, AP_URL);
+  }
+  else if (subs.equals("WIFI"))
+  {
+    Serial.println("delete old connection");
+    delete(connection);
+    Serial.print("Address of connection");
+    Serial.println((int)connection, HEX);
+    connection = new WiFiConnection(server, WC_SSID, WC_PASSPHRASE, WC_NAME);
+  }
 }
 
 void setup()
@@ -49,9 +85,9 @@ void setup()
   server = WebServer::create(WC_PORT, gondola);
 
 #if WIFI_MODE == WIFI_CONNECTION
-  connection = new WiFiConnection(server, WC_SSID, WC_PASSPHRASE);
+  connection = new WiFiConnection(server, WC_SSID, WC_PASSPHRASE, WC_NAME);
 #elif WIFI_MODE == WIFI_ACCESS_POINT
-  connection = new APConnection(server, AP_Name, AP_Passphrase, AP_IPAddress, AP_Gateway, AP_Netmask);
+  connection = new APConnection(server, AP_Name, AP_Passphrase, AP_IPAddress, AP_Gateway, AP_Netmask, AP_URL);
 #endif
 
   CommandInterpreter::get()->addCommand(std::string("contype"), contypeCommand);

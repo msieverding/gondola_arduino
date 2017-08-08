@@ -5,9 +5,9 @@ class IConnection
 {
 public:
   virtual void loop() = 0;
+  virtual ~IConnection() {}
 protected:
   IConnection() {}
-  virtual ~IConnection() {}
 };
 
 #endif /* _I_CONNECTION_HPP_ */

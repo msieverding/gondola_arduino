@@ -1,7 +1,7 @@
 #include "APConnection.hpp"
 #include "config.hpp"
 
-APConnection::APConnection(WebServer *server, std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask)
+APConnection::APConnection(WebServer *server, std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url)
  : m_WebServer(server)
  , m_SSID(ssid)
  , m_Passphrase(passphrase)
@@ -9,6 +9,7 @@ APConnection::APConnection(WebServer *server, std::string ssid, std::string pass
  , m_Gateway(gateway)
  , m_Netmask(netmask)
  , m_DnsServer()
+ , m_URL(url)
 {
   WiFi.mode(WIFI_AP_STA);
 
@@ -25,8 +26,6 @@ APConnection::APConnection(WebServer *server, std::string ssid, std::string pass
   Serial.println(m_Passphrase.c_str());
 
   setupDNS();
-  Serial.print("You can access gondola's main page with: ");
-  Serial.println(AP_URL.c_str());
 }
 
 APConnection::~APConnection()
@@ -55,4 +54,7 @@ void APConnection::setupDNS()
 
   // start DNS server for a specific domain name
   m_DnsServer.start(53, AP_URL.c_str(), m_IPAddress);
+
+  Serial.print("You can access gondola's main page with: ");
+  Serial.println(m_URL.c_str());
 }
