@@ -4,11 +4,11 @@
 #include <ESP8266WiFi.h>
 #include "Gondola.hpp"
 #include "WebServer.hpp"
+#include "IConnection.hpp"
 
-class WiFiConnection
+class WiFiConnection : public IConnection
 {
 public:
-  explicit
   WiFiConnection(WebServer *server, std::string ssid, std::string passphrase);
   virtual ~WiFiConnection();
 

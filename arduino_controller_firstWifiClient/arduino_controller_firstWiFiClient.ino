@@ -22,7 +22,7 @@ Gondola *gondola;
 long time_budget;
 
 WebServer *server;
-WiFiConnection *connection;
+IConnection *connection;
 
 void setup()
 {
