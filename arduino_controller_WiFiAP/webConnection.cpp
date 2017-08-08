@@ -1,9 +1,9 @@
 #include "config.hpp"
-#include "webInterface.hpp"
+#include "webConnection.hpp"
 
-static ESP8266WebServer *s_Server = NULL;
+static ESP8266WebServer *m_Server = NULL;
 
-webInterface::webInterface()
+webConnection::webConnection()
  : m_Server(80)
  , m_IP()
  , m_Gateway()
@@ -14,10 +14,10 @@ webInterface::webInterface()
   m_IP.fromString(AP_IPAddress.c_str());
   m_Gateway.fromString(AP_Gateway.c_str());
   m_Netmask.fromString(AP_Netmask.c_str());
-  s_Server = &m_Server;
+  m_Server = &m_Server;
 }
 
-void webInterface::start()
+void webConnection::start()
 {
   boolean result = false;
   // Setup AP in WiFi variable
@@ -67,9 +67,9 @@ void webInterface::start()
   // simple HTTP server to see that DNS server is working
   m_Server.onNotFound([]() {
     String message = "Can't handle request with URL: ";
-    message += s_Server->uri();
+    message += m_Server->uri();
 
-    s_Server->send(200, "text/plain", message);
+    m_Server->send(200, "text/plain", message);
   });
 
   // Print IP Adress
@@ -80,22 +80,22 @@ void webInterface::start()
   Serial.println("HTTP server started");
 }
 
-IPAddress webInterface::getIP()
+IPAddress webConnection::getIP()
 {
   return WiFi.softAPIP();
 }
 
-void webInterface::handleRoot()
+void webConnection::handleRoot()
 {
   Serial.println("handleRoot");
-  if(s_Server != NULL)
+  if(m_Server != NULL)
   {
-    Serial.println(s_Server->arg("x"));
-    s_Server->send(200, "text/html", "<h1>You are connected</h1>");
+    Serial.println(m_Server->arg("x"));
+    m_Server->send(200, "text/html", "<h1>You are connected</h1>");
   }
 }
 
-void webInterface::task()
+void webConnection::task()
 {
   m_DnsServer.processNextRequest();
   m_Server.handleClient();

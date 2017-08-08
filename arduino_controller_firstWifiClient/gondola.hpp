@@ -17,15 +17,28 @@ public:
 
   Gondola(Coordinate newPosition);
   void addAnchor(uint8_t id, pins_t pinSetup);
+  Anchor *getAnchor(uint8_t id);
 
-  Coordinate getPosition();
-  void setPosition(Coordinate newPosition);
+  Coordinate getCurrentPosition();
+  void setCurrentPosition(Coordinate &newPosition);
+  Coordinate getTragetPosition();
+  void setTargetPosition(Coordinate &targetPosition, float &speed);
+
+  void move();
+  void move(Coordinate &targetPosition, float &speed);
 
 private:
 
   // Member variables
   Coordinate       m_CurrentPosition;
+  Coordinate       m_TargetPosition;
+  float            m_Speed;
   anchorList_t    *m_Anchors;
+  uint8_t          m_NumAnchors;
+  float            m_TravelDistance;
+  float            m_TravelTime;
+  float            m_StartTime;
+  uint32_t         m_StepsLeft;
 };
 
 

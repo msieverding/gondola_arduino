@@ -18,18 +18,16 @@ public:
 
   Coordinate getPosition();
 
-
-
   void prepareToSpool(Coordinate newPosition);
   void startStep(long start_time, float budget);
   void endStep();
+  long missingSteps();
 
 private:
   // functions for setup
-  void setPins(pins_t pinSetup);
+  void configurePins();
   void setPosition(Coordinate coord, Coordinate _gondola);
 
-  long missingSteps();
 
   // state
   uint8_t     m_ID;

@@ -9,3 +9,5 @@ ideas:
 - strings aus webserver kann man konstant machen, string dauert doch immer zeit...
 - actual position zuzsätzlich direct in die felder schreiben
 - Coordinate getter methoden für x y z
+- Anchor klasse überarbeiten
+- evtl. kann man das movement noch weiter in die anchor verschieben?

@@ -12,6 +12,7 @@ Anchor::Anchor(int id, pins_t pinSetup, Coordinate coord)
 {
   Serial.print("Creating anchor ");
   Serial.println(id);
+  configurePins();
 }
 
 Coordinate Anchor::getPosition()
@@ -24,9 +25,8 @@ long Anchor::missingSteps()
   return m_StepsTodo - m_StepsDone;
 }
 
-void Anchor::setPins(pins_t pinSetup)
+void Anchor::configurePins()
 {
-  m_Pins = pinSetup;
   pinMode(m_Pins.en, OUTPUT);
   pinMode(m_Pins.stp, OUTPUT);
   pinMode(m_Pins.dir, OUTPUT);
@@ -37,14 +37,14 @@ void Anchor::setPosition(Coordinate coord, Coordinate _gondola)
 {
   m_AnchorPosition = coord;
   // TODO was macht gondola da?
-  m_SpooledDistance = Coordinate::euclidean_distance(_gondola, m_AnchorPosition);
+  m_SpooledDistance = Coordinate::euclideanDistance(_gondola, m_AnchorPosition);
 }
 
 void Anchor::prepareToSpool(Coordinate newPosition)
 {
   float cm_todo, cm_todo_rounded, new_m_SpooledDistance, precision_distance;
 
-  new_m_SpooledDistance = Coordinate::euclidean_distance(m_AnchorPosition, newPosition);
+  new_m_SpooledDistance = Coordinate::euclideanDistance(m_AnchorPosition, newPosition);
 
   cm_todo = new_m_SpooledDistance - m_SpooledDistance; // in cm
 

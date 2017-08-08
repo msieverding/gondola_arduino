@@ -1,5 +1,3 @@
-
-
 /**
  *
  *   GONDOLA CONTROLLER FOR ARDUINO
@@ -44,107 +42,9 @@ void loop()
 {
   wdt_reset();
   server->loop();
-
-  // wdt_reset();
-  // // Check if a client has connected
-  // WiFiClient client = webConnection.getClient();
-  // if (!client)
-  // {
-  //   return;
-  // }
-
- //  // Wait until the client sends some data
- //  Serial.println("new client");
- //  while (!client.available())
- //  {
- //    yield();
- //    delay(1);
- //  }
+  gondola->move();
  //
- //  // Read the first line of the request
- //  String request = client.readStringUntil('\r');
- //  client.flush();
- //
- //  if (DEBUG)
- //  {
- //    Serial.print("request= ");
- //    Serial.println(request);
- //  }
- //
- //  // Return the response
- //  client.println("HTTP/1.1 200 OK");
- //  client.println("Content-Type: text/html");
- //  client.println(""); //  do not forget this one
- //  client.println("<!DOCTYPE HTML>");
- //  client.println("<html>");
- //
- //
- //  Coordinate Coord = gondola.getPosition();
- //  client.println("Gondolas actual position: x=");
- //  client.println(Coord.x);
- //  client.println(" y=");
- //  client.println(Coord.y);
- //  client.println(" z=");
- //  client.println(Coord.z);
- //
- //
- //  client.println("<br><br>");
- //  client.println("New position:");
- //  client.println("<form>");
- //  client.println("<label for=\"x\">X:");
- //  client.println("<input type=\"text\" id=\"x\" name=\"x\">");
- //  client.println("</label>");
- //  client.println("<label for=\"y\">Y:");
- //  client.println("<input type=\"text\" id=\"y\" name=\"y\">");
- //  client.println("</label>");
- //  client.println("<label for=\"z\">Z:");
- //  client.println("<input type=\"text\" id=\"z\" name=\"z\">");
- //  client.println("</label>");
- //  client.println("<br><br>");
- //  client.println("<label for=\"speed\">Speed:");
- //  client.println("<input type=\"text\" id=\"speed\" name=\"speed\">");
- //  client.println("</label>");
- //  client.println("<br><br>");
- //  client.println("<button type=\"submit\">Move!</button>");
- //  client.println("</form>");
- //  client.println("</html>");
- //
- //  delay(1);
- //  Serial.println("Client disconnected");
- //  Serial.println("");
- //
- //  // Match the request
- //  Coordinate newPosition;
- //  float travel_speed, travel_distance, travel_time;
- //  long start_time;
- //  String subs;
- //  uint8_t idx;
- //
- //  subs = request.substring(request.indexOf("x=") + 2, request.indexOf("&y"));
- //  newPosition.x = subs.toFloat();
- //
- //  subs = request.substring(request.indexOf("y=") + 2, request.indexOf("&z"));
- //  newPosition.y = subs.toFloat();
- //
- //  subs = request.substring(request.indexOf("z=") + 2, request.indexOf("&s"));
- //  newPosition.z = subs.toFloat();
- //
- //  subs = request.substring(request.indexOf("speed=") + 6);
- //  travel_speed = subs.toFloat();
- //
- //  if (DEBUG)
- //  {
- //    Serial.print("New position is:= ");
- //    Serial.print(newPosition.x);
- //    Serial.print(" ");
- //    Serial.print(newPosition.y);
- //    Serial.print(" ");
- //    Serial.print(newPosition.z);
- //    Serial.print(". Given speed is:= ");
- //    Serial.println(travel_speed);
- //  }
- //
- //  travel_distance = Coordinate::euclidean_distance(gondola.getPosition(), newPosition);
+ //  travel_distance = Coordinate::euclideanDistance(gondola.getCurrentPosition(), newPosition);
  //  travel_time = travel_distance / travel_speed;
  //
  //  if (travel_distance == 0)
@@ -222,4 +122,5 @@ void loop()
  //    Serial.print(", missing steps ");
  //    Serial.println(steps_left);
  //  }
+
 }

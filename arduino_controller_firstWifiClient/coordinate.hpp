@@ -14,7 +14,7 @@ public:
   std::string compToString(char comp);
   std::string toString();
 
-  static float euclidean_distance(Coordinate p1, Coordinate p2);
+  static float euclideanDistance(Coordinate p1, Coordinate p2);
   static float round_precision(float number, float min_precision);
   static float pow2(float x);
 

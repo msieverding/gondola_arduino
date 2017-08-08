@@ -30,8 +30,6 @@ bool WebServer::initialize()
 {
   m_Server.on("/", handleRoot);
   m_Server.onNotFound(handleNotFound);
-  // TODO
-	// server.onNotFound ( handleNotFound );
 	m_Server.begin();
   Serial.println("HTTP server started");
 }
@@ -55,10 +53,13 @@ void WebServer::handleRoot()
   else
   {
     Coordinate newCoordinate;
+    Gondola *gondola = s_Instance->m_Gondola;
+
     float speed = 0.0f;
     readOutArgs(server, newCoordinate, speed);
     prepareGondolaMovePage(answer, newCoordinate, speed);
-    // TODO move gondola
+    if (gondola)
+      gondola->setTargetPosition(newCoordinate, speed);
   }
 
   server.send(200, "text/html", answer.c_str());
@@ -96,7 +97,7 @@ void WebServer::prepareGondolaMainPage(std::string &s)
 
   s.append("<h1>Gondolas actual position: </h1>");
   {
-    Coordinate Coord = s_Instance->m_Gondola->getPosition();
+    Coordinate Coord = s_Instance->m_Gondola->getCurrentPosition();
     char buf[20];
     // Use dtostrf since Arduino doesn't support sprintf
     s.append("<br>" + Coord.toString() + "<br>");
