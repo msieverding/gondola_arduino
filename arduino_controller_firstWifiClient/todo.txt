@@ -1,7 +1,8 @@
 timeout beim connecten
 
 ideas:
-- Log Klasse, die verschiede level loggen und ausgeben kan
+- command line interpreter, der die modi wechseln kann oder zB initial position annehmen kann
+- Log Klasse, die verschiede level loggen und ausgeben kann
 - mdns (https://github.com/esp8266/Arduino/blob/master/libraries/ESP8266WebServer/examples/AdvancedWebServer/AdvancedWebServer.ino)
 - anchors in gondola einbinden
 - gedanken über die beiden watchdogs

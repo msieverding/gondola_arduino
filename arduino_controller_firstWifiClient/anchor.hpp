@@ -4,42 +4,41 @@
 #include "coordinate.hpp"
 #include "config.hpp"
 
+// TODO struct gehört da nicht hin, problem mit config
+typedef struct {
+  uint8_t en;
+  uint8_t stp;
+  uint8_t dir;
+} pins_t;
 class Anchor
 {
-
-typedef struct {
-  int en;
-  int stp;
-  int dir;
-} pins_t;
-
 public:
-  explicit
-  Anchor(int id);
+
+  Anchor(int id, pins_t pinSetup, Coordinate coord);
+
+  Coordinate getPosition();
 
 
-  Coordinate get_position();
 
-
-  long missing_steps();
-
-  void set_pins(int _enable, int _step, int _direction);
-
-  void set_position(float _x, float _y, float _z, Coordinate _gondola);
-
-  void prepare_to_spool(Coordinate new_position);
-
-  void start_step(long start_time, float budget);
-
-  void end_step();
+  void prepareToSpool(Coordinate newPosition);
+  void startStep(long start_time, float budget);
+  void endStep();
 
 private:
-    Coordinate m_anchorPosition;
-    pins_t m_pins;
+  // functions for setup
+  void setPins(pins_t pinSetup);
+  void setPosition(Coordinate coord, Coordinate _gondola);
 
-    // state
-    float m_spooledDistance;
-    long m_stepsTodo, m_stepsDone, m_stepsGoal;
+  long missingSteps();
+
+  // state
+  uint8_t     m_ID;
+  Coordinate  m_AnchorPosition;
+  pins_t      m_Pins;
+  float       m_SpooledDistance;
+  long        m_StepsTodo,
+              m_StepsDone,
+              m_StepsGoal;
 };
 
 #endif /* _ANCHOR_HPP_ */

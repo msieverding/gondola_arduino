@@ -2,40 +2,57 @@
 #include "gondola.hpp"
 #include <Arduino.h>
 
-Gondola::Gondola(Coordinate new_position)
+Gondola::Gondola(Coordinate newPosition)
+ : m_CurrentPosition(newPosition)
+ , m_Anchors(NULL)
 {
-  m_currentPosition = new_position;
   if (DEBUG)
   {
+    // TODO use toString
     Serial.print("Creating gondola at (");
-    Serial.print(m_currentPosition.x);
+    Serial.print(m_CurrentPosition.x);
     Serial.print(",");
-    Serial.print(m_currentPosition.y);
+    Serial.print(m_CurrentPosition.y);
     Serial.print(",");
-    Serial.print(m_currentPosition.z);
+    Serial.print(m_CurrentPosition.z);
     Serial.println(")");
   }
 }
 
-Coordinate Gondola::get_position()
+Coordinate Gondola::getPosition()
 {
-  return m_currentPosition;
+  return m_CurrentPosition;
 }
 
-void Gondola::set_position(Coordinate new_position)
+void Gondola::setPosition(Coordinate newPosition)
 {
-  m_currentPosition.x = new_position.x;
-  m_currentPosition.y = new_position.y;
-  m_currentPosition.z = new_position.z;
+  m_CurrentPosition.x = newPosition.x;
+  m_CurrentPosition.y = newPosition.y;
+  m_CurrentPosition.z = newPosition.z;
 
   if (DEBUG)
   {
     Serial.print("Set gondola position to (");
-    Serial.print(m_currentPosition.x);
+    Serial.print(m_CurrentPosition.x);
     Serial.print(",");
-    Serial.print(m_currentPosition.y);
+    Serial.print(m_CurrentPosition.y);
     Serial.print(",");
-    Serial.print(m_currentPosition.z);
+    Serial.print(m_CurrentPosition.z);
     Serial.println(")");
   }
+}
+
+void Gondola::addAnchor(uint8_t id, pins_t pinSetup)
+{
+  anchorList_t *ptr = m_Anchors;
+
+  while(ptr != NULL)
+  {
+    ptr = ptr->next;
+  }
+
+  ptr = new anchorList_t;
+  // TODO wieso muss ich da die position übergeben?
+  ptr->anchor = new Anchor(id, pinSetup, m_CurrentPosition);
+  ptr->next = NULL;
 }

@@ -1,49 +1,57 @@
 #include "anchor.hpp"
 #include <Arduino.h>
 
-Anchor::Anchor(int id)
+Anchor::Anchor(int id, pins_t pinSetup, Coordinate coord)
+ : m_ID(id)
+ , m_AnchorPosition(coord)
+ , m_Pins(pinSetup)
+ , m_SpooledDistance(0.0f)
+ , m_StepsTodo(0)
+ , m_StepsDone(0)
+ , m_StepsGoal(0)
 {
   Serial.print("Creating anchor ");
   Serial.println(id);
 }
 
-Coordinate Anchor::get_position()
+Coordinate Anchor::getPosition()
 {
-  return m_anchorPosition;
+  return m_AnchorPosition;
 }
 
-long Anchor::missing_steps()
+long Anchor::missingSteps()
 {
-  return m_stepsTodo - m_stepsDone;
+  return m_StepsTodo - m_StepsDone;
 }
 
-void Anchor::set_pins(int _enable, int _step, int _direction)
+void Anchor::setPins(pins_t pinSetup)
 {
-  m_pins = {_enable, _step, _direction};
-  pinMode(m_pins.en, OUTPUT);
-  pinMode(m_pins.stp, OUTPUT);
-  pinMode(m_pins.dir, OUTPUT);
-  digitalWrite(m_pins.en, LOW);
+  m_Pins = pinSetup;
+  pinMode(m_Pins.en, OUTPUT);
+  pinMode(m_Pins.stp, OUTPUT);
+  pinMode(m_Pins.dir, OUTPUT);
+  digitalWrite(m_Pins.en, LOW);
 }
 
-void Anchor::set_position(float _x, float _y, float _z, Coordinate _gondola)
+void Anchor::setPosition(Coordinate coord, Coordinate _gondola)
 {
-  m_anchorPosition = {_x, _y, _z};
-  m_spooledDistance = Coordinate::euclidean_distance(_gondola, m_anchorPosition);
+  m_AnchorPosition = coord;
+  // TODO was macht gondola da?
+  m_SpooledDistance = Coordinate::euclidean_distance(_gondola, m_AnchorPosition);
 }
 
-void Anchor::prepare_to_spool(Coordinate new_position)
+void Anchor::prepareToSpool(Coordinate newPosition)
 {
-  float cm_todo, cm_todo_rounded, new_m_spooledDistance, precision_distance;
+  float cm_todo, cm_todo_rounded, new_m_SpooledDistance, precision_distance;
 
-  new_m_spooledDistance = Coordinate::euclidean_distance(m_anchorPosition, new_position);
+  new_m_SpooledDistance = Coordinate::euclidean_distance(m_AnchorPosition, newPosition);
 
-  cm_todo = new_m_spooledDistance - m_spooledDistance; // in cm
+  cm_todo = new_m_SpooledDistance - m_SpooledDistance; // in cm
 
   if (DEBUG)
   {
     Serial.print("Spooled: ");
-    Serial.print(m_spooledDistance);
+    Serial.print(m_SpooledDistance);
     Serial.print("cm, Delta: ");
     Serial.print(cm_todo);
   }
@@ -51,19 +59,19 @@ void Anchor::prepare_to_spool(Coordinate new_position)
   if (cm_todo < 0)
   {
     // direction_todo = 1;
-    digitalWrite(m_pins.dir, HIGH);
+    digitalWrite(m_Pins.dir, HIGH);
   }
   else
   {
     // direction_todo = -1;
-    digitalWrite(m_pins.dir, LOW);
+    digitalWrite(m_Pins.dir, LOW);
   }
 
-  m_spooledDistance += Coordinate::round_precision(cm_todo, MIN_PRECISION); // save new anchor spooled distance
-  // m_spooledDistance += cm_todo; // save new anchor spooled distance
+  m_SpooledDistance += Coordinate::round_precision(cm_todo, MIN_PRECISION); // save new anchor spooled distance
+  // m_SpooledDistance += cm_todo; // save new anchor spooled distance
   cm_todo = abs(cm_todo);
   cm_todo_rounded = Coordinate::round_precision(cm_todo, MIN_PRECISION);
-  m_stepsTodo = (long)(cm_todo_rounded * STEP_CM); // here we do not make sure the number is not round!!!
+  m_StepsTodo = (long)(cm_todo_rounded * STEP_CM); // here we do not make sure the number is not round!!!
 
   if (DEBUG)
   {
@@ -72,34 +80,34 @@ void Anchor::prepare_to_spool(Coordinate new_position)
     Serial.print("): ");
     Serial.print(cm_todo_rounded);
     Serial.print("cm, steps: ");
-    Serial.print(m_stepsTodo); // 200 steps per cm
+    Serial.print(m_StepsTodo); // 200 steps per cm
     Serial.print(", microsteps: ");
-    Serial.println(m_stepsTodo * MICROSTEPS);
+    Serial.println(m_StepsTodo * MICROSTEPS);
   }
 
-  m_stepsTodo *= MICROSTEPS; // we need to account for all microsteps
-  m_stepsDone = 0;
-  m_stepsGoal = 0;
+  m_StepsTodo *= MICROSTEPS; // we need to account for all microsteps
+  m_StepsDone = 0;
+  m_StepsGoal = 0;
 }
 
-void Anchor::start_step(long start_time, float budget)
+void Anchor::startStep(long start_time, float budget)
 {
-  m_stepsGoal = ceil(((float)((millis() - start_time) * m_stepsTodo)) / budget);
-  if (m_stepsGoal > m_stepsTodo)
+  m_StepsGoal = ceil(((float)((millis() - start_time) * m_StepsTodo)) / budget);
+  if (m_StepsGoal > m_StepsTodo)
   {
-    m_stepsGoal = m_stepsTodo;
+    m_StepsGoal = m_StepsTodo;
   }
-  if ((m_stepsGoal > m_stepsDone) && (m_stepsDone < m_stepsTodo))
+  if ((m_StepsGoal > m_StepsDone) && (m_StepsDone < m_StepsTodo))
   {
-    digitalWrite(m_pins.stp, HIGH);
+    digitalWrite(m_Pins.stp, HIGH);
   }
 }
 
-void Anchor::end_step()
+void Anchor::endStep()
 {
-  if ((m_stepsGoal > m_stepsDone) && (m_stepsDone < m_stepsTodo))
+  if ((m_StepsGoal > m_StepsDone) && (m_StepsDone < m_StepsTodo))
   {
-    digitalWrite(m_pins.stp, LOW); // stop step trigger
-    m_stepsDone += 1;
+    digitalWrite(m_Pins.stp, LOW); // stop step trigger
+    m_StepsDone += 1;
   }
 }

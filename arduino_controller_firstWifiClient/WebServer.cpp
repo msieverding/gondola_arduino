@@ -96,7 +96,7 @@ void WebServer::prepareGondolaMainPage(std::string &s)
 
   s.append("<h1>Gondolas actual position: </h1>");
   {
-    Coordinate Coord = s_Instance->m_Gondola->get_position();
+    Coordinate Coord = s_Instance->m_Gondola->getPosition();
     char buf[20];
     // Use dtostrf since Arduino doesn't support sprintf
     s.append("<br>" + Coord.toString() + "<br>");

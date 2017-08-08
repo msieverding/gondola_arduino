@@ -4,20 +4,28 @@
 #include <Arduino.h>
 #include "config.hpp"
 #include "coordinate.hpp"
+#include "Anchor.hpp"
 
-// =============== GONDOLA CLASS ===============
 
 class Gondola
 {
 public:
-  explicit
-  Gondola(Coordinate new_position);
+  typedef struct anchorList_s {
+    Anchor *anchor;
+    anchorList_s *next;
+  } anchorList_t;
 
-  Coordinate get_position();
-  void set_position(Coordinate new_position);
+  Gondola(Coordinate newPosition);
+  void addAnchor(uint8_t id, pins_t pinSetup);
+
+  Coordinate getPosition();
+  void setPosition(Coordinate newPosition);
 
 private:
-  Coordinate m_currentPosition;
+
+  // Member variables
+  Coordinate       m_CurrentPosition;
+  anchorList_t    *m_Anchors;
 };
 
 

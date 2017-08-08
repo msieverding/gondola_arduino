@@ -20,7 +20,6 @@
 #include "WebServer.hpp"
 
 // Gondola
-Anchor *anchors[NUM_ANCHORS];
 Gondola *gondola;
 long time_budget;
 
@@ -31,18 +30,14 @@ void setup()
 {
   Serial.begin(BAUDRATE);
 
-  gondola = new Gondola(Coordinate(0.0, 0.0, 0.0));
-
-  for (int a = 0; a < NUM_ANCHORS; a++)
+  gondola = new Gondola(gondolaStart);
+  for (int i = 0; i < NUM_ANCHORS; i++)
   {
-    anchors[a] = new Anchor(a);
-    anchors[a]->set_pins(enable_pin[a], step_pin[a], dir_pin[a]);
-    anchors[a]->set_position(x[a], y[a], z[a], gondola->get_position());
+    gondola->addAnchor(i, {enable_pin[i], step_pin[i], dir_pin[i]});
   }
 
   connection = new WiFiConnection(server, WC_SSID, WC_PASSPHRASE);
   server = WebServer::create(WC_PORT, gondola);
-
 }
 
 void loop()
@@ -84,7 +79,7 @@ void loop()
  //  client.println("<html>");
  //
  //
- //  Coordinate Coord = gondola.get_position();
+ //  Coordinate Coord = gondola.getPosition();
  //  client.println("Gondolas actual position: x=");
  //  client.println(Coord.x);
  //  client.println(" y=");
@@ -119,20 +114,20 @@ void loop()
  //  Serial.println("");
  //
  //  // Match the request
- //  Coordinate new_position;
+ //  Coordinate newPosition;
  //  float travel_speed, travel_distance, travel_time;
  //  long start_time;
  //  String subs;
  //  uint8_t idx;
  //
  //  subs = request.substring(request.indexOf("x=") + 2, request.indexOf("&y"));
- //  new_position.x = subs.toFloat();
+ //  newPosition.x = subs.toFloat();
  //
  //  subs = request.substring(request.indexOf("y=") + 2, request.indexOf("&z"));
- //  new_position.y = subs.toFloat();
+ //  newPosition.y = subs.toFloat();
  //
  //  subs = request.substring(request.indexOf("z=") + 2, request.indexOf("&s"));
- //  new_position.z = subs.toFloat();
+ //  newPosition.z = subs.toFloat();
  //
  //  subs = request.substring(request.indexOf("speed=") + 6);
  //  travel_speed = subs.toFloat();
@@ -140,16 +135,16 @@ void loop()
  //  if (DEBUG)
  //  {
  //    Serial.print("New position is:= ");
- //    Serial.print(new_position.x);
+ //    Serial.print(newPosition.x);
  //    Serial.print(" ");
- //    Serial.print(new_position.y);
+ //    Serial.print(newPosition.y);
  //    Serial.print(" ");
- //    Serial.print(new_position.z);
+ //    Serial.print(newPosition.z);
  //    Serial.print(". Given speed is:= ");
  //    Serial.println(travel_speed);
  //  }
  //
- //  travel_distance = Coordinate::euclidean_distance(gondola.get_position(), new_position);
+ //  travel_distance = Coordinate::euclidean_distance(gondola.getPosition(), newPosition);
  //  travel_time = travel_distance / travel_speed;
  //
  //  if (travel_distance == 0)
@@ -163,8 +158,8 @@ void loop()
  //
  //  for (int a = 0; a < NUM_ANCHORS; a++)
  //  {
- //    anchors[a]->prepare_to_spool(new_position);
- //    max_steps = MAX(anchors[a]->missing_steps(), max_steps);
+ //    anchors[a]->prepareToSpool(newPosition);
+ //    max_steps = MAX(anchors[a]->missingSteps(), max_steps);
  //  }
  //
  //  if (DEBUG)
@@ -193,14 +188,14 @@ void loop()
  //    steps_left = 0;
  //    for (int a = 0; a < NUM_ANCHORS; a++)
  //    {
- //      anchors[a]->start_step(start_time, travel_time);
+ //      anchors[a]->startStep(start_time, travel_time);
  //    }
  //    yield();
  //    delay(STEP_DELAY / 1000); // leave the pins up for abit in order to be detected
  //    for (int a = 0; a < NUM_ANCHORS; a++)
  //    {
- //      anchors[a]->end_step();
- //      steps_left += anchors[a]->missing_steps();
+ //      anchors[a]->endStep();
+ //      steps_left += anchors[a]->missingSteps();
  //    }
  //    yield();
  //
@@ -217,7 +212,7 @@ void loop()
  //  // wdt_enable(2000); // re-enable watchdog
  //  Serial.println("end2");
  //
- //  gondola.set_position(new_position);
+ //  gondola.setPosition(newPosition);
  //  Serial.println("Position reached");
  //
  //  if (DEBUG)
