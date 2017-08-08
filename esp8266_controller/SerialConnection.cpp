@@ -6,6 +6,7 @@ SerialConnection::SerialConnection(uint32_t baudrate, Gondola *gondola)
  , m_Gondola(gondola)
 {
   Serial.println("Starting Serial Connection.");
+  // following line is already done in main. Use it twice will fail
   // Serial.begin(m_Baudrate);
 }
 
@@ -39,7 +40,7 @@ void SerialConnection::loop()
     cmd = strtok(NULL, TOKENS); // in cm
     speed = atof(cmd);   // in cm/s
     cmd = strtok(NULL, TOKENS);
-    
+
     m_Gondola->setTargetPosition(newPosition, speed);
   }
 }

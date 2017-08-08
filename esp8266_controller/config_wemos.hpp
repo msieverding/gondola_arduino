@@ -68,9 +68,8 @@ static uint8_t dir_pin[]     = {4};    // D2
 
 
 // Connection Setting
-#define   CON_SERIAL  1
-#define   CON_WIFI    2
-#define   CON_AP      3
-#define   CONNECTION  CON_AP
+#define   WIFI_CONNECTION       1
+#define   WIFI_ACCESS_POINT     2
+#define   WIFI_MODE             WIFI_ACCESS_POINT
 
 #endif /* _CONFIG_WEMOS_HPP_ */

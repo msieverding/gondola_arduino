@@ -1,6 +1,6 @@
 /**
  *
- *   GONDOLA CONTROLLER FOR ARDUINO
+ *   GONDOLA CONTROLLER FOR ESP8266
  *
  *   self-contained code. just program the arduino and send positions via serial
  *
@@ -8,7 +8,7 @@
  **/
 
 // Configuration
-#include "config.hpp"
+#include "Config.hpp"
 // ESP Libraries
 
 // Own classes and libraries
@@ -37,12 +37,12 @@ void setup()
     gondola->addAnchor(i, {enable_pin[i], step_pin[i], dir_pin[i]});
   }
 
-  server = WebServer::create(WC_PORT, gondola);
-#if CONNECTION == CON_WIFI
-  connection = new WiFiConnection(server, WC_SSID, WC_PASSPHRASE);
-#elif CONNECTION == CON_SERIAL
   connection = new SerialConnection(BAUDRATE, gondola);
-#elif CONNECTION == CON_AP
+
+  server = WebServer::create(WC_PORT, gondola);
+#if WIFI_MODE == WIFI_CONNECTION
+  connection = new WiFiConnection(server, WC_SSID, WC_PASSPHRASE);
+#elif WIFI_MODE == WIFI_ACCESS_POINT
   connection = new APConnection(server, AP_Name, AP_Passphrase, AP_IPAddress, AP_Gateway, AP_Netmask);
 #endif
 }
