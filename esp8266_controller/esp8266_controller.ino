@@ -24,6 +24,7 @@ Gondola *gondola;
 long time_budget;
 
 WebServer *server;
+IConnection *serial;
 IConnection *connection;
 
 void setup()
@@ -37,7 +38,7 @@ void setup()
     gondola->addAnchor(i, {enable_pin[i], step_pin[i], dir_pin[i]});
   }
 
-  connection = new SerialConnection(BAUDRATE, gondola);
+  serial = new SerialConnection(BAUDRATE, gondola);
 
   server = WebServer::create(WC_PORT, gondola);
 #if WIFI_MODE == WIFI_CONNECTION
@@ -50,6 +51,9 @@ void setup()
 void loop()
 {
   wdt_reset();
-  connection->loop();
+  if (serial)
+    serial->loop();
+  if (connection)
+    connection->loop();
   gondola->move();
 }

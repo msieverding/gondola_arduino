@@ -11,6 +11,7 @@ class Gondola
 {
 public:
   typedef struct anchorList_s {
+    anchorList_s(Anchor *_anchor) : anchor(_anchor), next(next) {}
     Anchor *anchor;
     anchorList_s *next;
   } anchorList_t;

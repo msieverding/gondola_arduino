@@ -89,21 +89,20 @@ void Gondola::setTargetPosition(Coordinate &targetPosition, float &speed)
 
 void Gondola::addAnchor(uint8_t id, pins_t pinSetup)
 {
-  anchorList_t *ptr = m_Anchors;
+  anchorList_t *ptr;
+  anchorList_t *entry = new anchorList_t(new Anchor(id, pinSetup, m_CurrentPosition));
 
-  while(ptr != NULL)
-  {
-    ptr = ptr->next;
-  }
-
-  ptr = new anchorList_t;
   if (m_Anchors == NULL)
   {
-    m_Anchors = ptr;
+    m_Anchors = entry;
   }
-  // TODO wieso muss ich da die position übergeben?
-  ptr->anchor = new Anchor(id, pinSetup, m_CurrentPosition);
-  ptr->next = NULL;
+  else
+  {
+    while(ptr->next != NULL)
+      ptr = ptr->next;
+
+    ptr->next = entry;
+  }
   m_NumAnchors++;
 }
 
