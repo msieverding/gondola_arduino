@@ -27,11 +27,24 @@ void SerialConnection::loop()
     Coordinate newPosition;
     float speed;
     long start_time;
-
+    uint8_t bytesRead;
 
     // read a line from serial
-    Serial.readBytesUntil('\n', command, 255);
-    std::string cmd(command);
+    bytesRead = Serial.readBytesUntil('\n', command, 255);
+
+    // Set a '\0' at the end as a char-string terminator
+    if (command[bytesRead - 1] == '\r')   // check if CR was send
+    {
+      command[bytesRead - 1] = '\0';      // then overwrite it with '\0'
+    }
+    else
+    {
+      bytesRead++;
+      command[bytesRead - 1] = '\0';      // Set'\0' as last charachter
+    }
+
+    std::string cmd(command);             // make a string out of it
+
     m_CommandInterpreter->interprete(cmd);
 
     // // parse string on serial (later change it with command interpreter)

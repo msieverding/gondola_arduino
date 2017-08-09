@@ -9,4 +9,5 @@ ideas:
 - position beim spoolen updaten (wie geht das? Dazu muss ich wissen, wie man die position invers berechnen)
 - actual position zuzsätzlich direct in die felder schreiben
 - WiFiConnection von außen IP ändern.
-- Connection in ConnectionMgr packen und das dahin auslagern.
+- Connection in ConnectionMgr packen und das dahin auslagern. Singleton, der nur einmal den serial callback anlegt.
+- command, der alle registrierten commands ausgibt

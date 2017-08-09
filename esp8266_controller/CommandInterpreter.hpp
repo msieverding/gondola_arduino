@@ -19,6 +19,9 @@ public:
 
   void addCommand(std::string s, commandFunc cf);
   void interprete(std::string &s);
+  std::string getCommandWord(std::string &s);
+  bool getArgument(std::string &s, std::string &arg, uint8_t argNum);
+  uint8_t getNumArgument(std::string &s);
 
 private:
   CommandInterpreter();

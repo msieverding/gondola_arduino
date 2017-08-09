@@ -28,46 +28,56 @@ WebServer *server;
 IConnection *serial;
 IConnection *connection;
 
-void contypeCommand(std::string &s)
+void contypeCommand1Arg(std::string &arg)
 {
-  String arduinoS(s.c_str());
-  Serial.println("-Contype command-");
-  uint32_t pos1 = arduinoS.indexOf(' ');
-  uint32_t pos2 = arduinoS.indexOf(' ', pos1 + 1);
-  Serial.print("pos2 ");
-  Serial.println(pos2);
-  if (pos1 < 0 || pos2 < 0)
-  {
-    Serial.println("Invalid command.");
-    return;
-  }
-  String subs = arduinoS.substring(pos1 + 1, pos2);
-  Serial.print("first arg: ");
-  Serial.println(subs.c_str());
-  for (uint8_t i = 0; i < subs.length(); i++)
-  {
-    Serial.print(subs.c_str()[i], HEX);
-    Serial.print(" ");
-    Serial.println(subs.c_str()[i]);
-  }
-  Serial.println("end");
-  if (subs.equals("AP"))
+  if (arg.compare("WIFI") == 0)
   {
     Serial.println("delete old connection");
     delete(connection);
-    Serial.print("Address of connection");
-    Serial.println((int)connection, HEX);
-    connection = new APConnection(server, AP_Name, AP_Passphrase, AP_IPAddress, AP_Gateway, AP_Netmask, AP_URL);
-  }
-  else if (subs.equals("WIFI"))
-  {
-    Serial.println("delete old connection");
-    delete(connection);
-    Serial.print("Address of connection");
-    Serial.println((int)connection, HEX);
     connection = new WiFiConnection(server, WC_SSID, WC_PASSPHRASE, WC_NAME);
   }
+  else if (arg.compare("AP") == 0)
+  {
+    Serial.println("delete old connection");
+    delete(connection);
+    connection = new APConnection(server, AP_Name, AP_Passphrase, AP_IPAddress, AP_Gateway, AP_Netmask, AP_URL);
+  }
+  else
+  {
+    Serial.println("Unsopported.");
+  }
 }
+
+void contypeCommand(std::string &s)
+{
+  CommandInterpreter *CI = CommandInterpreter::get();
+  String arduinoS(s.c_str());
+  Serial.println("-Contype command-");
+  std::string arg;
+
+  uint8_t args = CI->getNumArgument(s);
+  for (uint8_t i = 0; i < args; i++)
+  {
+    CI->getArgument(s, arg, i);
+    Serial.print("Arg ");
+    Serial.print(i);
+    Serial.print(" ");
+    Serial.println(arg.c_str());
+  }
+
+  switch(args)
+  {
+    case 0:
+      Serial.println("Unsupported.");
+      break; // TODO make help
+    case 1:
+      CI->getArgument(s, arg, 0);
+      contypeCommand1Arg(arg);
+      break;
+  }
+}
+
+
 
 void setup()
 {

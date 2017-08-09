@@ -45,27 +45,9 @@ void CommandInterpreter::addCommand(std::string s, commandFunc cf)
 
 void CommandInterpreter::interprete(std::string &s)
 {
-  String arduinoS(s.c_str());
-  commandList_t *ptr = m_CommandList;
-  const char tokens[] = {' ', '\r', '\0', '\n'};
-  bool found = false;
-  std::string commandWord;
-  int32_t pos;
 
-  for (uint8_t i = 0; i < sizeof(tokens) / sizeof(tokens[0]) && std::string::npos; i++)
-  {
-    // unfortunatly string::find does not compile/link under arduino
-    // workaround: use arduino String and indexOf
-    pos = arduinoS.indexOf(tokens[i]);
-    if (pos >= 0)
-    {
-      commandWord = s.substr(0, pos);
-      found = true;
-      break;
-    }
-  }
-  if (!found)     // if no token is present. take wohle input
-    commandWord = s;
+  std::string commandWord = getCommandWord(s);
+  commandList_t *ptr = m_CommandList;
 
   while(ptr != NULL)
   {
@@ -74,5 +56,82 @@ void CommandInterpreter::interprete(std::string &s)
       ptr->func(s);
     }
     ptr = ptr->next;
+  }
+}
+
+std::string CommandInterpreter::getCommandWord(std::string &s)
+{
+  String arduinoS(s.c_str());
+  const char token = ' ';
+
+  // unfortunatly string::find does not compile/link under arduino
+  // workaround: use arduino String and indexOf
+  int32_t pos = arduinoS.indexOf(token);
+  if (pos >= 0)
+  {
+    return s.substr(0, pos);
+  }
+  // if no token is present. take wohle input
+  return s;
+}
+
+bool CommandInterpreter::getArgument(std::string &s, std::string &arg, uint8_t argNum)
+{
+  String arduinoS(s.c_str());
+  const char token = ' ';
+
+  int32_t posBefore = 0, posBehind = 0;
+
+  // Serial.print("Start search for argNum=");
+  // Serial.println(argNum);
+  for (uint8_t i = 0; i <= argNum; i++)
+  {
+    // Serial.println("");
+    // Serial.print("i=");
+    // Serial.println(i);
+    // Serial.print("PosBefore: ");
+    // Serial.print(posBefore);
+    // Serial.print(" PosBehind: ");
+    // Serial.println(posBehind);
+
+    posBefore = arduinoS.indexOf(token, posBehind);
+    if (posBefore == -1)
+      return false;
+    posBehind = arduinoS.indexOf(token, posBefore + 1);
+    if (posBehind == -1)
+      posBehind = arduinoS.length();
+
+    // Serial.print("PosBefore: ");
+    // Serial.print(posBefore);
+    // Serial.print(" PosBehind: ");
+    // Serial.println(posBehind);
+  }
+
+  arg = s.substr(posBefore + 1, posBehind - posBefore - 1);
+  // Serial.print("arg: ");
+  // Serial.print(arg.c_str());
+  // Serial.print(" length: ");
+  // Serial.println(arg.length());
+
+  return true;
+}
+
+uint8_t CommandInterpreter::getNumArgument(std::string &s)
+{
+  String arduinoS(s.c_str());
+  const char token = ' ';
+  int8_t pos = 0, oldPos = 0;
+  uint8_t args = 0;
+
+  while(1)
+  {
+    pos = arduinoS.indexOf(token, oldPos);
+    if (pos == -1)
+      return args;
+
+    args++;
+    oldPos = pos + 1;
+    // Serial.print("Pos ");
+    // Serial.println(pos);
   }
 }
