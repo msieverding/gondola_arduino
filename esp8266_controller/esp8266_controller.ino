@@ -32,13 +32,11 @@ void contypeCommand1Arg(std::string &arg)
 {
   if (arg.compare("WIFI") == 0)
   {
-    Serial.println("delete old connection");
     delete(connection);
     connection = new WiFiConnection(server, WC_SSID, WC_PASSPHRASE, WC_NAME);
   }
   else if (arg.compare("AP") == 0)
   {
-    Serial.println("delete old connection");
     delete(connection);
     connection = new APConnection(server, AP_Name, AP_Passphrase, AP_IPAddress, AP_Gateway, AP_Netmask, AP_URL);
   }
@@ -52,7 +50,6 @@ void contypeCommand(std::string &s)
 {
   CommandInterpreter *CI = CommandInterpreter::get();
   String arduinoS(s.c_str());
-  Serial.println("-Contype command-");
   std::string arg;
 
   uint8_t args = CI->getNumArgument(s);
@@ -69,15 +66,13 @@ void contypeCommand(std::string &s)
   {
     case 0:
       Serial.println("Unsupported.");
-      break; // TODO make help
+      break; // TODO make help serial output to clarify usage
     case 1:
       CI->getArgument(s, arg, 0);
       contypeCommand1Arg(arg);
       break;
   }
 }
-
-
 
 void setup()
 {

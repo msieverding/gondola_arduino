@@ -13,16 +13,19 @@ APConnection::APConnection(WebServer *server, std::string ssid, std::string pass
 {
   WiFi.mode(WIFI_AP_STA);
 
-  Serial.print("Setting soft-AP configuration ... ");
+  Serial.print("Setting soft-AP configuration... ");
   Serial.println(WiFi.softAPConfig(m_IPAddress, m_Gateway, m_Netmask) ? "Ready" : "Failed!");
 
-  Serial.print("Setting soft-AP ... ");
+  Serial.print("Setting soft-AP... ");
   Serial.println(WiFi.softAP(m_SSID.c_str(), m_Passphrase.c_str()) ? "Ready" : "Failed!");
 
-  Serial.print("Soft-AP IP address = ");
+  Serial.print("Soft-AP IP address: ");
   Serial.println(WiFi.softAPIP());
 
-  Serial.print("Opened WiFi AP! Connect with passphrase: ");
+  Serial.print("WiFi AP SSID: ");
+  Serial.println(m_SSID.c_str());
+
+  Serial.print("Connect with passphrase: ");
   Serial.println(m_Passphrase.c_str());
 
   setupDNS();
@@ -55,6 +58,7 @@ void APConnection::setupDNS()
   // start DNS server for a specific domain name
   m_DnsServer.start(53, AP_URL.c_str(), m_IPAddress);
 
-  Serial.print("You can access gondola's main page with: ");
-  Serial.println(m_URL.c_str());
+  Serial.print("You can access gondola's main page with: http://");
+  Serial.print(m_URL.c_str());
+  Serial.println("/");
 }

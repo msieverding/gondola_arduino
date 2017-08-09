@@ -17,15 +17,12 @@ WiFiConnection::WiFiConnection(WebServer *server, std::string ssid, std::string 
     delay(500);
     Serial.print(".");
   }
-  Serial.println("");
-  Serial.println("WiFi connected");
+  Serial.println(" Ready");
 
   m_IPAddres = WiFi.localIP();
   // Print the IP address
-  Serial.print("Use this URL to connect: ");
-  Serial.print("http://");
-  Serial.print(m_IPAddres);
-  Serial.println("/");
+  Serial.print("Local IP address: ");
+  Serial.println(m_IPAddres);
 
   setupDNS();
 }
@@ -49,14 +46,12 @@ void WiFiConnection::setupDNS()
   //   we send our IP address on the WiFi network
   if (!MDNS.begin(m_Hostname.c_str()))
   {
-    Serial.println("Error setting up MDNS responder!");
+    Serial.println("Error setting up mDNS responder!");
     return;
   }
-  Serial.println("mDNS responder started");
-  Serial.print("http://");
+  Serial.print("Use this URL to connect (mDNS): http://");
   Serial.print(m_Hostname.c_str());
-  Serial.print(".local");
-  Serial.println("/");
+  Serial.println(".local/");
 
   // Add service to MDNS-SD
   MDNS.addService("http", "tcp", 80);
