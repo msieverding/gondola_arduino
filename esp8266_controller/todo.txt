@@ -1,13 +1,17 @@
 ideas:
-- command line interpreter, der die modi wechseln kann oder zB initial position annehmen kann
-- Log Klasse, die verschiede level loggen und ausgeben kann
-- strings aus webserver kann man konstant machen, string dauert doch immer zeit...
-- Anchor klasse verstehen
-- evtl. kann man das movement noch weiter in die anchor verschieben?
-- interface um initiale position einzustellen
-- Config in EEPROM https://github.com/esp8266/Arduino/tree/master/libraries/EEPROM
-- position beim spoolen updaten (wie geht das? Dazu muss ich wissen, wie man die position invers berechnen)
-- actual position zuzsätzlich direct in die felder schreiben
-- WiFiConnection von außen IP ändern.
-- Connection in ConnectionMgr packen und das dahin auslagern. Singleton, der nur einmal den serial callback anlegt.
-- command, der alle registrierten commands ausgibt
+- Class for logging in different modes (VERBOSE, DEBUG, INFO, ...)
+- Some strings as constants to save computation time
+- Update the spooled distance during spooling
+- Add missed spooling time in computation due to new spooling
+- Change movement into Anchor class
+- Save config and actual position in EEPROM: https://github.com/esp8266/Arduino/tree/master/libraries/EEPROM
+- Change IP with CL commands
+- ConnectionMgr Class to reduce code in main (singleton with one serial callback)
+- command to show all registered commands
+
+Command Line interpreter
+- set initial position of Anchors and Gondola
+
+WebSite
+- Site for setting initial position
+- Show actual position directly inside the input fields
