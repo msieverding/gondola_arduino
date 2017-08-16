@@ -2,7 +2,7 @@ ideas:
 - Class for logging in different modes (VERBOSE, DEBUG, INFO, ...)
 - Some strings as constants to save computation time
 - Update the spooled distance during spooling
-- Add missed spooling time in computation due to new spooling
+- Consider missed time in anchor.cpp (startStep)
 - Change movement into Anchor class
 - Save config and actual position in EEPROM: https://github.com/esp8266/Arduino/tree/master/libraries/EEPROM
 - Change IP with CL commands

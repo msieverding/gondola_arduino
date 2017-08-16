@@ -36,9 +36,11 @@ private:
   float            m_Speed;
   anchorList_t    *m_Anchors;
   uint8_t          m_NumAnchors;
+  // TODO float massaker beseitigen
   float            m_TravelDistance;
   float            m_TravelTime;
   float            m_StartTime;
+  uint32_t         m_TotalMissedTime;
   uint32_t         m_StepsLeft;
 };
 

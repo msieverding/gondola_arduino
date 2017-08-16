@@ -133,25 +133,34 @@ void Gondola::move(Coordinate &targetPosition, float &speed)
 
 void Gondola::move()
 {
+  static uint32_t endTime = 0;
   Anchor *anchor;
 
-  if ((millis() < (m_StartTime + m_TravelTime)) || m_StepsLeft != 0)
+  if (endTime != 0)
+  {
+    uint32_t missedTime = millis() - endTime;
+    Serial.print("Missed ");
+    Serial.print(missedTime);
+    Serial.println("ms");
+    m_TotalMissedTime += missedTime;
+  }
+  if ((millis() < (m_StartTime + m_TravelTime + m_TotalMissedTime)) || m_StepsLeft != 0)
   {
     Serial.println("Move");
     m_StepsLeft = 0;
     for (uint8_t i = 0; i < m_NumAnchors; i++)
     {
       anchor = getAnchor(i);
-      if(anchor == NULL)
+      if(anchor == NULL)  // TODO logWarning
         return;
       anchor->startStep(m_StartTime, m_TravelTime);
     }
-    // leave the pins up for abit in order to be detected
+    // leave the pins up for a bit in order to be detected
     delay(STEP_DELAY / 1000);
     for (uint8_t i = 0; i < m_NumAnchors; i++)
     {
       anchor = getAnchor(i);
-      if(anchor == NULL)
+      if(anchor == NULL)  // TODO logWarning
         return;
       anchor->endStep();
       m_StepsLeft += anchor->missingSteps();
@@ -159,8 +168,10 @@ void Gondola::move()
   }
   else
   {
-    // TODO eigentlich nach jedem durchlauf position aufshcreiben
+    // TODO eigentlich nach jedem durchlauf position aufschreiben
     // Serial.println("Movement completed");
     m_CurrentPosition = m_TargetPosition;
+    m_TotalMissedTime = 0;
   }
+  endTime = millis();
 }
