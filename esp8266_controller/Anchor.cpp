@@ -36,7 +36,6 @@ void Anchor::configurePins()
 void Anchor::setPosition(Coordinate coord, Coordinate _gondola)
 {
   m_AnchorPosition = coord;
-  // TODO was macht gondola da?
   m_SpooledDistance = Coordinate::euclideanDistance(_gondola, m_AnchorPosition);
 }
 

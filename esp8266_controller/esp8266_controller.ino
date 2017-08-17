@@ -19,6 +19,7 @@
 #include "APConnection.hpp"
 #include "WebServer.hpp"
 #include "CommandInterpreter.hpp"
+#include "ConnectionMgr.hpp"
 
 // Gondola
 Gondola *gondola;
@@ -26,53 +27,7 @@ long time_budget;
 
 WebServer *server;
 IConnection *serial;
-IConnection *connection;
-
-void contypeCommand1Arg(std::string &arg)
-{
-  if (arg.compare("WIFI") == 0)
-  {
-    delete(connection);
-    connection = new WiFiConnection(server, WC_SSID, WC_PASSPHRASE, WC_NAME);
-  }
-  else if (arg.compare("AP") == 0)
-  {
-    delete(connection);
-    connection = new APConnection(server, AP_Name, AP_Passphrase, AP_IPAddress, AP_Gateway, AP_Netmask, AP_URL);
-  }
-  else
-  {
-    Serial.println("Unsopported.");
-  }
-}
-
-void contypeCommand(std::string &s)
-{
-  CommandInterpreter *CI = CommandInterpreter::get();
-  String arduinoS(s.c_str());
-  std::string arg;
-
-  uint8_t args = CI->getNumArgument(s);
-  for (uint8_t i = 0; i < args; i++)
-  {
-    CI->getArgument(s, arg, i);
-    Serial.print("Arg ");
-    Serial.print(i);
-    Serial.print(" ");
-    Serial.println(arg.c_str());
-  }
-
-  switch(args)
-  {
-    case 0:
-      Serial.println("Unsupported.");
-      break; // TODO make help serial output to clarify usage
-    case 1:
-      CI->getArgument(s, arg, 0);
-      contypeCommand1Arg(arg);
-      break;
-  }
-}
+ConnectionMgr *conMgr;
 
 void setup()
 {
@@ -89,13 +44,8 @@ void setup()
 
   server = WebServer::create(WC_PORT, gondola);
 
-#if WIFI_MODE == WIFI_CONNECTION
-  connection = new WiFiConnection(server, WC_SSID, WC_PASSPHRASE, WC_NAME);
-#elif WIFI_MODE == WIFI_ACCESS_POINT
-  connection = new APConnection(server, AP_Name, AP_Passphrase, AP_IPAddress, AP_Gateway, AP_Netmask, AP_URL);
-#endif
-
-  CommandInterpreter::get()->addCommand(std::string("contype"), contypeCommand);
+  conMgr = ConnectionMgr::get();
+  conMgr->initConnection(server);
 }
 
 void loop()
@@ -103,7 +53,7 @@ void loop()
   wdt_reset();
   if (serial)
     serial->loop();
-  if (connection)
-    connection->loop();
+  if (conMgr)
+    conMgr->loop();
   gondola->move();
 }

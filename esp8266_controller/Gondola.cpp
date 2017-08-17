@@ -139,14 +139,14 @@ void Gondola::move()
   if (endTime != 0)
   {
     uint32_t missedTime = millis() - endTime;
-    Serial.print("Missed ");
-    Serial.print(missedTime);
-    Serial.println("ms");
+    // Serial.print("Missed ");
+    // Serial.print(missedTime);
+    // Serial.println("ms");
     m_TotalMissedTime += missedTime;
   }
   if ((millis() < (m_StartTime + m_TravelTime + m_TotalMissedTime)) || m_StepsLeft != 0)
   {
-    Serial.println("Move");
+    // Serial.println("Move");
     m_StepsLeft = 0;
     for (uint8_t i = 0; i < m_NumAnchors; i++)
     {

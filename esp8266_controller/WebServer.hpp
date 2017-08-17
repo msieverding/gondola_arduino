@@ -19,16 +19,17 @@ private:
   explicit WebServer(uint16_t port, Gondola *gondola);
   // initialize
   bool initialize();
-
   // HTTP Handler
   static void handleRoot();
+  static void handleSetupWiFi();
   static void handleNotFound();
-
   // Helper functions for building web pages
   static void prepareGondolaMainPage(std::string &s);
   static void prepareGondolaMovePage(std::string &s, Coordinate &coord, float &speed);
   static bool validMoveArgs(ESP8266WebServer &server);
-  static void readMoveOutArgs(ESP8266WebServer &server, Coordinate &coord, float &speed);
+  static void readOutMoveArgs(ESP8266WebServer &server, Coordinate &coord, float &speed);
+  static void prepareGondolaWiFiSettingPage(std::string &s);
+  static bool validSetupWiFiArgs(ESP8266WebServer &server);
 
   // Variables
   static WebServer         *s_Instance;

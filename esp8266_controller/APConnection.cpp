@@ -12,12 +12,16 @@ APConnection::APConnection(WebServer *server, std::string ssid, std::string pass
  , m_URL(url)
 {
   WiFi.mode(WIFI_AP_STA);
+  WiFi.begin();           // use this one after WiFi.disconnect()
 
   Serial.print("Setting soft-AP configuration... ");
   Serial.println(WiFi.softAPConfig(m_IPAddress, m_Gateway, m_Netmask) ? "Ready" : "Failed!");
 
   Serial.print("Setting soft-AP... ");
-  Serial.println(WiFi.softAP(m_SSID.c_str(), m_Passphrase.c_str()) ? "Ready" : "Failed!");
+  if (m_Passphrase.length() >= 8 && m_Passphrase.length() <= 63)
+    Serial.println(WiFi.softAP(m_SSID.c_str(), m_Passphrase.c_str()) ? "Ready" : "Failed!");
+  else
+    Serial.println(WiFi.softAP(m_SSID.c_str()) ? "Ready" : "Failed!");
 
   Serial.print("Soft-AP IP address: ");
   Serial.println(WiFi.softAPIP());
@@ -25,16 +29,25 @@ APConnection::APConnection(WebServer *server, std::string ssid, std::string pass
   Serial.print("WiFi AP SSID: ");
   Serial.println(m_SSID.c_str());
 
-  Serial.print("Connect with passphrase: ");
-  Serial.println(m_Passphrase.c_str());
+  if (m_Passphrase.length() > 8 && m_Passphrase.length() < 32)
+  {
+    Serial.print("Connect with passphrase: ");
+    Serial.println(m_Passphrase.c_str());
+  }
+  else
+  {
+    Serial.print("No passphrase used");
+  }
 
   setupDNS();
 }
 
 APConnection::~APConnection()
 {
+  Serial.println("Destruct AP Connection");
   m_DnsServer.stop();
-  WiFi.softAPdisconnect();
+  Serial.println(WiFi.softAPdisconnect(false));
+  Serial.println(WiFi.disconnect(false));
 }
 
 void APConnection::loop()

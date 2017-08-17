@@ -14,8 +14,10 @@
 #define DEBUG 1
 
 // WiFi CONNECTION SETTINGS
-static std::string WC_SSID("Virus.exe");
-static std::string WC_PASSPHRASE("10542284208956097103");
+// static std::string WC_SSID("Virus.exe");
+// static std::string WC_PASSPHRASE("10542284208956097103");
+static std::string WC_SSID("FRITZ!Box 7360");
+static std::string WC_PASSPHRASE("04688692052151450821");
 static std::string WC_NAME("gondola");
 static uint16_t WC_PORT = 80;
 
@@ -65,11 +67,5 @@ static Coordinate anchorPos[NUM_ANCHORS] = {
 static uint8_t enable_pin[]  = {0};    // D3
 static uint8_t step_pin[]    = {5};    // D1
 static uint8_t dir_pin[]     = {4};    // D2
-
-
-// Connection Setting
-#define   WIFI_CONNECTION       1
-#define   WIFI_ACCESS_POINT     2
-#define   WIFI_MODE             WIFI_CONNECTION
 
 #endif /* _CONFIG_WEMOS_HPP_ */

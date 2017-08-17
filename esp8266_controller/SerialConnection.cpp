@@ -46,26 +46,26 @@ void SerialConnection::loop()
     std::string cmd(command);             // make a string out of it
 
     m_CommandInterpreter->interprete(cmd);
-
-    // // parse string on serial (later change it with command interpreter)
-    // // we expect 4 float: x, y, z, speed in cm/s
-    // char *cmd = strtok(command, TOKENS);
-    // // TODO: handle situation where input < 4 floats!!
-    // newPosition.x = atof(cmd);
-    // cmd = strtok(NULL, TOKENS); // in cm
-    // newPosition.y = atof(cmd);
-    // cmd = strtok(NULL, TOKENS); // in cm
-    // newPosition.z = atof(cmd);
-    // cmd = strtok(NULL, TOKENS); // in cm
-    // speed = atof(cmd);   // in cm/s
-    // cmd = strtok(NULL, TOKENS);
-    //
-    // m_Gondola->setTargetPosition(newPosition, speed);
   }
 }
 
 void SerialConnection::moveCommand(std::string &s)
 {
-  // TODO impl. move command
-  Serial.println("-Move Command-");
+  Serial.println("CI: Move Command");
+
+  // TODO adapt move code
+  // // parse string on serial (later change it with command interpreter)
+  // // we expect 4 float: x, y, z, speed in cm/s
+  // char *cmd = strtok(command, TOKENS);
+  // // TODO: handle situation where input < 4 floats!!
+  // newPosition.x = atof(cmd);
+  // cmd = strtok(NULL, TOKENS); // in cm
+  // newPosition.y = atof(cmd);
+  // cmd = strtok(NULL, TOKENS); // in cm
+  // newPosition.z = atof(cmd);
+  // cmd = strtok(NULL, TOKENS); // in cm
+  // speed = atof(cmd);   // in cm/s
+  // cmd = strtok(NULL, TOKENS);
+  //
+  // m_Gondola->setTargetPosition(newPosition, speed);
 }

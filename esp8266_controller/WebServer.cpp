@@ -1,5 +1,7 @@
 #include "WebServer.hpp"
 #include "Coordinate.hpp"
+#include "ConnectionMgr.hpp"
+
 extern "C" {
   #include <stdio.h>
 }
@@ -24,11 +26,13 @@ WebServer::WebServer(uint16_t port, Gondola *gondola)
 
 WebServer::~WebServer()
 {
+  s_Instance = NULL;
 }
 
 bool WebServer::initialize()
 {
   m_Server.on("/", handleRoot);
+  m_Server.on("/SetupWiFi", handleSetupWiFi);
   m_Server.onNotFound(handleNotFound);
 	m_Server.begin();
   Serial.println("HTTP server started");
@@ -52,11 +56,12 @@ void WebServer::handleRoot()
   }
   else if(validMoveArgs(server))
   {
-    Coordinate newCoordinate;
     Gondola *gondola = s_Instance->m_Gondola;
 
+    Coordinate newCoordinate;
     float speed = 0.0f;
-    readMoveOutArgs(server, newCoordinate, speed);
+
+    readOutMoveArgs(server, newCoordinate, speed);
     prepareGondolaMovePage(answer, newCoordinate, speed);
     if (gondola)
       gondola->setTargetPosition(newCoordinate, speed);
@@ -64,9 +69,46 @@ void WebServer::handleRoot()
   else
   {
     handleNotFound();
+    return;
   }
 
   server.send(200, "text/html", answer.c_str());
+}
+
+void WebServer::handleSetupWiFi()
+{
+  Serial.println("HandleSetupWiFi");
+  ESP8266WebServer &server = s_Instance->m_Server;
+  std::string answer;
+
+  uint8_t args = server.args();
+  if (args == 0)
+  {
+    WebServer::prepareGondolaWiFiSettingPage(answer);
+    server.send(200, "text/html", answer.c_str());
+  }
+  else if(validSetupWiFiArgs(server))
+  {
+    ConnectionMgr *conMgr = ConnectionMgr::get();
+    Serial.println(server.arg("WiFiType"));
+
+    if (server.arg("WiFiType").equals("APConnection"))
+    {
+      conMgr->requestChangeConnection(ConnectionMgr::CON_ACCESS_POINT);
+    }
+    else if (server.arg("WiFiType").equals("WiFiConnection"))
+    {
+      conMgr->requestChangeConnection(ConnectionMgr::CON_WIFI_CONNECTION);
+    }
+
+    WebServer::prepareGondolaWiFiSettingPage(answer);
+    server.send(200, "text/html", answer.c_str());
+  }
+  else
+  {
+    handleNotFound();
+    return;
+  }
 }
 
 void WebServer::handleNotFound()
@@ -86,12 +128,14 @@ void WebServer::handleNotFound()
 		message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
 	}
 
-	server.send ( 404, "text/plain", message );
+	server.send(404, "text/plain", message);
 }
 
 void WebServer::prepareGondolaMainPage(std::string &s)
 {
   s.append("<html>");
+  s.append("<a href=\"SetupWiFi\">SetupWiFi</a><br>");
+
   if (!s_Instance->m_Gondola)
   {
     s.append("Gondola is not initialized.");
@@ -103,7 +147,7 @@ void WebServer::prepareGondolaMainPage(std::string &s)
   {
     Coordinate Coord = s_Instance->m_Gondola->getCurrentPosition();
     char buf[20];
-    // Use dtostrf since Arduino doesn't support sprintf
+    // Use dtostrf since Arduino doesn\"t support sprintf
     s.append("<br>" + Coord.toString() + "<br>");
   }
 
@@ -163,7 +207,7 @@ bool WebServer::validMoveArgs(ESP8266WebServer &server)
   return true;
 }
 
-void WebServer::readMoveOutArgs(ESP8266WebServer &server, Coordinate &coord, float &s)
+void WebServer::readOutMoveArgs(ESP8266WebServer &server, Coordinate &coord, float &s)
 {
   // get X coordinate. Consider lower and upper case
   if(server.hasArg("x"))
@@ -205,4 +249,41 @@ void WebServer::readMoveOutArgs(ESP8266WebServer &server, Coordinate &coord, flo
   {
     s = server.arg("SPEED").toFloat();
   }
+}
+
+void WebServer::prepareGondolaWiFiSettingPage(std::string &s)
+{
+  s.append("<h1>WiFi Setup: </h1>");
+  s.append("<p>Select WiFi Type</p>");
+  s.append("<html>");
+  s.append("<form>");
+  s.append("<input type=\"radio\" id=\"AP\" name=\"WiFiType\" value=\"APConnection\">");
+  s.append("<label for=\"AP\">Access Point</label>");
+  s.append("<input type=\"radio\" id=\"WF\" name=\"WiFiType\" value=\"WiFiConnection\">");
+  s.append("<label for=\"WF\">WiFi Client</label><br>");
+  s.append("<br>");
+  s.append("<br>");
+  s.append("<label for=\"IP\">IP-Address:</label>");
+  s.append("<input type=\"text\" id=\"IP\" name=\"IP\"><br>");
+  s.append("<label for=\"SSID\">SSID:</label>");
+  s.append("<input type=\"text\" id=\"SSID\" name=\"SSID\"><br>");
+  s.append("<label for=\"PW\">Passphrase:</label>");
+  s.append("<input type=\"text\" id=\"PW\" name=\"PW\"><br>");
+  s.append("<button type=\"submit\">Go!</button>");
+  s.append("</form>");
+  s.append("</html>");
+}
+
+bool WebServer::validSetupWiFiArgs(ESP8266WebServer &server)
+{
+  if (!server.hasArg("WiFiType"))
+    return false;
+  if (!server.hasArg("IP"))
+    return false;
+  if (!server.hasArg("SSID"))
+    return false;
+  if (!server.hasArg("PW"))
+    return false;
+
+  return true;
 }
