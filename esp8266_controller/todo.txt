@@ -4,25 +4,26 @@ ideas:
 - Update the spooled distance during spooling
 - Consider missed time in anchor.cpp (startStep)
 - Move movement code into Anchor class
-- Change IP with CL commands
+- Find better solution for "else-way" in Gondola::move()
 - command to show all registered commands
-- If WifI connection is not established after a fixed time -> fallback in AP mode
-- If Password is not given -> don't use (test it)
-- If AP does not work -> fall back to last known config
 - Scan for wifi networks and show them on html page (user can enter PW for a given network to connect)
 - find issue for curious serial output at startup
 - find issues with mDNS after switching between AP and WF
 - Configuration class with EEPROM access (https://github.com/esp8266/Arduino/tree/master/libraries/EEPROM)
 - compile everything with Wall to find unused vars etc.
+- Documentation :-D
 
 Command Line interpreter:
 - set initial position of Anchors and Gondola
 - change values for AP and WIFI through a command if wifi is broken
 
 WebSite
-- Same header on every webpage with standard information and standard links
 - Site for setting initial position
 - Show actual position(settings) directly inside the input fields
 
 Notes:
 - WiFiManager (https://github.com/tzapu/WiFiManager/blob/master/WiFiManager.cpp)
+
+
+Hardware:
+- Reset button to use default configuration (open AP...)

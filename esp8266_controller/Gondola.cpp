@@ -28,12 +28,12 @@ Coordinate Gondola::getCurrentPosition()
 void Gondola::setCurrentPosition(Coordinate &newPosition)
 {
   m_CurrentPosition = newPosition;
+}
 
-  if (DEBUG)
-  {
-    Serial.print("Set gondola position to :");
-    Serial.println(m_CurrentPosition.toString().c_str());
-  }
+void Gondola::setInitialPosition(Coordinate &newPosition)
+{
+  m_CurrentPosition = newPosition;
+  m_TargetPosition = newPosition;
 }
 
 Coordinate Gondola::getTragetPosition()
@@ -170,7 +170,7 @@ void Gondola::move()
   {
     // TODO eigentlich nach jedem durchlauf position aufschreiben
     // Serial.println("Movement completed");
-    m_CurrentPosition = m_TargetPosition;
+    setCurrentPosition(m_TargetPosition);
     m_TotalMissedTime = 0;
   }
   endTime = millis();

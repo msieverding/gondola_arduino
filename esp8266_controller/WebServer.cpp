@@ -19,8 +19,8 @@ WebServer* WebServer::create(uint16_t port, Gondola *gondola)
 
 WebServer::WebServer(uint16_t port, Gondola *gondola)
  : m_Server(port)
+ , m_Gondola(gondola)
 {
-  m_Gondola = gondola;
   initialize();
 }
 
@@ -32,6 +32,7 @@ WebServer::~WebServer()
 bool WebServer::initialize()
 {
   m_Server.on("/", handleRoot);
+  m_Server.on("/initGondola", handleInitGondola);
   m_Server.on("/SetupWiFi", handleSetupWiFi);
   m_Server.on("/setupwifi", handleSetupWiFi);
   m_Server.onNotFound(handleNotFound);
@@ -67,6 +68,48 @@ void WebServer::handleRoot()
     if (gondola)
       gondola->setTargetPosition(newCoordinate, speed);
   }
+
+  server.send(200, "text/html", answer.c_str());
+}
+
+void WebServer::handleInitGondola()
+{
+  Serial.println("handleInitGondola");
+  ESP8266WebServer &server = s_Instance->m_Server;
+  std::string answer;
+  Gondola *gondola = s_Instance->m_Gondola;
+  uint8_t args = server.args();
+  bool changed = false;
+
+  if (!gondola)
+  {
+    server.send(404, "text/plain", "FATAL ERROR: Gondola not initialized");
+  }
+
+  WebServer::prepareHeader(answer);
+
+  Coordinate Coord = gondola->getCurrentPosition();
+
+  if (server.arg("x").length())
+  {
+    Coord.x = server.arg("x").toFloat();
+    changed = true;
+  }
+  if (server.arg("y").length())
+  {
+    Coord.y = server.arg("y").toFloat();
+    changed = true;
+  }
+  if (server.arg("z").length())
+  {
+    Coord.z = server.arg("z").toFloat();
+    changed = true;
+  }
+  
+  if (changed)
+    gondola->setInitialPosition(Coord);
+
+  prepareGondolaInitPage(answer, *gondola);
 
   server.send(200, "text/html", answer.c_str());
 }
@@ -116,7 +159,7 @@ void WebServer::handleSetupWiFi()
     conMgr->requestChangeConnection(ConnectionMgr::CON_WIFI_CONNECTION);
   }
 
-  WebServer::prepareGondolaWiFiSettingPage(answer);
+  WebServer::prepareWiFiSetupPage(answer);
   server.send(200, "text/html", answer.c_str());
 }
 
@@ -148,7 +191,8 @@ void WebServer::prepareHeader(std::string &s)
 {
   s.append("<html>");
   s.append("<a href=\"/\">Move</a> ");
-  s.append("<a href=\"/SetupWiFi\">SetupWiFi</a>");
+  s.append("<a href=\"/SetupWiFi\">SetupWiFi</a> ");
+  s.append("<a href=\"/initGondola\">InitGondola</a> ");
   s.append("<hr>");
   s.append("</html>");
 }
@@ -200,6 +244,27 @@ void WebServer::prepareGondolaMovePage(std::string &s, Coordinate &coord, float 
   prepareMainPage(s);
 }
 
+void WebServer::prepareGondolaInitPage(std::string &s, Gondola &gondola)
+{
+  Coordinate Coord = gondola.getCurrentPosition();
+
+  s.append("<html><h1>Set Gondolas initial position</h1>");
+  s.append("<form>");
+  s.append("<label for=\"x\">X:");
+  s.append("<input type=\"text\" id=\"x\" name=\"x\" value=\"" + Coord.compToString('x') + "\">");
+  s.append("</label><br>");
+  s.append("<label for=\"y\">Y:");
+  s.append("<input type=\"text\" id=\"y\" name=\"y\" value=\"" + Coord.compToString('y') + "\">");
+  s.append("</label><br>");
+  s.append("<label for=\"z\">Z:");
+  s.append("<input type=\"text\" id=\"z\" name=\"z\" value=\"" + Coord.compToString('z') + "\">");
+  s.append("</label><br>");
+  s.append("<br><br>");
+  s.append("<button type=\"submit\">Set!</button>");
+  s.append("</form>");
+  s.append("</html>");
+}
+
 void WebServer::readOutMoveArgs(ESP8266WebServer &server, Coordinate &coord, float &s)
 {
   // get X coordinate. Consider lower and upper case
@@ -244,7 +309,7 @@ void WebServer::readOutMoveArgs(ESP8266WebServer &server, Coordinate &coord, flo
   }
 }
 
-void WebServer::prepareGondolaWiFiSettingPage(std::string &s)
+void WebServer::prepareWiFiSetupPage(std::string &s)
 {
   s.append("<html>");
   // Setup for WiFi

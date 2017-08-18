@@ -21,14 +21,16 @@ private:
   bool initialize();
   // HTTP Handler
   static void handleRoot();
+  static void handleInitGondola();
   static void handleSetupWiFi();
   static void handleNotFound();
   // Helper functions for building web pages
   static void prepareHeader(std::string &s);
   static void prepareMainPage(std::string &s);
   static void prepareGondolaMovePage(std::string &s, Coordinate &coord, float &speed);
+  static void prepareGondolaInitPage(std::string &s, Gondola &gondola);
   static void readOutMoveArgs(ESP8266WebServer &server, Coordinate &coord, float &speed);
-  static void prepareGondolaWiFiSettingPage(std::string &s);
+  static void prepareWiFiSetupPage(std::string &s);
 
   // Variables
   static WebServer         *s_Instance;

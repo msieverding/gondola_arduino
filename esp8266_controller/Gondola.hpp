@@ -22,6 +22,7 @@ public:
 
   Coordinate getCurrentPosition();
   void setCurrentPosition(Coordinate &newPosition);
+  void setInitialPosition(Coordinate &newPosition);
   Coordinate getTragetPosition();
   void setTargetPosition(Coordinate &targetPosition, float &speed);
 

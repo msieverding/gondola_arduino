@@ -1,4 +1,5 @@
 #include "WiFiConnection.hpp"
+#include "ConnectionMgr.hpp"
 
 WiFiConnection::WiFiConnection(WebServer *server, std::string ssid, std::string passphrase, std::string hostname)
  : m_WebServer(server)
