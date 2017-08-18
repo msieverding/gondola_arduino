@@ -69,7 +69,7 @@ void APConnection::setupDNS()
   m_DnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
 
   // start DNS server for a specific domain name
-  m_DnsServer.start(53, AP_URL.c_str(), m_IPAddress);
+  m_DnsServer.start(53, m_URL.c_str(), m_IPAddress);
 
   Serial.print("You can access gondola's main page with: http://");
   Serial.print(m_URL.c_str());

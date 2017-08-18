@@ -53,13 +53,11 @@ bool ConnectionMgr::changeConnection(conType_t contype)
   switch(contype)
   {
     case CON_ACCESS_POINT:
-      Serial.println("CON_ACCESS_POINT");
-      m_Connection = new APConnection(m_WebServer, AP_Name, AP_Passphrase, AP_IPAddress, AP_Gateway, AP_Netmask, AP_URL);
+      m_Connection = new APConnection(m_WebServer, Config::getAP_SSID(), Config::getAP_PASSPHRASE(), Config::getAP_IPADDRESS(), Config::getAP_GATEWAY(), Config::getAP_NETMASK(), Config::getAP_URL());
       break;
 
     case CON_WIFI_CONNECTION:
-      Serial.println("CON_WIFI_CONNECTION");
-      m_Connection = new WiFiConnection(m_WebServer, WC_SSID, WC_PASSPHRASE, WC_NAME);
+      m_Connection = new WiFiConnection(m_WebServer, Config::getWC_SSID(), Config::getWC_PASSPHRASE(), Config::getWC_HOSTNAME());
       break;
 
     default:
