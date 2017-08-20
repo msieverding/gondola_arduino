@@ -74,6 +74,11 @@ public:
    */
   static uint8_t getNumArgument(std::string &s);
 
+  /**
+   * Print all registered commands to the serial
+   */
+  void printAllCommands(void);
+
 private:
   /**
    * private constructor

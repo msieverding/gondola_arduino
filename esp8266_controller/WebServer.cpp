@@ -1,10 +1,7 @@
 #include "WebServer.hpp"
 #include "Coordinate.hpp"
 #include "ConnectionMgr.hpp"
-
-extern "C" {
-  #include <stdio.h>
-}
+#include "Log.hpp"
 
 WebServer* WebServer::s_Instance = NULL;
 
@@ -36,7 +33,7 @@ bool WebServer::initialize()
   m_Server.on("/setupwifi", handleSetupWiFi);
   m_Server.onNotFound(handleNotFound);
 	m_Server.begin();
-  Serial.println("HTTP server started");
+  Log::logInfo("HTTP server started\n");
 }
 
 void WebServer::loop()

@@ -28,6 +28,8 @@ public:
 private:
   SerialConnection(uint32_t baudrate, Gondola *m_Gondola);
   static void moveCommand(std::string &s);
+  static void loglevelCommand(std::string &s);
+  static void helpCommand(std::string &s);
 
   // instance
   static SerialConnection    *s_Instance;

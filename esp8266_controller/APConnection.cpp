@@ -1,5 +1,6 @@
 #include "APConnection.hpp"
 #include "config.hpp"
+#include "Log.hpp"
 
 APConnection *APConnection::s_Instance = NULL;
 
@@ -23,29 +24,32 @@ APConnection::APConnection(WebServer *webServer, std::string ssid, std::string p
   WiFi.mode(WIFI_AP_STA);
   WiFi.begin();           // use this one after WiFi.disconnect()
 
-  Serial.print("Setting soft-AP configuration... ");
-  Serial.println(WiFi.softAPConfig(m_IPAddress, m_Gateway, m_Netmask) ? "Ready" : "Failed!");
+  Log::logInfo("Setting soft-AP configuration... ");
+  Log::logInfo(WiFi.softAPConfig(m_IPAddress, m_Gateway, m_Netmask) ? "Ready\n" : "Failed!\n");
 
-  Serial.print("Setting soft-AP... ");
+  Log::logInfo("Setting soft-AP... ");
   if (m_Passphrase.length() >= 8 && m_Passphrase.length() <= 63)
-    Serial.println(WiFi.softAP(m_SSID.c_str(), m_Passphrase.c_str()) ? "Ready" : "Failed!");
+    Log::logInfo(WiFi.softAP(m_SSID.c_str(), m_Passphrase.c_str()) ? "Ready\n" : "Failed!\n");
   else
-    Serial.println(WiFi.softAP(m_SSID.c_str()) ? "Ready" : "Failed!");
+    Log::logInfo(WiFi.softAP(m_SSID.c_str()) ? "Ready\n" : "Failed!\n");
 
-  Serial.print("Soft-AP IP address: ");
-  Serial.println(WiFi.softAPIP());
+  Log::logInfo("Soft-AP IP address: ");
+  Log::logInfo(WiFi.softAPIP().toString().c_str());
+  Log::logInfo("\n");
 
-  Serial.print("WiFi AP SSID: ");
-  Serial.println(m_SSID.c_str());
+  Log::logInfo("WiFi AP SSID: ");
+  Log::logInfo(m_SSID.c_str());
+  Log::logInfo("\n");
 
   if (m_Passphrase.length() > 8 && m_Passphrase.length() < 32)
   {
-    Serial.print("Connect with passphrase: ");
-    Serial.println(m_Passphrase.c_str());
+    Log::logInfo("Connect with passphrase: ");
+    Log::logInfo(m_Passphrase.c_str());
+    Log::logInfo("\n");
   }
   else
   {
-    Serial.print("No passphrase used");
+    Log::logInfo("No passphrase used\n");
   }
 
   setupDNS();
@@ -79,7 +83,7 @@ void APConnection::setupDNS()
   // start DNS server for a specific domain name
   m_DnsServer.start(53, m_URL.c_str(), m_IPAddress);
 
-  Serial.print("You can access gondola's main page with: http://");
-  Serial.print(m_URL.c_str());
-  Serial.println("/");
+  Log::logInfo("You can access gondola's main page with: http://");
+  Log::logInfo(m_URL.c_str());
+  Log::logInfo("/\n");
 }

@@ -2,6 +2,7 @@
 #include <EEPROM.h>
 #include "ConnectionMgr.hpp"
 #include "CommandInterpreter.hpp"
+#include "Log.hpp"
 
 #define EEPROM_LENGTH                   512
 
@@ -93,6 +94,8 @@ void Config::resetConfig()
 
 void Config::configResetCommand(std::string &s)
 {
+  Log::logDebug("CI: configResetCommand: ");
+  Log::logDebug(s);
   resetConfig();
 }
 

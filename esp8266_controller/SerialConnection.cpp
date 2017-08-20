@@ -1,4 +1,5 @@
 #include "SerialConnection.hpp"
+#include "Log.hpp"
 #include <string>
 
 SerialConnection *SerialConnection::s_Instance = NULL;
@@ -15,17 +16,21 @@ SerialConnection::SerialConnection(uint32_t baudrate, Gondola *gondola)
  , m_Gondola(gondola)
  , m_CommandInterpreter()
 {
-  Serial.println("Starting Serial Connection.");
+  Log::logInfo("Starting Serial Connection\n");
   // following line is already done in main. Use it twice will fail
   // Serial.begin(m_Baudrate);
 
   m_CommandInterpreter = CommandInterpreter::get();
   m_CommandInterpreter->addCommand("move", moveCommand);
+  m_CommandInterpreter->addCommand("loglevel", loglevelCommand);
+  m_CommandInterpreter->addCommand("help", helpCommand);
 }
 
 SerialConnection::~SerialConnection()
 {
   m_CommandInterpreter->deleteCommand("move", moveCommand);
+  m_CommandInterpreter->deleteCommand("loglevel", loglevelCommand);
+  m_CommandInterpreter->deleteCommand("help", helpCommand);
   delete(m_CommandInterpreter);
   s_Instance = NULL;
 }
@@ -69,12 +74,12 @@ void SerialConnection::moveCommand(std::string &s)
 
   if(args != 4)
   {
-    Serial.println("Unsupported!");
-    Serial.println("Usage: move x y z s");
-    Serial.println("x - float for x coordinate (e.g. 1.0)");
-    Serial.println("y - float for y coordinate (e.g. 1.0)");
-    Serial.println("z - float for z coordinate (e.g. 1.0)");
-    Serial.println("s - float for speed (e.g. 1.0)");
+    Log::logWarning("Unsupported!\n");
+    Log::logWarning("Usage: move x y z s\n");
+    Log::logWarning("\tx - float for x coordinate (e.g. 1.0)\n");
+    Log::logWarning("\ty - float for y coordinate (e.g. 1.0)\n");
+    Log::logWarning("\tz - float for z coordinate (e.g. 1.0)\n");
+    Log::logWarning("\ts - float for speed (e.g. 1.0)\n");
     return;
   }
   std::string arg;
@@ -88,4 +93,33 @@ void SerialConnection::moveCommand(std::string &s)
   speed = atof(arg.c_str());
 
   s_Instance->m_Gondola->setTargetPosition(newPosition, speed);
+}
+
+void SerialConnection::loglevelCommand(std::string &s)
+{
+  CommandInterpreter *CI = CommandInterpreter::get();
+  std::string arg0;
+  CI->getArgument(s, arg0, 0);
+  if (arg0.compare("info") == 0)
+  {
+    Log::setLogLevel(Log::LOG_INFO);
+  }
+  else if (arg0.compare("debug") == 0)
+  {
+    Log::setLogLevel(Log::LOG_DEBUG);
+  }
+  else if (arg0.compare("warning") == 0)
+  {
+    Log::setLogLevel(Log::LOG_WARNING);
+  }
+  else
+  {
+    Log::logWarning("Unsupported!\n");
+    Log::logWarning("Usage: loglevel level\nLevels:\n\twarning\t only warnings are displayed\n\tinfo\t additional information is displayed\n\tdebug\t addtitional debug output is provided\n");
+  }
+}
+
+void SerialConnection::helpCommand(std::string &s)
+{
+  s_Instance->m_CommandInterpreter->printAllCommands();
 }

@@ -159,14 +159,6 @@ private:
   uint32_t SE_BAUDRATE;
 };
 
-// MACROS
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-
-// CONSTANTS
-#define DEBUG 1
-
-
 // STEPPER SETTINGS
 // https://www.allaboutcircuits.com/tools/stepper-motor-calculator/ and
 // 42BYGHW811 Wantai stepper motor)
@@ -176,19 +168,19 @@ private:
 // reduced in precision (0.05 cm = MIN_PRECISION = 1step = 1.8', 1 cm =
 // 20steps = 36', 10 cm = 200steps = 360')
 // the difference between the old distance and the new one is then
-#define STEP_CM        20.0
+#define STEP_CM        20.0f
 
 // precision of 1 step in cm
 #define MIN_PRECISION (1 / STEP_CM)
 #define MICROSTEPS 16L
 
 // GONDOLA START POSITIONG
-static Coordinate gondolaStart = {0.0, 0.0, 0.0};
+static Coordinate gondolaStart = {0.0f, 0.0f, 0.0f};
 
 // ANCHORS POSITION
 #define NUM_ANCHORS 1
 static Coordinate anchorPos[NUM_ANCHORS] = {
-  {0.0, 0.0, 0.0}
+  {0.0f, 0.0f, 0.0f}
 };
 
 // ARDUINO SETTINGS (wemos D1 mini based on esp8266)

@@ -3,6 +3,7 @@
 #include "WiFiConnection.hpp"
 #include "APConnection.hpp"
 #include "CommandInterpreter.hpp"
+#include "Log.hpp"
 
 ConnectionMgr *ConnectionMgr::s_Instance = NULL;
 
@@ -50,6 +51,8 @@ bool ConnectionMgr::changeConnection(conType_t contype)
     m_Connection = NULL;
   }
 
+  delay(100);
+
   // initialize a new connection
   switch(contype)
   {
@@ -96,23 +99,30 @@ void ConnectionMgr::contypeCommand(std::string &s)
   switch(args)
   {
     case 0:
-      Serial.println("Unsupported!");
-      Serial.println("Usage: contype type");
-      Serial.println("type - type of new connection");
-      Serial.println("\tAP\t- Access Point");
-      Serial.println("\tWIFI\t- Connect to a WiFi network");
+      Log::logWarning("Unsupported!\n");
+      Log::logWarning("Usage: contype type\n");
+      Log::logWarning("type - type of new connection\n");
+      Log::logWarning("\tAP\t- Access Point\n");
+      Log::logWarning("\tWIFI\t- Connect to a WiFi network\n");
       break;
+
     case 1:
       CI->getArgument(s, arg, 0);
       if (arg.compare("WIFI") == 0)
+      {
         CM->changeConnection(CON_WIFI_CONNECTION);
+      }
       else if (arg.compare("AP") == 0)
+      {
         CM->changeConnection(CON_ACCESS_POINT);
+      }
       else
-        Serial.println("Unsupported!");
-        Serial.println("Types are:");
-        Serial.println("\tAP\t- Access Point");
-        Serial.println("\tWIFI\t-Connect to a WiFi network");
+      {
+        Log::logWarning("Unsupported!\n");
+        Log::logWarning("Types are:\n");
+        Log::logWarning("\tAP\t- Access Point\n");
+        Log::logWarning("\tWIFI\t- Connect to a WiFi network\n");
+      }
       break;
   }
 }

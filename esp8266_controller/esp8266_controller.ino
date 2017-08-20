@@ -9,6 +9,7 @@
 #include "WebServer.hpp"
 #include "CommandInterpreter.hpp"
 #include "ConnectionMgr.hpp"
+#include "Log.hpp"
 
 Gondola *gondola;
 WebServer *server;

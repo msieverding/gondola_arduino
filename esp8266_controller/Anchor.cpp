@@ -1,5 +1,6 @@
-#include "Anchor.hpp"
 #include <Arduino.h>
+#include "Anchor.hpp"
+#include "Log.hpp"
 
 Anchor::Anchor(int id, pins_t pinSetup, Coordinate coord)
  : m_ID(id)
@@ -10,8 +11,9 @@ Anchor::Anchor(int id, pins_t pinSetup, Coordinate coord)
  , m_StepsDone(0)
  , m_StepsGoal(0)
 {
-  Serial.print("Creating anchor ");
-  Serial.println(id);
+  Log::logDebug("Creating anchor ");
+  Log::logDebug(id);
+  Log::logDebug("\n");
   configurePins();
 }
 
@@ -47,13 +49,10 @@ void Anchor::prepareToSpool(Coordinate newPosition)
 
   cm_todo = new_m_SpooledDistance - m_SpooledDistance; // in cm
 
-  if (DEBUG)
-  {
-    Serial.print("Spooled: ");
-    Serial.print(m_SpooledDistance);
-    Serial.print("cm, Delta: ");
-    Serial.print(cm_todo);
-  }
+  Log::logDebug("Spooled: ");
+  Log::logDebug(m_SpooledDistance);
+  Log::logDebug("cm, Delta: ");
+  Log::logDebug(cm_todo);
 
   if (cm_todo < 0)
   {
@@ -72,17 +71,15 @@ void Anchor::prepareToSpool(Coordinate newPosition)
   cm_todo_rounded = Coordinate::round_precision(cm_todo, MIN_PRECISION);
   m_StepsTodo = (long)(cm_todo_rounded * STEP_CM); // here we do not make sure the number is not round!!!
 
-  if (DEBUG)
-  {
-    Serial.print("cm, rounded to (");
-    Serial.print(MIN_PRECISION);
-    Serial.print("): ");
-    Serial.print(cm_todo_rounded);
-    Serial.print("cm, steps: ");
-    Serial.print(m_StepsTodo); // 200 steps per cm
-    Serial.print(", microsteps: ");
-    Serial.println(m_StepsTodo * MICROSTEPS);
-  }
+  Log::logDebug("cm, rounded to (");
+  Log::logDebug(MIN_PRECISION);
+  Log::logDebug("): ");
+  Log::logDebug(cm_todo_rounded);
+  Log::logDebug("cm, steps: ");
+  Log::logDebug(m_StepsTodo); // 200 steps per cm
+  Log::logDebug(", microsteps: ");
+  Log::logDebug(m_StepsTodo * MICROSTEPS);
+  Log::logDebug("\n");
 
   m_StepsTodo *= MICROSTEPS; // we need to account for all microsteps
   m_StepsDone = 0;

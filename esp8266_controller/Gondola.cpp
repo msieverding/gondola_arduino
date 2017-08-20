@@ -1,6 +1,7 @@
-#include "config.hpp"
-#include "Gondola.hpp"
 #include <Arduino.h>
+#include "config.hpp"
+#include "Log.hpp"
+#include "Gondola.hpp"
 
 Gondola::Gondola(Coordinate newPosition)
  : m_CurrentPosition(newPosition)
@@ -13,11 +14,9 @@ Gondola::Gondola(Coordinate newPosition)
  , m_StartTime(0)
  , m_StepsLeft(0)
 {
-  if (DEBUG)
-  {
-    Serial.print("Creating gondola at: ");
-    Serial.println(m_CurrentPosition.toString().c_str());
-  }
+  Log::logDebug("Creating gondola at: \n");
+  Log::logDebug(m_CurrentPosition.toString().c_str());
+  Log::logDebug("\n");
 }
 
 Coordinate Gondola::getCurrentPosition()
@@ -55,7 +54,7 @@ void Gondola::setTargetPosition(Coordinate &targetPosition, float &speed)
   m_TravelDistance = Coordinate::euclideanDistance(m_CurrentPosition, m_TargetPosition);
   if (m_TravelDistance == 0)
   {
-    Serial.println("Travel distance = 0. Nothing to do");
+    Log::logDebug("Travel distance = 0. Nothing to do.n");
     return;
   }
   m_TravelTime = m_TravelDistance / m_Speed;
@@ -64,25 +63,23 @@ void Gondola::setTargetPosition(Coordinate &targetPosition, float &speed)
     anchor = getAnchor(i);
     if (anchor == NULL)
     {
-      Serial.println("getAnchor returns NULL.. return");
+      Log::logWarning("getAnchor returns NULL.. return");
       return;
     }
     anchor->prepareToSpool(m_TargetPosition);
-    maxSteps = MAX(anchor->missingSteps(), maxSteps);
+    maxSteps = std::max(anchor->missingSteps(), maxSteps);
   }
 
-  if (DEBUG)
-  {
-    Serial.print("Budget ");
-    Serial.print(m_TravelTime);
-    Serial.print("s, Minimum ");
-    Serial.print(maxSteps / 2000.0); // each microsteps takes 0.5 ms
-    Serial.println("s");
-    Serial.print("Target position: ");
-    Serial.println(m_TargetPosition.toString().c_str());
-  }
+  Log::logDebug("Budget ");
+  Log::logDebug(m_TravelTime);
+  Log::logDebug("s, Minimum ");
+  Log::logDebug(maxSteps / 2000.0f); // each microsteps takes 0.5 ms
+  Log::logDebug("s\n");
+  Log::logDebug("Target position: ");
+  Log::logDebug(m_TargetPosition.toString().c_str());
+  Log::logDebug("\n");
 
-  m_TravelTime = MAX(m_TravelTime, maxSteps / 2000.0);
+  m_TravelTime = std::max(m_TravelTime, maxSteps / 2000.0f);
   m_StartTime = millis();
   m_TravelTime *= 1000; // convert into ms
 }
@@ -110,7 +107,7 @@ Anchor *Gondola::getAnchor(uint8_t id)
 {
   if (id >= m_NumAnchors)
   {
-    Serial.println("Anchor not initialized... return NULL");
+    Log::logWarning("Anchor not initialized... return NULL");
     return NULL;
   }
   else
@@ -142,8 +139,11 @@ void Gondola::move()
     for (uint8_t i = 0; i < m_NumAnchors; i++)
     {
       anchor = getAnchor(i);
-      if(anchor == NULL)  // TODO logWarning
+      if(anchor == NULL)
+      {
+        Log::logWarning("getAnchor delivered NULL!");
         return;
+      }
       anchor->startStep(m_StartTime, m_TravelTime);
     }
     // leave the pins up for a bit in order to be detected
@@ -151,8 +151,11 @@ void Gondola::move()
     for (uint8_t i = 0; i < m_NumAnchors; i++)
     {
       anchor = getAnchor(i);
-      if(anchor == NULL)  // TODO logWarning
+      if(anchor == NULL)
+      {
+        Log::logWarning("getAnchor delivered NULL!");
         return;
+      }
       anchor->endStep();
       m_StepsLeft += anchor->missingSteps();
     }

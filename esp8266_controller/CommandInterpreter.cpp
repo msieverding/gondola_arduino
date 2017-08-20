@@ -1,4 +1,5 @@
 #include "CommandInterpreter.hpp"
+#include "Log.hpp"
 #include <Arduino.h>
 #include <string.h>
 
@@ -163,5 +164,18 @@ uint8_t CommandInterpreter::getNumArgument(std::string &s)
 
     args++;
     oldPos = pos + 1;
+  }
+}
+
+void CommandInterpreter::printAllCommands(void)
+{
+  commandList_t *ptr = m_CommandList;
+  Log::logWarning("Registered commands:\n");
+
+  while(ptr != NULL)
+  {
+    Log::logWarning(ptr->command);
+    Log::logWarning("\n");
+    ptr = ptr->next;
   }
 }

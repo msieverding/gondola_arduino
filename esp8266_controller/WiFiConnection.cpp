@@ -1,5 +1,6 @@
 #include "WiFiConnection.hpp"
 #include "ConnectionMgr.hpp"
+#include "Log.hpp"
 
 WiFiConnection *WiFiConnection::s_Instance = NULL;
 
@@ -26,20 +27,21 @@ WiFiConnection::WiFiConnection(WebServer *webServer, std::string ssid, std::stri
   // Set stationary mode
   WiFi.mode(WIFI_STA);
 
-  Serial.print("Connect to WiFi: ");
-  Serial.print(m_SSID.c_str());
+  Log::logInfo("Connect to WiFi: ");
+  Log::logInfo(m_SSID.c_str());
 
   while(WiFi.status() != WL_CONNECTED)
   {
     delay(500);
-    Serial.print(".");
+    Log::logInfo(".");
   }
-  Serial.println(" Ready");
+  Log::logInfo(" Ready\n");
 
   m_IPAddres = WiFi.localIP();
   // Print the IP address
-  Serial.print("Local IP address: ");
-  Serial.println(m_IPAddres);
+  Log::logInfo("Local IP address: ");
+  Log::logInfo(m_IPAddres.toString().c_str());
+  Log::logInfo("\n");
 
   // Set hostname for Client
   // https://github.com/esp8266/Arduino/blob/master/doc/esp8266wifi/station-class.rst#disconnect
@@ -70,12 +72,12 @@ void WiFiConnection::setupDNS()
   //   we send our IP address on the WiFi network
   if (!MDNS.begin(m_Hostname.c_str()))
   {
-    Serial.println("Error setting up mDNS responder!");
+    Log::logWarning("Error setting up mDNS responder!");
     return;
   }
-  Serial.print("Use this URL to connect (mDNS): http://");
-  Serial.print(m_Hostname.c_str());
-  Serial.println(".local/");
+  Log::logInfo("Use this URL to connect (mDNS): http://");
+  Log::logInfo(m_Hostname.c_str());
+  Log::logInfo(".local/\n");
 
   // Add service to MDNS-SD
   MDNS.addService("http", "tcp", 80);
