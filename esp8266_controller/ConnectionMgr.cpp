@@ -26,7 +26,7 @@ ConnectionMgr::ConnectionMgr()
 
 ConnectionMgr::~ConnectionMgr()
 {
-
+  CommandInterpreter::get()->deleteCommand(std::string("contype"), contypeCommand);
 }
 
 bool ConnectionMgr::initConnection(WebServer *server)
@@ -54,11 +54,11 @@ bool ConnectionMgr::changeConnection(conType_t contype)
   switch(contype)
   {
     case CON_ACCESS_POINT:
-      m_Connection = new APConnection(m_WebServer, config->getAP_SSID(), config->getAP_PASSPHRASE(), config->getAP_IPADDRESS(), config->getAP_GATEWAY(), config->getAP_NETMASK(), config->getAP_URL());
+      m_Connection = APConnection::create(m_WebServer, config->getAP_SSID(), config->getAP_PASSPHRASE(), config->getAP_IPADDRESS(), config->getAP_GATEWAY(), config->getAP_NETMASK(), config->getAP_URL());
       break;
 
     case CON_WIFI_CONNECTION:
-      m_Connection = new WiFiConnection(m_WebServer, config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME(), config->getWC_IPADDRESS(), config->getWC_GATEWAY(), config->getWC_NETMASK());
+      m_Connection = WiFiConnection::create(m_WebServer, config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME(), config->getWC_IPADDRESS(), config->getWC_GATEWAY(), config->getWC_NETMASK());
       break;
 
     default:

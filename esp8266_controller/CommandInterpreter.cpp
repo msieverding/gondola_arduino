@@ -21,7 +21,8 @@ CommandInterpreter::CommandInterpreter()
 
 CommandInterpreter::~CommandInterpreter()
 {
-
+  deleteCommandList();
+  s_Instance = NULL;
 }
 
 void CommandInterpreter::addCommand(std::string s, commandFunc cf)
@@ -43,35 +44,57 @@ void CommandInterpreter::addCommand(std::string s, commandFunc cf)
   }
 }
 
-// void CommandInterpreter::deleteCommand(std::string s)
-// {
-//   commandList_t *ptr;
-//
-//   if (m_CommandList == NULL)
-//   {
-//     return;
-//   }
-//   else
-//   {
-//     ptr = m_CommandList;
-//     while (ptr->command.compare(s) == 0)
-//     {
-//       m_CommandList = ptr->next;
-//       delete(ptr);
-//       ptr = m_CommandList;
-//     }
-//     while(ptr->next != NULL)
-//     {
-//       if (ptr->next->command.compare(s) == 0)
-//       {
-//         commandList_t *tmp = ptr->next->next;
-//         delete(ptr->next);
-//         ptr->next = tmp;
-//       }
-//       ptr = ptr->next;
-//     }
-//   }
-// }
+void CommandInterpreter::deleteCommand(std::string s, commandFunc cf)
+{
+  commandList_t *ptr;
+
+  if (m_CommandList == NULL)
+  {
+    return;
+  }
+  else
+  {
+    ptr = m_CommandList;
+    // First handle the beginning elements of the list
+    while (ptr->command.compare(s) == 0 && ptr->func == cf)
+    {
+      Serial.println("Remove::1");
+      m_CommandList = ptr->next;
+      delete(ptr);
+      ptr = m_CommandList;
+      if (m_CommandList == NULL)
+        return;
+    }
+    // Then all others
+    while(ptr->next != NULL)
+    {
+      if (ptr->next->command.compare(s) == 0 && ptr->next->func == cf)
+      {
+        Serial.println("Remove::2");
+        commandList_t *tmp = ptr->next->next;
+        delete(ptr->next);
+        ptr->next = tmp;
+        // Will haben while removing end of list
+        if (ptr->next == NULL)
+          return;
+      }
+      ptr = ptr->next;
+    }
+  }
+}
+
+void CommandInterpreter::deleteCommandList()
+{
+  commandList_t *ptr = m_CommandList;
+  commandList_t *next;
+
+  while(ptr != NULL)
+  {
+    next = ptr->next;
+    delete(ptr);
+    ptr = next;
+  }
+}
 
 void CommandInterpreter::interprete(std::string &s)
 {

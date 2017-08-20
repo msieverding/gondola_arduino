@@ -18,7 +18,8 @@ public:
   virtual ~CommandInterpreter();
 
   void addCommand(std::string s, commandFunc cf);
-  // void deleteCommand(std::string s);
+  void deleteCommand(std::string s, commandFunc cf);
+  void deleteCommandList();
 
   void interprete(std::string &s);
   std::string getCommandWord(std::string &s);

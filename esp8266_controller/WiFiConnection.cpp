@@ -1,6 +1,15 @@
 #include "WiFiConnection.hpp"
 #include "ConnectionMgr.hpp"
 
+WiFiConnection *WiFiConnection::s_Instance = NULL;
+
+WiFiConnection *WiFiConnection::create(WebServer *server, std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm)
+{
+  if (!s_Instance)
+    s_Instance = new WiFiConnection(server, ssid, passphrase, hostname, ip, gw, nm);
+  return s_Instance;
+}
+
 WiFiConnection::WiFiConnection(WebServer *server, std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm)
  : m_WebServer(server)
  , m_SSID(ssid)
@@ -45,6 +54,7 @@ WiFiConnection::~WiFiConnection()
 {
   Serial.println("Destruct WiFi Connection");
   Serial.println(WiFi.disconnect(false));
+  s_Instance = NULL;
 }
 
 

@@ -18,6 +18,21 @@ WebServer *server;
 IConnection *serial;
 ConnectionMgr *conMgr;
 
+void func1(std::string &s)
+{
+  Serial.println("CI: 1");
+}
+
+void func2(std::string &s)
+{
+  Serial.println("CI: 2");
+}
+
+void func3(std::string &s)
+{
+  Serial.println("CI: 3");
+}
+
 void setup()
 {
   Config* config = Config::get();
@@ -32,7 +47,7 @@ void setup()
     gondola->addAnchor(i, {enable_pin[i], step_pin[i], dir_pin[i]});
   }
 
-  serial = new SerialConnection(config->getSE_BAUDRATE(), gondola);
+  serial = SerialConnection::create(config->getSE_BAUDRATE(), gondola);
 
   server = WebServer::create(config->getWS_PORT(), gondola);
 

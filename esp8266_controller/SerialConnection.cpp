@@ -1,6 +1,15 @@
 #include "SerialConnection.hpp"
 #include <string>
 
+SerialConnection *SerialConnection::s_Instance = NULL;
+
+SerialConnection *SerialConnection::create(uint32_t baudrate, Gondola *gondola)
+{
+  if (!s_Instance)
+    s_Instance = new SerialConnection(baudrate, gondola);
+  return s_Instance;
+}
+
 SerialConnection::SerialConnection(uint32_t baudrate, Gondola *gondola)
  : m_Baudrate(baudrate)
  , m_Gondola(gondola)
@@ -11,12 +20,14 @@ SerialConnection::SerialConnection(uint32_t baudrate, Gondola *gondola)
   // Serial.begin(m_Baudrate);
 
   m_CommandInterpreter = CommandInterpreter::get();
-  m_CommandInterpreter->addCommand(std::string("move"), moveCommand);
+  m_CommandInterpreter->addCommand("move", moveCommand);
 }
 
 SerialConnection::~SerialConnection()
 {
-
+  m_CommandInterpreter->deleteCommand("move", moveCommand);
+  delete(m_CommandInterpreter);
+  s_Instance = NULL;
 }
 
 void SerialConnection::loop()
@@ -52,20 +63,25 @@ void SerialConnection::loop()
 void SerialConnection::moveCommand(std::string &s)
 {
   Serial.println("CI: Move Command");
+  CommandInterpreter *CI = CommandInterpreter::get();
+  uint8_t args = CI->getNumArgument(s);
+  Coordinate newPosition;
+  float speed;
 
-  // TODO adapt move code
-  // // parse string on serial (later change it with command interpreter)
-  // // we expect 4 float: x, y, z, speed in cm/s
-  // char *cmd = strtok(command, TOKENS);
-  // // TODO: handle situation where input < 4 floats!!
-  // newPosition.x = atof(cmd);
-  // cmd = strtok(NULL, TOKENS); // in cm
-  // newPosition.y = atof(cmd);
-  // cmd = strtok(NULL, TOKENS); // in cm
-  // newPosition.z = atof(cmd);
-  // cmd = strtok(NULL, TOKENS); // in cm
-  // speed = atof(cmd);   // in cm/s
-  // cmd = strtok(NULL, TOKENS);
-  //
-  // m_Gondola->setTargetPosition(newPosition, speed);
+  if(args != 4)
+  {
+    // TODO print help line
+    return;
+  }
+  std::string arg;
+  CI->getArgument(s, arg, 0);
+  newPosition.x = atof(arg.c_str());
+  CI->getArgument(s, arg, 1);
+  newPosition.y = atof(arg.c_str());
+  CI->getArgument(s, arg, 2);
+  newPosition.z = atof(arg.c_str());
+  CI->getArgument(s, arg, 3);
+  speed = atof(arg.c_str());
+
+  s_Instance->m_Gondola->setTargetPosition(newPosition, speed);
 }

@@ -16,7 +16,6 @@ Command Line interpreter:
 - change values for AP and WIFI through a command if wifi is broken
 
 WebSite
-- Site for setting initial position
 - Show actual position(settings) directly inside the input fields
 
 Notes:

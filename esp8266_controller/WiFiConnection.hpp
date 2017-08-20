@@ -10,21 +10,24 @@
 class WiFiConnection : public IConnection
 {
 public:
-  WiFiConnection(WebServer *server, std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm);
+  static WiFiConnection *create(WebServer *server, std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm);
   virtual ~WiFiConnection();
 
   virtual void loop();
 private:
+  WiFiConnection(WebServer *server, std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm);
   void setupDNS();
 
-  WebServer          *m_WebServer;
-  std::string         m_SSID;
-  std::string         m_Passphrase;
-  IPAddress           m_IPAddres;
-  std::string         m_Hostname;
-  IPAddress           m_IPAddress;
-  IPAddress           m_Gateway;
-  IPAddress           m_Netmask;
+  static WiFiConnection     *s_Instance;
+
+  WebServer                 *m_WebServer;
+  std::string                m_SSID;
+  std::string                m_Passphrase;
+  IPAddress                  m_IPAddres;
+  std::string                m_Hostname;
+  IPAddress                  m_IPAddress;
+  IPAddress                  m_Gateway;
+  IPAddress                  m_Netmask;
 };
 
 #endif /* _WIFI_CONNECTION_HPP_ */

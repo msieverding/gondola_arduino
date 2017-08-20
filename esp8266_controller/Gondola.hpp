@@ -30,7 +30,7 @@ public:
   void move(Coordinate &targetPosition, float &speed);
 
 private:
-
+  
   // Member variables
   Coordinate       m_CurrentPosition;
   Coordinate       m_TargetPosition;

@@ -1,6 +1,15 @@
 #include "APConnection.hpp"
 #include "config.hpp"
 
+APConnection *APConnection::s_Instance = NULL;
+
+APConnection *APConnection::create(WebServer *server, std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url)
+{
+  if (!s_Instance)
+    s_Instance = new APConnection(server, ssid, passphrase, ip, gateway, netmask, url);
+  return s_Instance;
+}
+
 APConnection::APConnection(WebServer *server, std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url)
  : m_WebServer(server)
  , m_SSID(ssid)
