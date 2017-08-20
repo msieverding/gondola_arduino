@@ -46,7 +46,6 @@ void WebServer::loop()
 
 void WebServer::handleRoot()
 {
-  Serial.println("HandleRoot");
   ESP8266WebServer &server = s_Instance->m_Server;
   std::string answer;
   prepareHeader(answer);
@@ -73,7 +72,6 @@ void WebServer::handleRoot()
 
 void WebServer::handleInitGondola()
 {
-  Serial.println("handleInitGondola");
   ESP8266WebServer &server = s_Instance->m_Server;
   std::string answer;
   Gondola *gondola = s_Instance->m_Gondola;
@@ -115,7 +113,6 @@ void WebServer::handleInitGondola()
 
 void WebServer::handleSetupWiFi()
 {
-  Serial.println("HandleSetupWiFi");
   ESP8266WebServer &server = s_Instance->m_Server;
   ConnectionMgr *conMgr = ConnectionMgr::get();
   Config *config = Config::get();
@@ -387,12 +384,12 @@ void WebServer::prepareWiFiSetupPage(std::string &s)
 
   // WiFi Type
   s.append("<h4>Select WiFi Type</h4>");
-  s.append("<input type=\"radio\" id=\"DE\" name=\"WiFiType\" value=\"restoreDefault\">");
-  s.append("<label for=\"DE\">Back to Default</label><br>");
+  s.append("<input type=\"radio\" id=\"WC\" name=\"WiFiType\" value=\"WiFiConnection\" " + std::string(config->getCM_CONTYPE() == CON_WIFI_CONNECTION ? "checked" : "") + ">");
+  s.append("<label for=\"WC\">WiFi Connection</label><br>");
   s.append("<input type=\"radio\" id=\"AP\" name=\"WiFiType\" value=\"APConnection\" " + std::string(config->getCM_CONTYPE() == CON_ACCESS_POINT ? "checked" : "") + ">");
   s.append("<label for=\"AP\">Access Point</label><br>");
-  s.append("<input type=\"radio\" id=\"WC\" name=\"WiFiType\" value=\"WiFiConnection\" " + std::string(config->getCM_CONTYPE() == CON_WIFI_CONNECTION ? "checked" : "") + ">");
-  s.append("<label for=\"WC\">WiFi Client</label><br>");
+  s.append("<input type=\"radio\" id=\"DE\" name=\"WiFiType\" value=\"restoreDefault\">");
+  s.append("<label for=\"DE\">Back to Default</label><br>");
   // Submit
   s.append("<br><button type=\"submit\">Go!</button>");
 

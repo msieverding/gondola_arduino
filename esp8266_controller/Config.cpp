@@ -25,7 +25,7 @@
 #define EEPROM_AP_PASSPHRASE_LENGTH     40
 #define EEPROM_AP_IPADDRESS_START       230
 #define EEPROM_AP_IPADDRESS_LENGTH      4
-#define EEPROM_AP_GATEWAY_START         243
+#define EEPROM_AP_GATEWAY_START         234
 #define EEPROM_AP_GATEWAY_LENGTH        4
 #define EEPROM_AP_NETMASK_START         238
 #define EEPROM_AP_NETMASAK_LENGTH       4
@@ -61,7 +61,7 @@ Config::Config()
  , AP_IPADDRESS(192, 168, 5, 10)
  , AP_GATEWAY(192, 168, 5, 1)
  , AP_NETMASK(255, 255, 255, 0)
- , AP_SSID("GondolaWifi")
+ , AP_SSID("GondolaWiFi")
  , AP_PASSPHRASE("TU_GRAZ_ITI")
  , AP_URL("www.gondola.com")
  // ConnectionMgr Setup
@@ -79,6 +79,7 @@ Config::~Config()
 {
   CommandInterpreter::get()->deleteCommand("configReset", configResetCommand);
   EEPROM.end();
+  s_Instance = NULL;
 }
 
 void Config::resetConfig()

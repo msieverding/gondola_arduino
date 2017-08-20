@@ -44,15 +44,14 @@ WiFiConnection::WiFiConnection(WebServer *webServer, std::string ssid, std::stri
   // Set hostname for Client
   // https://github.com/esp8266/Arduino/blob/master/doc/esp8266wifi/station-class.rst#disconnect
   WiFi.hostname(m_Hostname.c_str());
-  
+
   // TODO find issue why this doesn't work
   // setupDNS();
 }
 
 WiFiConnection::~WiFiConnection()
 {
-  Serial.println("Destruct WiFi Connection");
-  Serial.println(WiFi.disconnect(false));
+  WiFi.disconnect(false);
   s_Instance = NULL;
 }
 

@@ -53,10 +53,9 @@ APConnection::APConnection(WebServer *webServer, std::string ssid, std::string p
 
 APConnection::~APConnection()
 {
-  Serial.println("Destruct AP Connection");
   m_DnsServer.stop();
-  Serial.println(WiFi.softAPdisconnect(false));
-  Serial.println(WiFi.disconnect(false));
+  WiFi.softAPdisconnect(false);
+  WiFi.disconnect(false);
 }
 
 void APConnection::loop()

@@ -46,7 +46,6 @@ bool ConnectionMgr::changeConnection(conType_t contype)
   // delete an old existing connection
   if (m_Connection != NULL)
   {
-    Serial.println("delete old connection");
     delete(m_Connection);
     m_Connection = NULL;
   }
@@ -80,8 +79,6 @@ void ConnectionMgr::loop()
 
   if (m_ChangeRequest)
   {
-    Serial.println("Change connection to: ");
-    Serial.println(static_cast<int>(m_ChangeContype));
     m_ChangeRequest = false;
     changeConnection(m_ChangeContype);
   }
