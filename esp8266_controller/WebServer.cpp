@@ -135,6 +135,12 @@ void WebServer::handleSetupWiFi()
     config->setWC_PASSPHRASE(std::string());
   if (server.arg("WC_HOSTNAME").length())
     config->setWC_HOSTNAME(std::string(server.arg("WC_HOSTNAME").c_str()));
+  if (server.arg("WC_IPADDRESS").length())
+    config->setWC_IPADDRESS(server.arg("WC_IPADDRESS"));
+  if (server.arg("WC_GATEWAY").length())
+    config->setWC_GATEWAY(server.arg("WC_GATEWAY"));
+  if (server.arg("WC_NETMASK").length())
+    config->setWC_NETMASK(server.arg("WC_NETMASK"));
 
   if (server.arg("AP_SSID").length())
     config->setAP_SSID(std::string(server.arg("AP_SSID").c_str()));
@@ -328,7 +334,6 @@ void WebServer::prepareWiFiSetupPage(std::string &s)
   s.append("<html>");
   // Setup for WiFi
   s.append("<h1>WiFi Setup: </h1>");
-  s.append("<br>");
   s.append("<form>");
 
   // WiFi Connection
@@ -344,7 +349,18 @@ void WebServer::prepareWiFiSetupPage(std::string &s)
   s.append("<label for=\"WC_NO_PASS\">No passphrase</label><br>");
   // HOSTNAME
   s.append("<label for=\"WC_HOSTNAME\">Hostname:</label>");
-  s.append("<input type=\"text\" id=\"WC_HOSTNAME\" name=\"WC_HOSTNAME\" value=\"" + config->getWC_HOSTNAME() + "\"><br><br>");
+  s.append("<input type=\"text\" id=\"WC_HOSTNAME\" name=\"WC_HOSTNAME\" value=\"" + config->getWC_HOSTNAME() + "\"><br>");
+  
+  s.append("<p>Use 0.0.0.0 for IP, GW and NM to use DHCP</p>");
+  // IP ADDRESS
+  s.append("<label for=\"WC_IPADDRESS\">IP address:</label>");
+  s.append("<input type=\"text\" id=\"WC_IPADDRESS\" name=\"WC_IPADDRESS\" value=\"" + std::string(config->getWC_IPADDRESS().toString().c_str()) + "\"><br>");
+  // Gateway
+  s.append("<label for=\"WC_GATEWAY\">Gateway:</label>");
+  s.append("<input type=\"text\" id=\"WC_GATEWAY\" name=\"WC_GATEWAY\" value=\"" + std::string(config->getWC_GATEWAY().toString().c_str()) + "\"><br>");
+  // Netmask
+  s.append("<label for=\"WC_NETMASK\">Netmask:</label>");
+  s.append("<input type=\"text\" id=\"WC_NETMASK\" name=\"WC_NETMASK\" value=\"" + std::string(config->getWC_NETMASK().toString().c_str()) + "\"><br><br>");
 
   // Access Point
   s.append("<h4>Access Point settings</h4>");

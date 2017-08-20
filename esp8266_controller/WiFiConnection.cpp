@@ -1,18 +1,20 @@
 #include "WiFiConnection.hpp"
 #include "ConnectionMgr.hpp"
 
-WiFiConnection::WiFiConnection(WebServer *server, std::string ssid, std::string passphrase, std::string hostname)
+WiFiConnection::WiFiConnection(WebServer *server, std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm)
  : m_WebServer(server)
  , m_SSID(ssid)
  , m_Passphrase(passphrase)
  , m_Hostname(hostname)
+ , m_IPAddress(ip)
+ , m_Gateway(gw)
+ , m_Netmask(nm)
 {
   Serial.print("WiFi.status()");
   Serial.println(WiFi.status());
 
-  // TODO Disable/Enable DHCP could be an option. Following line enables DHCP
-  // WiFi.config(IPAddress(0, 0, 0, 0), IPAddress(0, 0, 0, 0), IPAddress(0, 0, 0, 0));
-
+  // DHCP is activated if ip = gw = nm = 0.0.0.0
+  WiFi.config(ip, gw, nm);
   // Connect to Network
   WiFi.begin(m_SSID.c_str(), m_Passphrase.c_str());
   // Set stationary mode

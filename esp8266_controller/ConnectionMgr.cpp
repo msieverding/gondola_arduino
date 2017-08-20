@@ -58,7 +58,7 @@ bool ConnectionMgr::changeConnection(conType_t contype)
       break;
 
     case CON_WIFI_CONNECTION:
-      m_Connection = new WiFiConnection(m_WebServer, config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME());
+      m_Connection = new WiFiConnection(m_WebServer, config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME(), config->getWC_IPADDRESS(), config->getWC_GATEWAY(), config->getWC_NETMASK());
       break;
 
     default:

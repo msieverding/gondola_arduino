@@ -10,7 +10,7 @@
 class WiFiConnection : public IConnection
 {
 public:
-  WiFiConnection(WebServer *server, std::string ssid, std::string passphrase, std::string hostname);
+  WiFiConnection(WebServer *server, std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm);
   virtual ~WiFiConnection();
 
   virtual void loop();
@@ -22,6 +22,9 @@ private:
   std::string         m_Passphrase;
   IPAddress           m_IPAddres;
   std::string         m_Hostname;
+  IPAddress           m_IPAddress;
+  IPAddress           m_Gateway;
+  IPAddress           m_Netmask;
 };
 
 #endif /* _WIFI_CONNECTION_HPP_ */
