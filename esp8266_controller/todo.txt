@@ -1,9 +1,7 @@
 ideas:
 - Rewrite Gondola::move() in a smarter way + Update the spooled distance during spooling + Consider missed time in anchor.cpp (startStep) + Move movement code into Anchor class
-- command to show all registered commands with help output
 - Scan for wifi networks and show them on html page (user can enter PW for a given network to connect)
 - find issue for curious serial output at startup
-- find issues with mDNS after switching between AP and WF
 - compile everything with Wall to find unused vars etc.
 - checksum for EEPROM
 - save gondolas position in EEPROM
@@ -12,12 +10,10 @@ Command Line interpreter:
 - set initial position of Anchors and Gondola
 
 WebSite
-- Show actual position(settings) directly inside the input fields
 
 Notes:
 - WiFiManager (https://github.com/tzapu/WiFiManager/blob/master/WiFiManager.cpp)
 
-
-Hardware:
+Hardware Ideas:
 - Reset (SW-)button to use default configuration (open AP...)
 - LCD to show Configuration or LEDs to show state

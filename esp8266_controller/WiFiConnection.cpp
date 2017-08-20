@@ -47,8 +47,8 @@ WiFiConnection::WiFiConnection(WebServer *webServer, std::string ssid, std::stri
   // https://github.com/esp8266/Arduino/blob/master/doc/esp8266wifi/station-class.rst#disconnect
   WiFi.hostname(m_Hostname.c_str());
 
-  // TODO find issue why this doesn't work
-  // setupDNS();
+  // Setup
+  setupMDNS();
 }
 
 WiFiConnection::~WiFiConnection()
@@ -63,7 +63,7 @@ void WiFiConnection::loop()
   m_WebServer->loop();
 }
 
-void WiFiConnection::setupDNS()
+void WiFiConnection::setupMDNS()
 {
   // Set up mDNS responder:
   // - first argument is the domain name, in this example

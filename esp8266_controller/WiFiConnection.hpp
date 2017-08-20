@@ -50,9 +50,13 @@ private:
   WiFiConnection(WebServer *webServer, std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm);
 
   /**
-   * Setup the DNS Server
+   * Setup the MDNS functionality
+   * Needed host software:
+   * - Linux: Avahi (http://avahi.org/)
+   * - Windows: Bonjour (http://www.apple.com/support/bonjour/)
+   * - Max OSX and iOs is built in through Bonjour already
    */
-  void setupDNS();
+  void setupMDNS();
 
   // instance
   static WiFiConnection     *s_Instance;
