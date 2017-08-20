@@ -6,64 +6,106 @@
 #include "Coordinate.hpp"
 #include <IPAddress.h>
 
+// Forward declaration of conType_t from ConnectionMgr
+enum conType_s : byte;
+typedef enum conType_s conType_t;
+
 class Config
 {
 public:
-  // WiFi Connection
-  static std::string getWC_SSID() { return WC_SSID; }
-  static std::string getWC_PASSPHRASE() { return WC_PASSPHRASE; }
-  static std::string getWC_HOSTNAME() { return WC_HOSTNAME; }
+  static Config *get();
 
-  static void setWC_SSID(std::string ssid);
-  static void setWC_PASSPHRASE(std::string passphrase);
-  static void setWC_HOSTNAME(std::string name);
-
-  // Access Point
-  static IPAddress getAP_IPADDRESS() { return AP_IPADDRESS; }
-  static IPAddress getAP_GATEWAY() { return AP_GATEWAY; }
-  static IPAddress getAP_NETMASK() { return AP_NETMASK; }
-  static std::string getAP_SSID() { return AP_SSID; }
-  static std::string getAP_PASSPHRASE() { return AP_PASSPHRASE; }
-  static std::string getAP_URL() { return AP_URL; }
-
-  static void setAP_IPADDRESS(IPAddress ip);
-  static void setAP_IPADDRESS(String ip);
-  static void setAP_GATEWAY(IPAddress gw);
-  static void setAP_GATEWAY(String gw);
-  static void setAP_NETMASK(IPAddress nm);
-  static void setAP_NETMASK(String nm);
-  static void setAP_SSID(std::string ssid);
-  static void setAP_PASSPHRASE(std::string passphrase);
-  static void setAP_URL(std::string url);
-
-  // WebServer
-  static uint16_t getWS_PORT() { return WS_PORT; }
-
-  // Serial
-  static uint32_t getSE_BAUDRATE() { return SE_BAUDRATE; }
+  virtual ~Config();
+  bool writeToEEPROM();
+  void readFromEEPROM();
+  void setIgnoreEEPROM(bool ignore);
+  static void resetConfig();
 
 private:
-  Config() {};
-  virtual ~Config() {};
+  Config();
 
+public:
   // WiFi Connection
-  static std::string WC_SSID;
-  static std::string WC_PASSPHRASE;
-  static std::string WC_HOSTNAME;
+  std::string getWC_SSID() { return WC_SSID; }
+  std::string getWC_PASSPHRASE() { return WC_PASSPHRASE; }
+  std::string getWC_HOSTNAME() { return WC_HOSTNAME; }
+  IPAddress getWC_IPADDRESS() { return WC_IPADDRESS; }
+  IPAddress getWC_GATEWAY() { return WC_GATEWAY; }
+  IPAddress getWC_NETMASK() { return WC_NETMASK; }
+
+  void setWC_SSID(std::string ssid);
+  void setWC_PASSPHRASE(std::string passphrase);
+  void setWC_HOSTNAME(std::string name);
+  void setWC_IPADDRESS(IPAddress ip);
+  void setWC_IPADDRESS(String ip);
+  void setWC_GATEWAY(IPAddress gw);
+  void setWC_GATEWAY(String gw);
+  void setWC_NETMASK(IPAddress nm);
+  void setWC_NETMASK(String nm);
 
   // Access Point
-  static IPAddress AP_IPADDRESS;
-  static IPAddress AP_GATEWAY;
-  static IPAddress AP_NETMASK;
-  static std::string AP_SSID;
-  static std::string AP_PASSPHRASE;
-  static std::string AP_URL;
+  IPAddress getAP_IPADDRESS() { return AP_IPADDRESS; }
+  IPAddress getAP_GATEWAY() { return AP_GATEWAY; }
+  IPAddress getAP_NETMASK() { return AP_NETMASK; }
+  std::string getAP_SSID() { return AP_SSID; }
+  std::string getAP_PASSPHRASE() { return AP_PASSPHRASE; }
+  std::string getAP_URL() { return AP_URL; }
+
+  void setAP_IPADDRESS(IPAddress ip);
+  void setAP_IPADDRESS(String ip);
+  void setAP_GATEWAY(IPAddress gw);
+  void setAP_GATEWAY(String gw);
+  void setAP_NETMASK(IPAddress nm);
+  void setAP_NETMASK(String nm);
+  void setAP_SSID(std::string ssid);
+  void setAP_PASSPHRASE(std::string passphrase);
+  void setAP_URL(std::string url);
+
+  // ConnectionMgr
+  void setCM_CONTYPE(conType_t contype);
+  conType_t getCM_CONTYPE() { return CM_CONTYPE; }
 
   // WebServer
-  static uint16_t WS_PORT;
+  uint16_t getWS_PORT() { return WS_PORT; }
 
   // Serial
-  static uint32_t SE_BAUDRATE;
+  uint32_t getSE_BAUDRATE() { return SE_BAUDRATE; }
+
+private:
+  // void write(int address, uint8_t c);
+  // uint8_t read(int address);
+
+  void persistString(std::string &s, uint16_t start, uint8_t maxLength);
+  void readString(std::string &s, uint16_t start, uint8_t maxLength);
+  void persistIPAddress(IPAddress &ip, uint16_t start);
+  void readIPAddress(IPAddress &ip, uint16_t start);
+
+  static Config       *s_Instance;
+
+  // WiFi Connection
+  IPAddress WC_IPADDRESS;
+  IPAddress WC_GATEWAY;
+  IPAddress WC_NETMASK;
+  std::string WC_SSID;
+  std::string WC_PASSPHRASE;
+  std::string WC_HOSTNAME;
+
+  // Access Point
+  IPAddress AP_IPADDRESS;
+  IPAddress AP_GATEWAY;
+  IPAddress AP_NETMASK;
+  std::string AP_SSID;
+  std::string AP_PASSPHRASE;
+  std::string AP_URL;
+
+  // IConnection
+  conType_t CM_CONTYPE;
+
+  // WebServer
+  uint16_t WS_PORT;
+
+  // Serial
+  uint32_t SE_BAUDRATE;
 };
 
 // MACROS

@@ -9,9 +9,11 @@ ideas:
 - Scan for wifi networks and show them on html page (user can enter PW for a given network to connect)
 - find issue for curious serial output at startup
 - find issues with mDNS after switching between AP and WF
-- Configuration class with EEPROM access (https://github.com/esp8266/Arduino/tree/master/libraries/EEPROM)
 - compile everything with Wall to find unused vars etc.
 - Documentation :-D
+- Store some defaults in config class to restore them
+- checksum for EEPROM
+- CI delete all commands
 
 Command Line interpreter:
 - set initial position of Anchors and Gondola

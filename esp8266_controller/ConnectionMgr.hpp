@@ -1,17 +1,18 @@
 #ifndef _CONNECTION_MGR_HPP_
-#define _CONNECTION_MGR_HPP
+#define _CONNECTION_MGR_HPP_
 
 #include "IConnection.hpp"
 #include "WebServer.hpp"
 
+typedef enum conType_s : byte {
+  CON_ACCESS_POINT,
+  CON_WIFI_CONNECTION,
+  CON_NONE
+} conType_t;
+
 class ConnectionMgr
 {
 public:
-  typedef enum {
-    CON_ACCESS_POINT,
-    CON_WIFI_CONNECTION,
-    CON_NONE
-  } conType_t;
 
   static ConnectionMgr *get();
   virtual ~ConnectionMgr();
@@ -35,4 +36,4 @@ private:
 
 };
 
-#endif
+#endif /* _CONNECTION_MGR_HPP_ */

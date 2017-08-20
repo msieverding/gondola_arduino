@@ -18,6 +18,8 @@ public:
   virtual ~CommandInterpreter();
 
   void addCommand(std::string s, commandFunc cf);
+  // void deleteCommand(std::string s);
+
   void interprete(std::string &s);
   std::string getCommandWord(std::string &s);
   bool getArgument(std::string &s, std::string &arg, uint8_t argNum);

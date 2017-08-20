@@ -43,6 +43,36 @@ void CommandInterpreter::addCommand(std::string s, commandFunc cf)
   }
 }
 
+// void CommandInterpreter::deleteCommand(std::string s)
+// {
+//   commandList_t *ptr;
+//
+//   if (m_CommandList == NULL)
+//   {
+//     return;
+//   }
+//   else
+//   {
+//     ptr = m_CommandList;
+//     while (ptr->command.compare(s) == 0)
+//     {
+//       m_CommandList = ptr->next;
+//       delete(ptr);
+//       ptr = m_CommandList;
+//     }
+//     while(ptr->next != NULL)
+//     {
+//       if (ptr->next->command.compare(s) == 0)
+//       {
+//         commandList_t *tmp = ptr->next->next;
+//         delete(ptr->next);
+//         ptr->next = tmp;
+//       }
+//       ptr = ptr->next;
+//     }
+//   }
+// }
+
 void CommandInterpreter::interprete(std::string &s)
 {
 

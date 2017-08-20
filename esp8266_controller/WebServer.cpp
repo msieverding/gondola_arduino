@@ -105,7 +105,7 @@ void WebServer::handleInitGondola()
     Coord.z = server.arg("z").toFloat();
     changed = true;
   }
-  
+
   if (changed)
     gondola->setInitialPosition(Coord);
 
@@ -119,6 +119,7 @@ void WebServer::handleSetupWiFi()
   Serial.println("HandleSetupWiFi");
   ESP8266WebServer &server = s_Instance->m_Server;
   ConnectionMgr *conMgr = ConnectionMgr::get();
+  Config *config = Config::get();
   std::string answer;
 
   uint8_t args = server.args();
@@ -127,37 +128,48 @@ void WebServer::handleSetupWiFi()
 
   // WiFi Connection Settings
   if (server.arg("WC_SSID").length())
-    Config::setWC_SSID(std::string(server.arg("WC_SSID").c_str()));
+    config->setWC_SSID(std::string(server.arg("WC_SSID").c_str()));
   if (server.arg("WC_PASSPHRASE").length() && !server.arg("WC_NO_PASS").equals("true"))
-    Config::setWC_PASSPHRASE(std::string(server.arg("WC_PASSPHRASE").c_str()));
+    config->setWC_PASSPHRASE(std::string(server.arg("WC_PASSPHRASE").c_str()));
   else if (server.arg("WC_NO_PASS").equals("true"))
-    Config::setWC_PASSPHRASE(std::string());
+    config->setWC_PASSPHRASE(std::string());
   if (server.arg("WC_HOSTNAME").length())
-    Config::setWC_HOSTNAME(std::string(server.arg("WC_HOSTNAME").c_str()));
+    config->setWC_HOSTNAME(std::string(server.arg("WC_HOSTNAME").c_str()));
 
   if (server.arg("AP_SSID").length())
-    Config::setAP_SSID(std::string(server.arg("AP_SSID").c_str()));
+    config->setAP_SSID(std::string(server.arg("AP_SSID").c_str()));
   if (server.arg("AP_PASSPHRASE").length() && !server.arg("AP_NO_PASS").equals("true"))
-    Config::setAP_PASSPHRASE(std::string(server.arg("AP_PASSPHRASE").c_str()));
+    config->setAP_PASSPHRASE(std::string(server.arg("AP_PASSPHRASE").c_str()));
   else if (server.arg("AP_NO_PASS").equals("true"))
-    Config::setAP_PASSPHRASE(std::string());
+    config->setAP_PASSPHRASE(std::string());
   if (server.arg("AP_URL").length())
-    Config::setAP_URL(std::string(server.arg("AP_URL").c_str()));
+    config->setAP_URL(std::string(server.arg("AP_URL").c_str()));
   if (server.arg("AP_IPADDRESS").length())
-    Config::setAP_IPADDRESS(server.arg("AP_IPADDRESS"));
+    config->setAP_IPADDRESS(server.arg("AP_IPADDRESS"));
   if (server.arg("AP_GATEWAY").length())
-    Config::setAP_GATEWAY(server.arg("AP_GATEWAY"));
+    config->setAP_GATEWAY(server.arg("AP_GATEWAY"));
   if (server.arg("AP_NETMASK").length())
-    Config::setAP_NETMASK(server.arg("AP_NETMASK"));
+    config->setAP_NETMASK(server.arg("AP_NETMASK"));
+
 
   if (server.arg("WiFiType").equals("APConnection"))
   {
-    conMgr->requestChangeConnection(ConnectionMgr::CON_ACCESS_POINT);
+    conMgr->requestChangeConnection(CON_ACCESS_POINT);
+    config->setCM_CONTYPE(CON_ACCESS_POINT);
   }
   else if (server.arg("WiFiType").equals("WiFiConnection"))
   {
-    conMgr->requestChangeConnection(ConnectionMgr::CON_WIFI_CONNECTION);
+    conMgr->requestChangeConnection(CON_WIFI_CONNECTION);
+    config->setCM_CONTYPE(CON_WIFI_CONNECTION);
   }
+  else if (server.arg("WiFiType").equals("restoreDefault"))
+  {
+    Config::resetConfig();
+    config = Config::get();
+    conMgr->requestChangeConnection(config->getCM_CONTYPE());
+  }
+
+  config->writeToEEPROM();
 
   WebServer::prepareWiFiSetupPage(answer);
   server.send(200, "text/html", answer.c_str());
@@ -311,58 +323,64 @@ void WebServer::readOutMoveArgs(ESP8266WebServer &server, Coordinate &coord, flo
 
 void WebServer::prepareWiFiSetupPage(std::string &s)
 {
+  Config *config = Config::get();
+
   s.append("<html>");
   // Setup for WiFi
   s.append("<h1>WiFi Setup: </h1>");
-  s.append("<p>Select WiFi Type</p>");
   s.append("<br>");
   s.append("<form>");
 
   // WiFi Connection
-  s.append("<input type=\"radio\" id=\"WF\" name=\"WiFiType\" value=\"WiFiConnection\">");
-  s.append("<label for=\"WF\">WiFi Client</label><br>");
-  s.append("<p>WiFi Connection settings</p>");
+  s.append("<h4>WiFi Connection settings</h4>");
   // SSID
   s.append("<label for=\"WC_SSID\">SSID:</label>");
-  s.append("<input type=\"text\" id=\"WC_SSID\" name=\"WC_SSID\" value=\"" + Config::getWC_SSID() + "\"><br>");
+  s.append("<input type=\"text\" id=\"WC_SSID\" name=\"WC_SSID\" value=\"" + config->getWC_SSID() + "\"><br>");
   // PASSPHRASE
   s.append("<label for=\"WC_PASSPHRASE\">Passphrase:</label>");
-  s.append("<input type=\"text\" id=\"WC_PASSPHRASE\" name=\"WC_PASSPHRASE\" value=\"" + Config::getWC_PASSPHRASE() + "\">");
+  s.append("<input type=\"text\" id=\"WC_PASSPHRASE\" name=\"WC_PASSPHRASE\" value=\"" + config->getWC_PASSPHRASE() + "\">");
   // NO PASSPHRASE RADIO BUTTON
-  s.append("<input type=\"radio\" id=\"WF_NO_PASS\" name=\"WF_NO_PASS\" value=\"true\">");
-  s.append("<label for=\"WF_NO_PASS\">No passphrase</label><br>");
+  s.append("<input type=\"radio\" id=\"WC_NO_PASS\" name=\"WC_NO_PASS\" value=\"true\">");
+  s.append("<label for=\"WC_NO_PASS\">No passphrase</label><br>");
   // HOSTNAME
   s.append("<label for=\"WC_HOSTNAME\">Hostname:</label>");
-  s.append("<input type=\"text\" id=\"WC_HOSTNAME\" name=\"WC_HOSTNAME\" value=\"" + Config::getWC_HOSTNAME() + "\"><br><br>");
+  s.append("<input type=\"text\" id=\"WC_HOSTNAME\" name=\"WC_HOSTNAME\" value=\"" + config->getWC_HOSTNAME() + "\"><br><br>");
 
   // Access Point
-  s.append("<input type=\"radio\" id=\"AP\" name=\"WiFiType\" value=\"APConnection\">");
-  s.append("<label for=\"AP\">Access Point</label>");
-  s.append("<p>Access Point settings</p>");
+  s.append("<h4>Access Point settings</h4>");
   // SSID
   s.append("<label for=\"AP_SSID\">SSID:</label>");
-  s.append("<input type=\"text\" id=\"AP_SSID\" name=\"AP_SSID\" value=\"" + Config::getAP_SSID() + "\"><br>");
+  s.append("<input type=\"text\" id=\"AP_SSID\" name=\"AP_SSID\" value=\"" + config->getAP_SSID() + "\"><br>");
   // PASSPHRASE
   s.append("<label for=\"AP_PASSPHRASE\">Passphrase:</label>");
-  s.append("<input type=\"text\" id=\"AP_PASSPHRASE\" name=\"AP_PASSPHRASE\" value=\"" + Config::getAP_PASSPHRASE() + "\">");
+  s.append("<input type=\"text\" id=\"AP_PASSPHRASE\" name=\"AP_PASSPHRASE\" value=\"" + config->getAP_PASSPHRASE() + "\">");
   // NO PASSPHRASE RADIO BUTTON
   s.append("<input type=\"radio\" id=\"AP_NO_PASS\" name=\"AP_NO_PASS\" value=\"true\">");
   s.append("<label for=\"AP_NO_PASS\">No passphrase</label><br>");
   // URL
   s.append("<label for=\"AP_URL\">URL:</label>");
-  s.append("<input type=\"text\" id=\"AP_URL\" name=\"AP_URL\" value=\"" + Config::getAP_URL() + "\"><br>");
+  s.append("<input type=\"text\" id=\"AP_URL\" name=\"AP_URL\" value=\"" + config->getAP_URL() + "\"><br>");
   // IP ADDRESS
   s.append("<label for=\"AP_IPADDRESS\">IP address:</label>");
-  s.append("<input type=\"text\" id=\"AP_IPADDRESS\" name=\"AP_IPADDRESS\" value=\"" + std::string(Config::getAP_IPADDRESS().toString().c_str()) + "\"><br>");
+  s.append("<input type=\"text\" id=\"AP_IPADDRESS\" name=\"AP_IPADDRESS\" value=\"" + std::string(config->getAP_IPADDRESS().toString().c_str()) + "\"><br>");
   // Gateway
   s.append("<label for=\"AP_GATEWAY\">Gateway:</label>");
-  s.append("<input type=\"text\" id=\"AP_GATEWAY\" name=\"AP_GATEWAY\" value=\"" + std::string(Config::getAP_GATEWAY().toString().c_str()) + "\"><br>");
+  s.append("<input type=\"text\" id=\"AP_GATEWAY\" name=\"AP_GATEWAY\" value=\"" + std::string(config->getAP_GATEWAY().toString().c_str()) + "\"><br>");
   // Netmask
   s.append("<label for=\"AP_NETMASK\">Netmask:</label>");
-  s.append("<input type=\"text\" id=\"AP_NETMASK\" name=\"AP_NETMASK\" value=\"" + std::string(Config::getAP_NETMASK().toString().c_str()) + "\"><br><br>");
+  s.append("<input type=\"text\" id=\"AP_NETMASK\" name=\"AP_NETMASK\" value=\"" + std::string(config->getAP_NETMASK().toString().c_str()) + "\"><br><br>");
 
+  // WiFi Type
+  s.append("<h4>Select WiFi Type</h4>");
+  s.append("<input type=\"radio\" id=\"DE\" name=\"WiFiType\" value=\"restoreDefault\">");
+  s.append("<label for=\"DE\">Back to Default</label><br>");
+  s.append("<input type=\"radio\" id=\"AP\" name=\"WiFiType\" value=\"APConnection\" " + std::string(config->getCM_CONTYPE() == CON_ACCESS_POINT ? "checked" : "") + ">");
+  s.append("<label for=\"AP\">Access Point</label><br>");
+  s.append("<input type=\"radio\" id=\"WC\" name=\"WiFiType\" value=\"WiFiConnection\" " + std::string(config->getCM_CONTYPE() == CON_WIFI_CONNECTION ? "checked" : "") + ">");
+  s.append("<label for=\"WC\">WiFi Client</label><br>");
   // Submit
   s.append("<button type=\"submit\">Go!</button>");
+
   s.append("</form>");
   s.append("</html>");
 }

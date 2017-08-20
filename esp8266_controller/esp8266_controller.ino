@@ -31,7 +31,10 @@ ConnectionMgr *conMgr;
 
 void setup()
 {
-  Serial.begin(Config::getSE_BAUDRATE());
+  Config* config = Config::get();
+  config->readFromEEPROM();
+
+  Serial.begin(config->getSE_BAUDRATE());
   Serial.print("\n\n");
 
   gondola = new Gondola(gondolaStart);
@@ -40,9 +43,9 @@ void setup()
     gondola->addAnchor(i, {enable_pin[i], step_pin[i], dir_pin[i]});
   }
 
-  serial = new SerialConnection(Config::getSE_BAUDRATE(), gondola);
+  serial = new SerialConnection(config->getSE_BAUDRATE(), gondola);
 
-  server = WebServer::create(Config::getWS_PORT(), gondola);
+  server = WebServer::create(config->getWS_PORT(), gondola);
 
   conMgr = ConnectionMgr::get();
   conMgr->initConnection(server);

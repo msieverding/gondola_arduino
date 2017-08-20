@@ -2,7 +2,7 @@
 #define _ANCHOR_HPP_
 
 #include "Coordinate.hpp"
-#include "config.hpp"
+#include "Config.hpp"
 
 // TODO struct gehört da nicht hin, problem mit config
 typedef struct {

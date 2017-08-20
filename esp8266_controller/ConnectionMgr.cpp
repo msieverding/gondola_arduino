@@ -31,8 +31,8 @@ ConnectionMgr::~ConnectionMgr()
 
 bool ConnectionMgr::initConnection(WebServer *server)
 {
-  // TODO read contype from EEPROM or Flash (ConfigMgr)
-  m_ConType = CON_ACCESS_POINT;
+  Config *config = Config::get();
+  m_ConType = config->getCM_CONTYPE();
   m_WebServer = server;
   changeConnection(m_ConType);
 }
@@ -40,6 +40,7 @@ bool ConnectionMgr::initConnection(WebServer *server)
 bool ConnectionMgr::changeConnection(conType_t contype)
 {
   m_ConType = contype;
+  Config *config = Config::get();
 
   if (m_Connection != NULL)
   {
@@ -53,11 +54,11 @@ bool ConnectionMgr::changeConnection(conType_t contype)
   switch(contype)
   {
     case CON_ACCESS_POINT:
-      m_Connection = new APConnection(m_WebServer, Config::getAP_SSID(), Config::getAP_PASSPHRASE(), Config::getAP_IPADDRESS(), Config::getAP_GATEWAY(), Config::getAP_NETMASK(), Config::getAP_URL());
+      m_Connection = new APConnection(m_WebServer, config->getAP_SSID(), config->getAP_PASSPHRASE(), config->getAP_IPADDRESS(), config->getAP_GATEWAY(), config->getAP_NETMASK(), config->getAP_URL());
       break;
 
     case CON_WIFI_CONNECTION:
-      m_Connection = new WiFiConnection(m_WebServer, Config::getWC_SSID(), Config::getWC_PASSPHRASE(), Config::getWC_HOSTNAME());
+      m_Connection = new WiFiConnection(m_WebServer, config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME());
       break;
 
     default:
