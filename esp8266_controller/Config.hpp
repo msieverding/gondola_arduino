@@ -10,18 +10,42 @@
 enum conType_s : byte;
 typedef enum conType_s conType_t;
 
+/**
+ * Singleton class to store the setup of gondola
+ */
 class Config
 {
 public:
+  /**
+   * get configuration instance
+   * @return pointer to instance
+   */
   static Config *get();
 
+  /**
+   * virtual destructor
+   */
   virtual ~Config();
+
+  /**
+   * save the setup to the internal EEPROM
+   * @return success
+   */
   bool writeToEEPROM();
+  /**
+   * read the setup from the internal EEPROM
+   */
   void readFromEEPROM();
-  void setIgnoreEEPROM(bool ignore);
+
+  /**
+   * load the default config. Use writeToEEPROM to store it into the EEPROM after loading it
+   */
   static void resetConfig();
 
 private:
+  /**
+   * private constrcutor
+   */
   Config();
 
 public:
@@ -72,14 +96,35 @@ public:
   uint32_t getSE_BAUDRATE() { return SE_BAUDRATE; }
 
 private:
-  // void write(int address, uint8_t c);
-  // uint8_t read(int address);
-
+  /**
+   * persist a string to the EEPROM
+   * If string doesn't use the maximum length a '\0' charachter will be appended
+   * @param s         string to persist
+   * @param start     start address in EEPRON
+   * @param maxLength maximum length in EEPROM
+   */
   void persistString(std::string &s, uint16_t start, uint8_t maxLength);
+  /**
+   * Read a string from a griven address
+   * @param s         string to read
+   * @param start     start address in EERPON
+   * @param maxLength maximum length of string
+   */
   void readString(std::string &s, uint16_t start, uint8_t maxLength);
+  /**
+   * Write an IPAddres to the EEPROM
+   * @param ip    IPAddress to save
+   * @param start start address in EEPROM
+   */
   void persistIPAddress(IPAddress &ip, uint16_t start);
+  /**
+   * Read an IPAddress from the EEPROM
+   * @param ip    IPAddress to read
+   * @param start start address in EEPROM
+   */
   void readIPAddress(IPAddress &ip, uint16_t start);
 
+  // instance of Configuration
   static Config       *s_Instance;
 
   // WiFi Connection

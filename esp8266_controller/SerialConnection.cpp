@@ -56,7 +56,7 @@ void SerialConnection::loop()
 
     std::string cmd(command);             // make a string out of it
 
-    m_CommandInterpreter->interprete(cmd);
+    m_CommandInterpreter->interprete(cmd);// interprete the string
   }
 }
 

@@ -6,9 +6,7 @@ ideas:
 - find issue for curious serial output at startup
 - find issues with mDNS after switching between AP and WF
 - compile everything with Wall to find unused vars etc.
-- Documentation :-D
 - checksum for EEPROM
-- CI delete all commands
 - save gondolas position in EEPROM
 
 Command Line interpreter:

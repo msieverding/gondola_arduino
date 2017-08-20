@@ -10,10 +10,8 @@ WebServer* WebServer::s_Instance = NULL;
 
 WebServer* WebServer::create(uint16_t port, Gondola *gondola)
 {
-  if (!WebServer::s_Instance)
-  {
-    WebServer::s_Instance = new WebServer(port, gondola);
-  }
+  if (!s_Instance)
+    s_Instance = new WebServer(port, gondola);
   return s_Instance;
 }
 
@@ -32,7 +30,8 @@ WebServer::~WebServer()
 bool WebServer::initialize()
 {
   m_Server.on("/", handleRoot);
-  m_Server.on("/initGondola", handleInitGondola);
+  m_Server.on("/InitGondola", handleInitGondola);
+  m_Server.on("/initgondola", handleInitGondola);
   m_Server.on("/SetupWiFi", handleSetupWiFi);
   m_Server.on("/setupwifi", handleSetupWiFi);
   m_Server.onNotFound(handleNotFound);
@@ -50,12 +49,12 @@ void WebServer::handleRoot()
   Serial.println("HandleRoot");
   ESP8266WebServer &server = s_Instance->m_Server;
   std::string answer;
-  WebServer::prepareHeader(answer);
+  prepareHeader(answer);
 
   uint8_t args = server.args();
   if (args == 0)
   {
-    WebServer::prepareMainPage(answer);
+    prepareMainPage(answer);
   }
   else
   {
@@ -86,7 +85,7 @@ void WebServer::handleInitGondola()
     server.send(404, "text/plain", "FATAL ERROR: Gondola not initialized");
   }
 
-  WebServer::prepareHeader(answer);
+  prepareHeader(answer);
 
   Coordinate Coord = gondola->getCurrentPosition();
 
@@ -124,7 +123,7 @@ void WebServer::handleSetupWiFi()
 
   uint8_t args = server.args();
 
-  WebServer::prepareHeader(answer);
+  prepareHeader(answer);
 
   // WiFi Connection Settings
   if (server.arg("WC_SSID").length())
@@ -177,7 +176,7 @@ void WebServer::handleSetupWiFi()
 
   config->writeToEEPROM();
 
-  WebServer::prepareWiFiSetupPage(answer);
+  prepareWiFiSetupPage(answer);
   server.send(200, "text/html", answer.c_str());
 }
 
@@ -210,7 +209,7 @@ void WebServer::prepareHeader(std::string &s)
   s.append("<html>");
   s.append("<a href=\"/\">Move</a> ");
   s.append("<a href=\"/SetupWiFi\">SetupWiFi</a> ");
-  s.append("<a href=\"/initGondola\">InitGondola</a> ");
+  s.append("<a href=\"/InitGondola\">InitGondola</a> ");
   s.append("<hr>");
   s.append("</html>");
 }

@@ -8,17 +8,30 @@
 class SerialConnection : public IConnection
 {
 public:
-  static SerialConnection *create(uint32_t baudrate, Gondola *m_Gondola);
+  /**
+   * [create description]
+   * @param  baudrate Baudrate to use
+   * @param  gondola  gondola to use for requests
+   * @return          pointer to Instance
+   */
+  static SerialConnection *create(uint32_t baudrate, Gondola *gondola);
+  /**
+   * virtual destructor
+   */
   virtual ~SerialConnection();
 
+  /**
+   * Call this loop in periodically to handle serial commands etc.
+   */
   virtual void loop();
 
 private:
   SerialConnection(uint32_t baudrate, Gondola *m_Gondola);
   static void moveCommand(std::string &s);
 
+  // instance
   static SerialConnection    *s_Instance;
-  // mermbervariables
+  // membervariables
   uint32_t                    m_Baudrate;
   Gondola                    *m_Gondola;
   CommandInterpreter         *m_CommandInterpreter;

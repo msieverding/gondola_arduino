@@ -25,10 +25,10 @@ CommandInterpreter::~CommandInterpreter()
   s_Instance = NULL;
 }
 
-void CommandInterpreter::addCommand(std::string s, commandFunc cf)
+void CommandInterpreter::addCommand(std::string commandWord, commandFunc commandFunction)
 {
   commandList_t *ptr;
-  commandList_t *entry = new commandList_t(s, cf);
+  commandList_t *entry = new commandList_t(commandWord, commandFunction);
 
   if (m_CommandList == NULL)
   {
@@ -44,7 +44,7 @@ void CommandInterpreter::addCommand(std::string s, commandFunc cf)
   }
 }
 
-void CommandInterpreter::deleteCommand(std::string s, commandFunc cf)
+void CommandInterpreter::deleteCommand(std::string commandWord, commandFunc commandFunction)
 {
   commandList_t *ptr;
 
@@ -56,7 +56,7 @@ void CommandInterpreter::deleteCommand(std::string s, commandFunc cf)
   {
     ptr = m_CommandList;
     // First handle the beginning elements of the list
-    while (ptr->command.compare(s) == 0 && ptr->func == cf)
+    while (ptr->command.compare(commandWord) == 0 && ptr->func == commandFunction)
     {
       Serial.println("Remove::1");
       m_CommandList = ptr->next;
@@ -68,7 +68,7 @@ void CommandInterpreter::deleteCommand(std::string s, commandFunc cf)
     // Then all others
     while(ptr->next != NULL)
     {
-      if (ptr->next->command.compare(s) == 0 && ptr->next->func == cf)
+      if (ptr->next->command.compare(commandWord) == 0 && ptr->next->func == commandFunction)
       {
         Serial.println("Remove::2");
         commandList_t *tmp = ptr->next->next;
@@ -135,36 +135,17 @@ bool CommandInterpreter::getArgument(std::string &s, std::string &arg, uint8_t a
 
   int32_t posBefore = 0, posBehind = 0;
 
-  // Serial.print("Start search for argNum=");
-  // Serial.println(argNum);
   for (uint8_t i = 0; i <= argNum; i++)
   {
-    // Serial.println("");
-    // Serial.print("i=");
-    // Serial.println(i);
-    // Serial.print("PosBefore: ");
-    // Serial.print(posBefore);
-    // Serial.print(" PosBehind: ");
-    // Serial.println(posBehind);
-
     posBefore = arduinoS.indexOf(token, posBehind);
     if (posBefore == -1)
       return false;
     posBehind = arduinoS.indexOf(token, posBefore + 1);
     if (posBehind == -1)
       posBehind = arduinoS.length();
-
-    // Serial.print("PosBefore: ");
-    // Serial.print(posBefore);
-    // Serial.print(" PosBehind: ");
-    // Serial.println(posBehind);
   }
 
   arg = s.substr(posBefore + 1, posBehind - posBefore - 1);
-  // Serial.print("arg: ");
-  // Serial.print(arg.c_str());
-  // Serial.print(" length: ");
-  // Serial.println(arg.length());
 
   return true;
 }
@@ -184,7 +165,5 @@ uint8_t CommandInterpreter::getNumArgument(std::string &s)
 
     args++;
     oldPos = pos + 1;
-    // Serial.print("Pos ");
-    // Serial.println(pos);
   }
 }

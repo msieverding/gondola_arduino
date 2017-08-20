@@ -3,15 +3,15 @@
 
 WiFiConnection *WiFiConnection::s_Instance = NULL;
 
-WiFiConnection *WiFiConnection::create(WebServer *server, std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm)
+WiFiConnection *WiFiConnection::create(WebServer *webServer, std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm)
 {
   if (!s_Instance)
-    s_Instance = new WiFiConnection(server, ssid, passphrase, hostname, ip, gw, nm);
+    s_Instance = new WiFiConnection(webServer, ssid, passphrase, hostname, ip, gw, nm);
   return s_Instance;
 }
 
-WiFiConnection::WiFiConnection(WebServer *server, std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm)
- : m_WebServer(server)
+WiFiConnection::WiFiConnection(WebServer *webServer, std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm)
+ : m_WebServer(webServer)
  , m_SSID(ssid)
  , m_Passphrase(passphrase)
  , m_Hostname(hostname)
@@ -19,9 +19,6 @@ WiFiConnection::WiFiConnection(WebServer *server, std::string ssid, std::string 
  , m_Gateway(gw)
  , m_Netmask(nm)
 {
-  Serial.print("WiFi.status()");
-  Serial.println(WiFi.status());
-
   // DHCP is activated if ip = gw = nm = 0.0.0.0
   WiFi.config(ip, gw, nm);
   // Connect to Network
@@ -44,9 +41,11 @@ WiFiConnection::WiFiConnection(WebServer *server, std::string ssid, std::string 
   Serial.print("Local IP address: ");
   Serial.println(m_IPAddres);
 
-  // TODO usw WiFi.hostname("xxx") to set dhcp host name
+  // Set hostname for Client
   // https://github.com/esp8266/Arduino/blob/master/doc/esp8266wifi/station-class.rst#disconnect
-  // WiFi.hostname(m_Hostname.c_str());
+  WiFi.hostname(m_Hostname.c_str());
+  
+  // TODO find issue why this doesn't work
   // setupDNS();
 }
 

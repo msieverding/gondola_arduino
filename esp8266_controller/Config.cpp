@@ -36,34 +36,6 @@
 #define EEPROM_CM_CONTYPE_START         300
 
 
-// void Config::write(int address, uint8_t c)
-// {
-//   Serial.print("Write: ");
-//   Serial.print("Address:\t");
-//   Serial.print(address);
-//   Serial.print("\tContent:");
-//   Serial.print(c);
-//   Serial.print("\t");
-//   Serial.println(static_cast<char>(c));
-//
-//   EEPROM.write(address, c);
-// }
-//
-// uint8_t Config::read(int address)
-// {
-//   Serial.print("Read: ");
-//   Serial.print("Address:\t");
-//   Serial.print(address);
-//
-//   uint8_t c = EEPROM.read(address);
-//
-//   Serial.print("\tContent:");
-//   Serial.print(c);
-//   Serial.print("\t");
-//   Serial.println(static_cast<char>(c));
-//
-//   return c;
-// }
 
 Config *Config::s_Instance = NULL;
 
@@ -74,7 +46,6 @@ Config *Config::get()
 
   return s_Instance;
 }
-
 
 Config::Config()
  // WiFi Connection

@@ -44,7 +44,7 @@ void setup()
   gondola = new Gondola(gondolaStart);
   for (int i = 0; i < NUM_ANCHORS; i++)
   {
-    gondola->addAnchor(i, {enable_pin[i], step_pin[i], dir_pin[i]});
+    gondola->addAnchor({enable_pin[i], step_pin[i], dir_pin[i]});
   }
 
   serial = SerialConnection::create(config->getSE_BAUDRATE(), gondola);

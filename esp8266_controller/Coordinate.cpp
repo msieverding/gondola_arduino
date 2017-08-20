@@ -1,5 +1,4 @@
 #include "Coordinate.hpp"
-#include <tgmath.h> // for sqrt
 
 Coordinate::Coordinate()
  : x(0.0)
@@ -62,6 +61,7 @@ float Coordinate::round_precision(float number, float min_precision)
   return round(number * (1.0 / min_precision)) / (1.0 / min_precision);
 }
 
+// use own pow2 method to save computation time
 float Coordinate::pow2(float x)
 {
   return x * x;

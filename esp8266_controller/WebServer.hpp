@@ -4,20 +4,39 @@
 #include <ESP8266WebServer.h>
 #include "Gondola.hpp"
 
+/**
+ * Webserver provides HTTP server with a website to access all functions
+ * of gondola through a webserver
+ */
 class WebServer
 {
 public:
-  // create function for singleton
+  /**
+   * Create instance of WebServer
+   * @param  port    Port to use for the server
+   * @param  gondola Gondola to move when a request comes in
+   * @return         instnce of WebServer
+   */
   static WebServer* create(uint16_t port, Gondola *gondola);
+
+  /**
+   * Virtual desctructor
+   */
   virtual ~WebServer();
 
-  // call this loop function periodically in main loop()
+  /**
+   * Call this loop in periodically to handle WebServer and DNS requests
+   */
   void loop();
 
 private:
-  // private constructor for singleton
-  explicit WebServer(uint16_t port, Gondola *gondola);
-  // initialize
+  /**
+   * private constructor
+   * @param  port    Port to use for the server
+   * @param  gondola Gondola to move when a request comes in
+   */
+  WebServer(uint16_t port, Gondola *gondola);
+  // initialize WebServer
   bool initialize();
   // HTTP Handler
   static void handleRoot();
@@ -32,8 +51,9 @@ private:
   static void readOutMoveArgs(ESP8266WebServer &server, Coordinate &coord, float &speed);
   static void prepareWiFiSetupPage(std::string &s);
 
-  // Variables
+  // instance
   static WebServer         *s_Instance;
+  // Membervariables
   ESP8266WebServer          m_Server;
   Gondola                  *m_Gondola;
 };

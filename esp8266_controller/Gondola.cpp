@@ -87,10 +87,10 @@ void Gondola::setTargetPosition(Coordinate &targetPosition, float &speed)
   m_TravelTime *= 1000; // convert into ms
 }
 
-void Gondola::addAnchor(uint8_t id, pins_t pinSetup)
+void Gondola::addAnchor(pins_t pinSetup)
 {
   anchorList_t *ptr;
-  anchorList_t *entry = new anchorList_t(new Anchor(id, pinSetup, m_CurrentPosition));
+  anchorList_t *entry = new anchorList_t(new Anchor(m_NumAnchors++, pinSetup, m_CurrentPosition));
 
   if (m_Anchors == NULL)
   {
@@ -104,7 +104,6 @@ void Gondola::addAnchor(uint8_t id, pins_t pinSetup)
 
     ptr->next = entry;
   }
-  m_NumAnchors++;
 }
 
 Anchor *Gondola::getAnchor(uint8_t id)
@@ -125,12 +124,6 @@ Anchor *Gondola::getAnchor(uint8_t id)
   }
 }
 
-void Gondola::move(Coordinate &targetPosition, float &speed)
-{
-  setTargetPosition(targetPosition, speed);
-  move();
-}
-
 void Gondola::move()
 {
   static uint32_t endTime = 0;
@@ -140,15 +133,11 @@ void Gondola::move()
   if (endTime != 0)
   {
     uint32_t missedTime = millis() - endTime;
-    // Serial.print("Missed ");
-    // Serial.print(missedTime);
-    // Serial.println("ms");
     m_TotalMissedTime += missedTime;
   }
   if ((millis() < (m_StartTime + m_TravelTime + m_TotalMissedTime)) || m_StepsLeft != 0)
   {
     finished = false;
-    // Serial.println("Move");
     m_StepsLeft = 0;
     for (uint8_t i = 0; i < m_NumAnchors; i++)
     {
@@ -167,12 +156,11 @@ void Gondola::move()
       anchor->endStep();
       m_StepsLeft += anchor->missingSteps();
     }
+    // TODO calculate new position every loop
   }
   else if (!finished)
   {
     finished = true;
-    // TODO eigentlich nach jedem durchlauf position aufschreiben
-    // Serial.println("Movement completed");
     setCurrentPosition(m_TargetPosition);
     m_TotalMissedTime = 0;
   }

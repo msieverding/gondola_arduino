@@ -3,15 +3,15 @@
 
 APConnection *APConnection::s_Instance = NULL;
 
-APConnection *APConnection::create(WebServer *server, std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url)
+APConnection *APConnection::create(WebServer *webServer, std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url)
 {
   if (!s_Instance)
-    s_Instance = new APConnection(server, ssid, passphrase, ip, gateway, netmask, url);
+    s_Instance = new APConnection(webServer, ssid, passphrase, ip, gateway, netmask, url);
   return s_Instance;
 }
 
-APConnection::APConnection(WebServer *server, std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url)
- : m_WebServer(server)
+APConnection::APConnection(WebServer *webServer, std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url)
+ : m_WebServer(webServer)
  , m_SSID(ssid)
  , m_Passphrase(passphrase)
  , m_IPAddress(ip)

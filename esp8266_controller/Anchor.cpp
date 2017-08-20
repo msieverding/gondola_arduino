@@ -33,10 +33,10 @@ void Anchor::configurePins()
   digitalWrite(m_Pins.en, LOW);
 }
 
-void Anchor::setPosition(Coordinate coord, Coordinate _gondola)
+void Anchor::setPosition(Coordinate coord, Coordinate gondola)
 {
   m_AnchorPosition = coord;
-  m_SpooledDistance = Coordinate::euclideanDistance(_gondola, m_AnchorPosition);
+  m_SpooledDistance = Coordinate::euclideanDistance(gondola, m_AnchorPosition);
 }
 
 void Anchor::prepareToSpool(Coordinate newPosition)

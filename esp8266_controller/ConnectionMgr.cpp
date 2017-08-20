@@ -27,13 +27,14 @@ ConnectionMgr::ConnectionMgr()
 ConnectionMgr::~ConnectionMgr()
 {
   CommandInterpreter::get()->deleteCommand(std::string("contype"), contypeCommand);
+  s_Instance = NULL;
 }
 
-bool ConnectionMgr::initConnection(WebServer *server)
+bool ConnectionMgr::initConnection(WebServer *webServer)
 {
   Config *config = Config::get();
   m_ConType = config->getCM_CONTYPE();
-  m_WebServer = server;
+  m_WebServer = webServer;
   changeConnection(m_ConType);
 }
 
@@ -42,15 +43,15 @@ bool ConnectionMgr::changeConnection(conType_t contype)
   m_ConType = contype;
   Config *config = Config::get();
 
+  // delete an old existing connection
   if (m_Connection != NULL)
   {
     Serial.println("delete old connection");
     delete(m_Connection);
+    m_Connection = NULL;
   }
 
-  // TODO remove delay if possible
-  delay(100);
-
+  // initialize a new connection
   switch(contype)
   {
     case CON_ACCESS_POINT:
