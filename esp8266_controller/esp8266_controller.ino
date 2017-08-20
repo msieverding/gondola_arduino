@@ -1,7 +1,5 @@
 // Configuration
 #include "Config.hpp"
-// ESP Libraries
-
 // Own classes and libraries
 #include "Gondola.hpp"
 #include "Anchor.hpp"
@@ -12,26 +10,10 @@
 #include "CommandInterpreter.hpp"
 #include "ConnectionMgr.hpp"
 
-// Gondola
 Gondola *gondola;
 WebServer *server;
 IConnection *serial;
 ConnectionMgr *conMgr;
-
-void func1(std::string &s)
-{
-  Serial.println("CI: 1");
-}
-
-void func2(std::string &s)
-{
-  Serial.println("CI: 2");
-}
-
-void func3(std::string &s)
-{
-  Serial.println("CI: 3");
-}
 
 void setup()
 {

@@ -95,20 +95,16 @@ void ConnectionMgr::contypeCommand(std::string &s)
   std::string arg;
 
   uint8_t args = CI->getNumArgument(s);
-  for (uint8_t i = 0; i < args; i++)
-  {
-    CI->getArgument(s, arg, i);
-    Serial.print("Arg ");
-    Serial.print(i);
-    Serial.print(" ");
-    Serial.println(arg.c_str());
-  }
 
   switch(args)
   {
     case 0:
-      Serial.println("Unsupported.");
-      break; // TODO make help serial output to clarify usage
+      Serial.println("Unsupported!");
+      Serial.println("Usage: contype type");
+      Serial.println("type - type of new connection");
+      Serial.println("\tAP\t- Access Point");
+      Serial.println("\tWIFI\t- Connect to a WiFi network");
+      break;
     case 1:
       CI->getArgument(s, arg, 0);
       if (arg.compare("WIFI") == 0)
@@ -116,7 +112,10 @@ void ConnectionMgr::contypeCommand(std::string &s)
       else if (arg.compare("AP") == 0)
         CM->changeConnection(CON_ACCESS_POINT);
       else
-        Serial.println("Unsupported");
+        Serial.println("Unsupported!");
+        Serial.println("Types are:");
+        Serial.println("\tAP\t- Access Point");
+        Serial.println("\tWIFI\t-Connect to a WiFi network");
       break;
   }
 }

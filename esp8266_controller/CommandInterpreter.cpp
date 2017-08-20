@@ -58,7 +58,6 @@ void CommandInterpreter::deleteCommand(std::string commandWord, commandFunc comm
     // First handle the beginning elements of the list
     while (ptr->command.compare(commandWord) == 0 && ptr->func == commandFunction)
     {
-      Serial.println("Remove::1");
       m_CommandList = ptr->next;
       delete(ptr);
       ptr = m_CommandList;
@@ -70,11 +69,10 @@ void CommandInterpreter::deleteCommand(std::string commandWord, commandFunc comm
     {
       if (ptr->next->command.compare(commandWord) == 0 && ptr->next->func == commandFunction)
       {
-        Serial.println("Remove::2");
         commandList_t *tmp = ptr->next->next;
         delete(ptr->next);
         ptr->next = tmp;
-        // Will haben while removing end of list
+        // Will happen when removing end of list
         if (ptr->next == NULL)
           return;
       }

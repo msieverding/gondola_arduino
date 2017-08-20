@@ -79,7 +79,7 @@ private:
   float            m_Speed;
   anchorList_t    *m_Anchors;
   uint8_t          m_NumAnchors;
-  // TODO float massaker beseitigen
+  // TODO Is it possible to implement this without floats?
   float            m_TravelDistance;
   float            m_TravelTime;
   float            m_StartTime;

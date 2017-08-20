@@ -62,7 +62,6 @@ void SerialConnection::loop()
 
 void SerialConnection::moveCommand(std::string &s)
 {
-  Serial.println("CI: Move Command");
   CommandInterpreter *CI = CommandInterpreter::get();
   uint8_t args = CI->getNumArgument(s);
   Coordinate newPosition;
@@ -70,7 +69,12 @@ void SerialConnection::moveCommand(std::string &s)
 
   if(args != 4)
   {
-    // TODO print help line
+    Serial.println("Unsupported!");
+    Serial.println("Usage: move x y z s");
+    Serial.println("x - float for x coordinate (e.g. 1.0)");
+    Serial.println("y - float for y coordinate (e.g. 1.0)");
+    Serial.println("z - float for z coordinate (e.g. 1.0)");
+    Serial.println("s - float for speed (e.g. 1.0)");
     return;
   }
   std::string arg;

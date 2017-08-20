@@ -71,11 +71,13 @@ Config::Config()
  // Serial
  , SE_BAUDRATE(115200)
 {
+  CommandInterpreter::get()->addCommand("configReset", configResetCommand);
   EEPROM.begin(EEPROM_LENGTH);
 }
 
 Config::~Config()
 {
+  CommandInterpreter::get()->deleteCommand("configReset", configResetCommand);
   EEPROM.end();
 }
 
@@ -84,6 +86,13 @@ void Config::resetConfig()
   delete(s_Instance);
   s_Instance = new Config();
   s_Instance->writeToEEPROM();
+  // TODO Chip will crash here since the destructor will change list wich is
+  // used to call this function
+}
+
+void Config::configResetCommand(std::string &s)
+{
+  resetConfig();
 }
 
 bool Config::writeToEEPROM()
