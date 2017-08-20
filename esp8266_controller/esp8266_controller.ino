@@ -1,12 +1,3 @@
-/**
- *
- *   GONDOLA CONTROLLER FOR ESP8266
- *
- *   self-contained code. just program the arduino and send positions via serial
- *
- *
- **/
-
 // Configuration
 #include "Config.hpp"
 // ESP Libraries
@@ -23,8 +14,6 @@
 
 // Gondola
 Gondola *gondola;
-long time_budget;
-
 WebServer *server;
 IConnection *serial;
 ConnectionMgr *conMgr;
@@ -49,6 +38,8 @@ void setup()
 
   conMgr = ConnectionMgr::get();
   conMgr->initConnection(server);
+
+  wdt_enable(1000);
 }
 
 void loop()
@@ -58,5 +49,6 @@ void loop()
     serial->loop();
   if (conMgr)
     conMgr->loop();
-  gondola->move();
+  if (gondola)
+    gondola->move();
 }

@@ -350,7 +350,7 @@ void WebServer::prepareWiFiSetupPage(std::string &s)
   // HOSTNAME
   s.append("<label for=\"WC_HOSTNAME\">Hostname:</label>");
   s.append("<input type=\"text\" id=\"WC_HOSTNAME\" name=\"WC_HOSTNAME\" value=\"" + config->getWC_HOSTNAME() + "\"><br>");
-  
+
   s.append("<p>Use 0.0.0.0 for IP, GW and NM to use DHCP</p>");
   // IP ADDRESS
   s.append("<label for=\"WC_IPADDRESS\">IP address:</label>");
@@ -395,7 +395,7 @@ void WebServer::prepareWiFiSetupPage(std::string &s)
   s.append("<input type=\"radio\" id=\"WC\" name=\"WiFiType\" value=\"WiFiConnection\" " + std::string(config->getCM_CONTYPE() == CON_WIFI_CONNECTION ? "checked" : "") + ">");
   s.append("<label for=\"WC\">WiFi Client</label><br>");
   // Submit
-  s.append("<button type=\"submit\">Go!</button>");
+  s.append("<br><button type=\"submit\">Go!</button>");
 
   s.append("</form>");
   s.append("</html>");

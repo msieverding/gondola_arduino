@@ -134,6 +134,7 @@ void Gondola::move(Coordinate &targetPosition, float &speed)
 void Gondola::move()
 {
   static uint32_t endTime = 0;
+  static bool finished = true;
   Anchor *anchor;
 
   if (endTime != 0)
@@ -146,6 +147,7 @@ void Gondola::move()
   }
   if ((millis() < (m_StartTime + m_TravelTime + m_TotalMissedTime)) || m_StepsLeft != 0)
   {
+    finished = false;
     // Serial.println("Move");
     m_StepsLeft = 0;
     for (uint8_t i = 0; i < m_NumAnchors; i++)
@@ -166,8 +168,9 @@ void Gondola::move()
       m_StepsLeft += anchor->missingSteps();
     }
   }
-  else
+  else if (!finished)
   {
+    finished = true;
     // TODO eigentlich nach jedem durchlauf position aufschreiben
     // Serial.println("Movement completed");
     setCurrentPosition(m_TargetPosition);
