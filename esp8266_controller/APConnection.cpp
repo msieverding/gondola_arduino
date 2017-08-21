@@ -22,7 +22,6 @@ APConnection::APConnection(WebServer *webServer, std::string ssid, std::string p
  , m_URL(url)
 {
   WiFi.mode(WIFI_AP_STA);
-  WiFi.begin();           // use this one after WiFi.disconnect()
 
   Log::logInfo("Setting soft-AP configuration... ");
   Log::logInfo(WiFi.softAPConfig(m_IPAddress, m_Gateway, m_Netmask) ? "Ready\n" : "Failed!\n");

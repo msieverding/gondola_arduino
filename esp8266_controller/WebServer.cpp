@@ -161,6 +161,11 @@ void WebServer::handleSetupWiFi()
     conMgr->requestChangeConnection(CON_WIFI_CONNECTION);
     config->setCM_CONTYPE(CON_WIFI_CONNECTION);
   }
+  else if (server.arg("WiFiType").equals("DualConnection"))
+  {
+    conMgr->requestChangeConnection(CON_DUAL_CONNECTION);
+    config->setCM_CONTYPE(CON_DUAL_CONNECTION);
+  }
   else if (server.arg("WiFiType").equals("restoreDefault"))
   {
     Config::resetConfig();
@@ -385,6 +390,8 @@ void WebServer::prepareWiFiSetupPage(std::string &s)
   s.append("<label for=\"WC\">WiFi Connection</label><br>");
   s.append("<input type=\"radio\" id=\"AP\" name=\"WiFiType\" value=\"APConnection\" " + std::string(config->getCM_CONTYPE() == CON_ACCESS_POINT ? "checked" : "") + ">");
   s.append("<label for=\"AP\">Access Point</label><br>");
+  s.append("<input type=\"radio\" id=\"DU\" name=\"WiFiType\" value=\"DualConnection\" " + std::string(config->getCM_CONTYPE() == CON_DUAL_CONNECTION ? "checked" : "") + ">");
+  s.append("<label for=\"DU\">WiFi + AP Connection.</label><br>");
   s.append("<input type=\"radio\" id=\"DE\" name=\"WiFiType\" value=\"restoreDefault\">");
   s.append("<label for=\"DE\">Back to Default</label><br>");
   // Submit

@@ -2,6 +2,7 @@
 #include "Config.hpp"
 #include "WiFiConnection.hpp"
 #include "APConnection.hpp"
+#include "DualConnection.hpp"
 #include "CommandInterpreter.hpp"
 #include "Log.hpp"
 
@@ -64,7 +65,17 @@ bool ConnectionMgr::changeConnection(conType_t contype)
       m_Connection = WiFiConnection::create(m_WebServer, config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME(), config->getWC_IPADDRESS(), config->getWC_GATEWAY(), config->getWC_NETMASK());
       break;
 
+    case CON_DUAL_CONNECTION:
+      m_Connection = DualConnection::create(m_WebServer,
+                                            config->getAP_SSID(), config->getAP_PASSPHRASE(), config->getAP_IPADDRESS(), config->getAP_GATEWAY(), config->getAP_NETMASK(), config->getAP_URL(),
+                                            config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME(), config->getWC_IPADDRESS(), config->getWC_GATEWAY(), config->getWC_NETMASK());
+      break;
+
+    case CON_NONE:
+      break;
+
     default:
+      Log::logWarning("Requested wrong Connection type!");
       break;
   }
 }
@@ -116,12 +127,17 @@ void ConnectionMgr::contypeCommand(std::string &s)
       {
         CM->changeConnection(CON_ACCESS_POINT);
       }
+      else if (arg.compare("DUAL") == 0)
+      {
+        CM->changeConnection(CON_DUAL_CONNECTION);
+      }
       else
       {
         Log::logWarning("Unsupported!\n");
         Log::logWarning("Types are:\n");
         Log::logWarning("\tAP\t- Access Point\n");
         Log::logWarning("\tWIFI\t- Connect to a WiFi network\n");
+        Log::logWarning("\tDUAL\t- Connect to a WiFi network and open access point\n");
       }
       break;
   }

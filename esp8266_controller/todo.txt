@@ -5,11 +5,13 @@ ideas:
 - compile everything with Wall to find unused vars etc.
 - checksum for EEPROM
 - save gondolas position in EEPROM
+- one can use std::bind to bind arguments on function pointers (maybe for CI)
+- maybe one can use std::function to bind non-static functions
 
 Command Line interpreter:
 - set initial position of Anchors and Gondola
 
-WebSite
+WebSite:
 
 Notes:
 - WiFiManager (https://github.com/tzapu/WiFiManager/blob/master/WiFiManager.cpp)
@@ -17,3 +19,6 @@ Notes:
 Hardware Ideas:
 - Reset (SW-)button to use default configuration (open AP...)
 - LCD to show Configuration or LEDs to show state
+- 8 LEDs to show LSB of IP address instead of LCD
+- 1 LED for erstablished connection
+- 1 or 2 LEDs for mode

@@ -15,13 +15,13 @@ WiFiConnection::WiFiConnection(WebServer *webServer, std::string ssid, std::stri
  : m_WebServer(webServer)
  , m_SSID(ssid)
  , m_Passphrase(passphrase)
- , m_Hostname(hostname)
  , m_IPAddress(ip)
+ , m_Hostname(hostname)
  , m_Gateway(gw)
  , m_Netmask(nm)
 {
   // DHCP is activated if ip = gw = nm = 0.0.0.0
-  WiFi.config(ip, gw, nm);
+  WiFi.config(m_IPAddress, m_Gateway, m_Netmask);
   // Connect to Network
   WiFi.begin(m_SSID.c_str(), m_Passphrase.c_str());
   // Set stationary mode
@@ -37,10 +37,10 @@ WiFiConnection::WiFiConnection(WebServer *webServer, std::string ssid, std::stri
   }
   Log::logInfo(" Ready\n");
 
-  m_IPAddres = WiFi.localIP();
+  m_IPAddress = WiFi.localIP();
   // Print the IP address
   Log::logInfo("Local IP address: ");
-  Log::logInfo(m_IPAddres.toString().c_str());
+  Log::logInfo(m_IPAddress.toString().c_str());
   Log::logInfo("\n");
 
   // Set hostname for Client

@@ -7,6 +7,7 @@
 typedef enum conType_s : byte {
   CON_ACCESS_POINT,
   CON_WIFI_CONNECTION,
+  CON_DUAL_CONNECTION,
   CON_NONE
 } conType_t;
 
