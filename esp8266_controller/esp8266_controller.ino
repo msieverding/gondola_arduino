@@ -2,7 +2,7 @@
 #include "Config.hpp"
 // Own classes and libraries
 #include "Gondola.hpp"
-#include "Anchor.hpp"
+#include "HardwareAnchor.hpp"
 #include "WiFiConnection.hpp"
 #include "SerialConnection.hpp"
 #include "APConnection.hpp"
@@ -27,7 +27,7 @@ void setup()
   gondola = new Gondola(gondolaStart);
   for (int i = 0; i < NUM_ANCHORS; i++)
   {
-    gondola->addAnchor({enable_pin[i], step_pin[i], dir_pin[i]});
+    gondola->addAnchor(new HardwareAnchor({enable_pin[i], step_pin[i], dir_pin[i]}, anchorPos[i], 0.0f));
   }
 
   serial = SerialConnection::create(config->getSE_BAUDRATE(), gondola);

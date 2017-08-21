@@ -8,6 +8,8 @@ ideas:
 - one can use std::bind to bind arguments on function pointers (maybe for CI)
 - maybe one can use std::function to bind non-static functions
 
+- save spooled distance of HardwareAnchor in Config/EEPROM
+
 Command Line interpreter:
 - set initial position of Anchors and Gondola
 

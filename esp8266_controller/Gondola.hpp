@@ -4,7 +4,8 @@
 #include <Arduino.h>
 #include "config.hpp"
 #include "Coordinate.hpp"
-#include "Anchor.hpp"
+#include "IAnchor.hpp"
+#include "HardwareAnchor.hpp"
 
 /**
  * Class to store all informations and provide function
@@ -18,8 +19,8 @@ public:
    * @param _anchor [description]
    */
   typedef struct anchorList_s {
-    anchorList_s(Anchor *_anchor) : anchor(_anchor), next(next) {}
-    Anchor *anchor;       // Pointer to an anchor
+    anchorList_s(IAnchor *_anchor) : anchor(_anchor), next(next) {}
+    IAnchor *anchor;       // Pointer to an anchor
     anchorList_s *next;   // Pointe to the next Anchor
   } anchorList_t;
 
@@ -27,34 +28,31 @@ public:
   * Constrcutor
   * @param newPosition start position of gondola
   */
-  Gondola(Coordinate newPosition);
+  Gondola(Coordinate startPos);
   /**
    * Add an anchor to gondola
-   * @param pinSetup pin setup for the anchor
+   * @param anchor anchor to add
    */
-  void addAnchor(pins_t pinSetup);
+  void addAnchor(IAnchor *anchor);
   /**
    * Get an anchor of gondola
    * @param  id Anchor ID to get
    * @return    pointer of anchor
    */
-  Anchor *getAnchor(uint8_t id);
+  IAnchor *getAnchor(uint8_t id);
 
   /**
   * Get gondolas current positon
   * @return Coordinate with current position
   */
   Coordinate getCurrentPosition();
-  /**
-   * Set m_CurrentPosition
-   * @param newPosition Coordinate to set
-   */
-  void setCurrentPosition(Coordinate &newPosition);
+
   /**
    * Set m_CurrentPosition and m_TargetPosition
    * @param newPosition Coordinate to set
    */
-  void setInitialPosition(Coordinate &newPosition);
+  void setInitialPosition(Coordinate &initPos);
+
   /**
    * Get the target position of gondola
    * @return coordinate as which is target position
@@ -65,7 +63,7 @@ public:
    * @param targetPosition target position as coordinate
    * @param speed          speed to use during movement to target
    */
-  void setTargetPosition(Coordinate &targetPosition, float &speed);
+  void setTargetPosition(Coordinate &targetPos, float &speed);
 
   /**
    * Call this function to check for necessary movement
@@ -79,12 +77,6 @@ private:
   float            m_Speed;
   anchorList_t    *m_Anchors;
   uint8_t          m_NumAnchors;
-  // TODO Is it possible to implement this without floats?
-  float            m_TravelDistance;
-  float            m_TravelTime;
-  float            m_StartTime;
-  uint32_t         m_TotalMissedTime;
-  uint32_t         m_StepsLeft;
 };
 
 

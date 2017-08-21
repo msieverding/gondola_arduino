@@ -2,7 +2,6 @@
 #define _CONFIG_HPP_
 
 #include <string>
-#include "Anchor.hpp"
 #include "Coordinate.hpp"
 #include <IPAddress.h>
 
@@ -171,7 +170,7 @@ private:
 #define STEP_CM        20.0f
 
 // precision of 1 step in cm
-#define MIN_PRECISION (1 / STEP_CM)
+#define MIN_PRECISION ((float)(1 / STEP_CM))
 #define MICROSTEPS 16L
 
 // GONDOLA START POSITIONG

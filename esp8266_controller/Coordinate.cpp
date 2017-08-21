@@ -50,15 +50,22 @@ std::string Coordinate::toString()
   return s;
 }
 
+bool Coordinate::operator==(Coordinate const& c)
+{
+  if (this->x != c.x)
+    return false;
+  if (this->y != c.y)
+    return false;
+  if (this->z != c.z)
+    return false;
+
+  return true;
+}
+
 // =============== FUNCTIONS ===============
 float Coordinate::euclideanDistance(Coordinate p1, Coordinate p2)
 {
   return sqrt(pow2(p1.x - p2.x) + pow2(p1.y - p2.y) + pow2(p1.z - p2.z));
-}
-
-float Coordinate::round_precision(float number, float min_precision)
-{
-  return round(number * (1.0 / min_precision)) / (1.0 / min_precision);
 }
 
 // use own pow2 method to save computation time
