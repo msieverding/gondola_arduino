@@ -1,11 +1,10 @@
 #include <WiFiClient.h>
+#include "Config.hpp"
 #include "WebAnchor.hpp"
 #include "Log.hpp"
 
 WebAnchor::WebAnchor(Coordinate anchorPos, float spooledDistance, IPAddress ip)
- : m_AnchorPosition(anchorPos)
- , m_SpooledDistance(spooledDistance)
- , m_SpoolingSpeed(1.0f)
+ : IAnchor(spooledDistance, anchorPos)
  , m_IPAddress(ip)
 {
 
@@ -16,19 +15,24 @@ WebAnchor::~WebAnchor()
 
 }
 
-void WebAnchor::setTargetSpooledDistance(float distance, float speed)
+void WebAnchor::setTargetSpooledDistance(float targetDistance, float speed)
 {
   WiFiClient client;
-  if (!client.connect(m_IPAddress, 80))
+  m_TargetSpooledDistance = targetDistance;
+  m_Speed = speed;
+  if (!client.connect(m_IPAddress, Config::get()->getWS_PORT()));
   {
     Log::logDebug("connection failed");
+    // TODO error handling
     return;
   }
 
-  String url = "/setTargetSpooledDistance?spooledDistance=";
-  url += String(distance);
+  String url = "/SetAnchorTargetPos?id=";
+  url += String(getID());
+  url += "spooledDistance=";
+  url += String(m_TargetSpooledDistance);
   url += "&speed=";
-  url += String(speed);
+  url += String(m_Speed);
 
   String request = String("GET ") + url + " HTTP/1.1\r\n" +
              "Host: " + m_IPAddress.toString() + "\r\n" +
@@ -51,9 +55,4 @@ void WebAnchor::setTargetSpooledDistance(float distance, float speed)
     String line = client.readStringUntil('\r');
     Log::logDebug(line.c_str());
   }
-}
-
-Coordinate WebAnchor::getAnchorPosition()
-{
-  return m_AnchorPosition;
 }

@@ -8,7 +8,7 @@
 #include "HardwareAnchor.hpp"
 
 /**
- * Class to store all informations and provide function
+ * Class to store all information and provide function
  * for the gondola with its anchors
  */
 class Gondola
@@ -19,9 +19,10 @@ public:
    * @param _anchor [description]
    */
   typedef struct anchorList_s {
-    anchorList_s(IAnchor *_anchor, anchorList_s *_next) : anchor(_anchor), next(_next) {}
-    IAnchor *anchor;       // Pointer to an anchor
-    anchorList_s *next;   // Pointe to the next Anchor
+    anchorList_s(IAnchor *_anchor, anchorList_s *_next) : anchor(_anchor), next(_next), ready(true) {}
+    IAnchor *anchor;        // Pointer to an anchor
+    bool ready;             // Ready to spool
+    anchorList_s *next;     // Pointe to the next Anchor
   } anchorList_t;
 
   /**
@@ -76,21 +77,29 @@ public:
    */
   void setTargetPosition(Coordinate &targetPos, float &speed);
 
+  // TODO docu
+  anchorList_t *getAnchorListEntry(uint8_t id);
+
+  void setAnchorReady(uint8_t id, bool ready);
+
+  uint8_t getNumAnchors(void);
+
 private:
   /**
   * Constrcutor
-  * @param newPosition start position of gondola
+  * @param startPos start position of gondola
   */
   Gondola(Coordinate startPos);
 
   // instance
-  static Gondola  *s_Instance;
+  static Gondola         *s_Instance;
   // membervariables
-  Coordinate       m_CurrentPosition;
-  Coordinate       m_TargetPosition;
-  float            m_Speed;
-  anchorList_t    *m_Anchors;
-  uint8_t          m_NumAnchors;
+  Coordinate              m_CurrentPosition;
+  Coordinate              m_TargetPosition;
+  float                   m_Speed;
+  anchorList_t           *m_Anchors;
+  uint8_t                 m_NumAnchors;
+  uint8_t                 m_AnchorsReady;
 };
 
 

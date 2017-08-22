@@ -8,7 +8,7 @@
 class IConnection
 {
 public:
-  virtual void loop() = 0;
+  virtual void loop() {}
   virtual ~IConnection() {}
 protected:
   IConnection() {}

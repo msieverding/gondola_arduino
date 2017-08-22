@@ -4,17 +4,13 @@ ideas:
 - compile everything with Wall to find unused vars etc.
 - checksum for EEPROM
 - save gondolas position in EEPROM
-- one can use std::bind to bind arguments on function pointers (maybe for CI)
-- maybe one can use std::function to bind non-static functions
 
 - save spooled distance of HardwareAnchor in Config/EEPROM
 
-- how to get current position now?
-  -> call if anchor is finished
-  -> if all anchors are finished update m_CurrentPosition
-
 - check, wether ip is already registered (no doubled anchor)
 - maybe, if possible, check when slave disconnects
+- mabye, if possible, call AddWebAnchor webpage when a slave got a new connection
+- maybe? Don't store  connection and server type in config AND in class -> can cause logical errros in programmers brain
 
 - delete gondola, when master is destructed
 

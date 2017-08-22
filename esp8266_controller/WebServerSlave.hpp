@@ -19,6 +19,7 @@ protected:
   virtual void prepareHeader(std::string &s);
 
   void registerAtMaster();
+  void reportSpoolingFinished();
 
   HardwareAnchor    *m_Anchor;
   bool               m_RegisteredAtMAster;

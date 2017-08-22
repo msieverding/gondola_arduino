@@ -13,7 +13,6 @@ class APConnection : public IConnection
 public:
   /**
    * Create an access point
-   * @param  webServer  Webserver to use for conenctions
    * @param  ssid       SSID of the access point
    * @param  passphrase passphrase of the access point
    * @param  ip         IP Address of the chip
@@ -22,7 +21,7 @@ public:
    * @param  url        URL to provide
    * @return            pointer to instance of access point
    */
-  static APConnection *create(WebServer *webServer, std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url);
+  static APConnection *create(std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url);
   /**
    * virtual destructor
    */
@@ -36,7 +35,6 @@ public:
 private:
   /**
    * Constructor
-   * @param  webServer  Webserver to use for conenctions
    * @param  ssid       SSID of the access point
    * @param  passphrase passphrase of the access point
    * @param  ip         IP Address of the chip
@@ -45,7 +43,7 @@ private:
    * @param  url        URL to provide
    * @return            pointer to instance of access point
    */
-  APConnection(WebServer *webServer, std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url);
+  APConnection(std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url);
   /**
    * Setup the DNS Server
    */
@@ -55,7 +53,6 @@ private:
   static APConnection     *s_Instance;
 
   // Membervariables
-  WebServer               *m_WebServer;
   std::string              m_SSID;
   std::string              m_Passphrase;
   IPAddress                m_IPAddress;

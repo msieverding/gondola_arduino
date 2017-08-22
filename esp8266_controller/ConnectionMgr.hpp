@@ -4,13 +4,19 @@
 #include "IConnection.hpp"
 #include "WebServer.hpp"
 
-typedef enum conType_s : byte {
+typedef enum connectionType_s : byte {
   CON_ACCESS_POINT,
   CON_WIFI_CONNECTION,
   CON_DUAL_CONNECTION,
   CON_NONE
-} conType_t;
+} connectionType_t;
 
+typedef enum serverType_s : byte {
+  SERV_NORMAL,
+  SERV_MASTER,
+  SERV_SLAVE,
+  SERV_NONE
+} serverType_t;
 /**
  * Class to manage the connection of the chip
  */
@@ -36,20 +42,27 @@ public:
   /**
    * Change the connection to another type
    * @param  contype type of new connection
-   * @return         success
    */
-  bool changeConnection(conType_t contype);
+  void changeConnection(connectionType_t connectionType);
+
+  /**
+  * request a change of the connection. Usefull if change is done inside the WebServer of a connection
+  * to avoid conflicts when deleting the old connection.
+  * Connection will be changed during the next loop() execution.
+  * @param contype connection type to use
+  */
+  void requestChangeConnection(connectionType_t connectionType);
+
+  // TODO docu
+  void changeServerType(serverType_t serverType, bool force = false);
+
+  // TODO docu
+  void requestChangeServerType(serverType_t serverType);
+
   /**
    * Call loop() frequently to handle change requests
    */
   void loop();
-  /**
-   * request a change of the connection. Usefull if change is done inside the WebServer of a connection
-   * to avoid conflicts when deleting the old connection.
-   * Connection will be changed during the next loop() execution.
-   * @param contype connection type to use
-   */
-  void requestChangeConnection(conType_t contype);
 
 private:
   /**
@@ -63,13 +76,17 @@ private:
    */
   static void contypeCommand(std::string &s);
 
+  // instance
+  static ConnectionMgr         *s_Instance;
   // memvervariables
-  static ConnectionMgr  *s_Instance;
-  conType_t              m_ConType;
-  bool                   m_ChangeRequest;
-  conType_t              m_ChangeContype;
-  IConnection           *m_Connection;
-  WebServer             *m_WebServer;
+  connectionType_t              m_ConnectionType;
+  connectionType_t              m_ChangeConnectionType;
+  bool                          m_ChangeConnectionRequest;
+  serverType_t                  m_ServerType;
+  serverType_t                  m_ChangeServerType;
+  bool                          m_ChangeServerRequest;
+  IConnection                  *m_Connection;
+  WebServer                    *m_WebServer;
 };
 
 #endif /* _CONNECTION_MGR_HPP_ */

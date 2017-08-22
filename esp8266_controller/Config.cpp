@@ -34,10 +34,10 @@
 #define EEPROM_AP_URL_LENGTH            40
 // Placeholder for more features until address 299
 
-#define EEPROM_CM_CONTYPE_START         300
-#define EEPROM_GO_MASTER_START          301
-#define EEPROM_GO_MASTER_URL_START      302
-#define EEPROM_GO_MASTER_URL_LENGTH     40
+#define EEPROM_CM_connectionType_sTART         300
+#define EEPROM_WS_TYPE_START            301
+#define EEPROM_WS_MASTER_START          302
+#define EEPROM_WS_MASTER_URL_LENGTH     40
 
 
 
@@ -69,12 +69,11 @@ Config::Config()
  , AP_PASSPHRASE("TU_GRAZ_ITI")
  , AP_URL("www.gondola-slave.com")
  // ConnectionMgr Setup
- , CM_CONTYPE(CON_DUAL_CONNECTION)
- // Gondola Master / Slave
- , GO_MASTER(false)
- , GO_MASTER_URL("www.gondola-master.com")
+ , CM_CONNECTIONTYPE(CON_DUAL_CONNECTION)
  // WebServer
  , WS_PORT(80)
+ , WS_TYPE(SERV_NORMAL)
+ , WS_MASTER_URL("www.gondola-master.com")
  // Serial
  , SE_BAUDRATE(115200)
 {
@@ -123,10 +122,10 @@ bool Config::writeToEEPROM()
   persistIPAddress( AP_NETMASK,     EEPROM_AP_NETMASK_START);
   persistString(    AP_URL,         EEPROM_AP_URL_START,            EEPROM_AP_URL_LENGTH);
 
-  EEPROM.write(EEPROM_CM_CONTYPE_START, static_cast<uint8_t>(CM_CONTYPE));
-  EEPROM.write(EEPROM_GO_MASTER_START, static_cast<uint8_t>(GO_MASTER));
+  EEPROM.write(EEPROM_CM_connectionType_sTART, static_cast<uint8_t>(CM_CONNECTIONTYPE));
 
-  persistString(    GO_MASTER_URL,  EEPROM_GO_MASTER_URL_START,     EEPROM_GO_MASTER_URL_LENGTH);
+  EEPROM.write(EEPROM_WS_TYPE_START, static_cast<uint8_t>(WS_TYPE));
+  persistString(    WS_MASTER_URL,  EEPROM_WS_MASTER_START,        EEPROM_WS_MASTER_URL_LENGTH);
 
   return EEPROM.commit();
 }
@@ -149,10 +148,10 @@ void Config::readFromEEPROM()
   readIPAddress( AP_NETMASK,     EEPROM_AP_NETMASK_START);
   readString(    AP_URL,         EEPROM_AP_URL_START,            EEPROM_AP_URL_LENGTH);
 
-  CM_CONTYPE = static_cast<conType_t>(EEPROM.read(EEPROM_CM_CONTYPE_START));
-  GO_MASTER = static_cast<bool>(EEPROM.read(EEPROM_GO_MASTER_START));
+  CM_CONNECTIONTYPE = static_cast<connectionType_t>(EEPROM.read(EEPROM_CM_connectionType_sTART));
 
-  readString(    GO_MASTER_URL,  EEPROM_GO_MASTER_URL_START,     EEPROM_GO_MASTER_URL_LENGTH);
+  WS_TYPE = static_cast<serverType_t>(EEPROM.read(EEPROM_WS_TYPE_START));
+  readString(    WS_MASTER_URL,  EEPROM_WS_MASTER_START,     EEPROM_WS_MASTER_URL_LENGTH);
 }
 
 void Config::persistString(std::string &s, uint16_t start, uint8_t maxLength)
@@ -311,18 +310,18 @@ void Config::setAP_URL(std::string url)
 }
 
 // ConnectionMgr
-void Config::setCM_CONTYPE(conType_t contype)
+void Config::setCM_CONNECTIONTYPE(connectionType_t connectionType)
 {
-  CM_CONTYPE = contype;
+  CM_CONNECTIONTYPE = connectionType;
 }
 
 
-void Config::setGO_MASTER(bool master)
+void Config::setWS_TYPE(serverType_t serverType)
 {
-  GO_MASTER = master;
+  WS_TYPE = serverType;
 }
 
-void Config::setGO_MASTER_URL(std::string url)
+void Config::setWS_MASTER_URL(std::string url)
 {
-  GO_MASTER_URL = url;
+  WS_MASTER_URL = url;
 }

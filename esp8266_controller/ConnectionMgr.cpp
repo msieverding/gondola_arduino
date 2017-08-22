@@ -19,15 +19,19 @@ ConnectionMgr *ConnectionMgr::get()
 }
 
 ConnectionMgr::ConnectionMgr()
- : m_ConType(Config::get()->getCM_CONTYPE())
- , m_ChangeRequest(false)
- , m_ChangeContype(CON_NONE)
+ : m_ConnectionType(Config::get()->getCM_CONNECTIONTYPE())
+ , m_ChangeConnectionType(CON_NONE)
+ , m_ChangeConnectionRequest(false)
+ , m_ServerType(Config::get()->getWS_TYPE())
+ , m_ChangeServerType(SERV_NORMAL)
+ , m_ChangeServerRequest(false)
  , m_Connection(NULL)
  , m_WebServer(NULL)
 {
   CommandInterpreter::get()->addCommand(std::string("contype"), contypeCommand);
 
-  changeConnection(m_ConType);
+  changeServerType(m_ServerType, true);
+  changeConnection(m_ConnectionType);
 }
 
 ConnectionMgr::~ConnectionMgr()
@@ -37,9 +41,9 @@ ConnectionMgr::~ConnectionMgr()
   s_Instance = NULL;
 }
 
-bool ConnectionMgr::changeConnection(conType_t contype)
+void ConnectionMgr::changeConnection(connectionType_t connectionType)
 {
-  m_ConType = contype;
+  m_ConnectionType = connectionType;
   Config *config = Config::get();
 
   // delete an old existing connection
@@ -49,38 +53,21 @@ bool ConnectionMgr::changeConnection(conType_t contype)
     m_Connection = NULL;
   }
 
-  if (m_WebServer != NULL)
-  {
-    delete(m_WebServer);
-    m_WebServer = NULL;
-  }
-
   delay(100);
 
-  Log::logDebug("ConMgr::Change::0");
-
-  if (Config::get()->getGO_MASTER())
-    m_WebServer = new WebServerMaster(Config::get()->getWS_PORT());
-  else
-    m_WebServer = new WebServerSlave(Config::get()->getWS_PORT());
-
-  Log::logDebug("ConMgr::Change::1\n");
-
   // initialize a new connection
-  switch(contype)
+  switch(m_ConnectionType)
   {
     case CON_ACCESS_POINT:
-      m_Connection = APConnection::create(m_WebServer, config->getAP_SSID(), config->getAP_PASSPHRASE(), config->getAP_IPADDRESS(), config->getAP_GATEWAY(), config->getAP_NETMASK(), config->getAP_URL());
+      m_Connection = APConnection::create(config->getAP_SSID(), config->getAP_PASSPHRASE(), config->getAP_IPADDRESS(), config->getAP_GATEWAY(), config->getAP_NETMASK(), config->getAP_URL());
       break;
 
     case CON_WIFI_CONNECTION:
-      m_Connection = WiFiConnection::create(m_WebServer, config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME(), config->getWC_IPADDRESS(), config->getWC_GATEWAY(), config->getWC_NETMASK());
+      m_Connection = WiFiConnection::create(config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME(), config->getWC_IPADDRESS(), config->getWC_GATEWAY(), config->getWC_NETMASK());
       break;
 
     case CON_DUAL_CONNECTION:
-    Log::logDebug("ConMgr::Change::2\n");
-      m_Connection = DualConnection::create(m_WebServer,
-                                            config->getAP_SSID(), config->getAP_PASSPHRASE(), config->getAP_IPADDRESS(), config->getAP_GATEWAY(), config->getAP_NETMASK(), config->getAP_URL(),
+      m_Connection = DualConnection::create(config->getAP_SSID(), config->getAP_PASSPHRASE(), config->getAP_IPADDRESS(), config->getAP_GATEWAY(), config->getAP_NETMASK(), config->getAP_URL(),
                                             config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME(), config->getWC_IPADDRESS(), config->getWC_GATEWAY(), config->getWC_NETMASK());
       break;
 
@@ -88,26 +75,77 @@ bool ConnectionMgr::changeConnection(conType_t contype)
       break;
 
     default:
-      Log::logWarning("Requested wrong Connection type!");
+      Log::logWarning("Requested wrong Connection type!\n");
       break;
   }
 }
 
-void ConnectionMgr::requestChangeConnection(conType_t contype)
+void ConnectionMgr::requestChangeConnection(connectionType_t connectionType)
 {
-  m_ChangeRequest = true;
-  m_ChangeContype = contype;
+  m_ChangeConnectionRequest = true;
+  m_ChangeConnectionType = connectionType;
+}
+
+void ConnectionMgr::changeServerType(serverType_t serverType, bool force)
+{
+  if (m_ServerType == serverType && force == false)
+  {
+    return;
+  }
+
+  m_ServerType = serverType;
+
+  if (m_WebServer != NULL)
+  {
+    delete(m_WebServer);
+    m_WebServer = NULL;
+  }
+
+  switch (Config::get()->getWS_TYPE())
+  {
+    case SERV_MASTER:
+      m_WebServer = new WebServerMaster(Config::get()->getWS_PORT());
+      break;
+
+    case SERV_SLAVE:
+      m_WebServer = new WebServerSlave(Config::get()->getWS_PORT());
+      break;
+
+    case SERV_NORMAL:
+      m_WebServer = new WebServer(Config::get()->getWS_PORT());
+      break;
+
+    case SERV_NONE:
+      break;
+
+    default:
+      Log::logWarning("Requested wrong server type!\n");
+      break;
+  }
+
+}
+
+void ConnectionMgr::requestChangeServerType(serverType_t serverType)
+{
+  m_ChangeServerType = serverType;
+  m_ChangeServerRequest = true;
 }
 
 void ConnectionMgr::loop()
 {
-  if (m_Connection)
-    m_Connection->loop();
+  if (m_WebServer)
+    m_WebServer->loop();
 
-  if (m_ChangeRequest)
+  if (m_ChangeConnectionRequest)
   {
-    m_ChangeRequest = false;
-    changeConnection(m_ChangeContype);
+    m_ChangeConnectionRequest = false;
+    changeConnection(m_ChangeConnectionType);
+  }
+
+  if (m_ChangeServerRequest)
+  {
+    m_ChangeServerRequest = false;
+    changeServerType(m_ChangeServerType);
   }
 }
 

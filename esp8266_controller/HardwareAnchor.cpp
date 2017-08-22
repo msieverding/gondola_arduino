@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "HardwareAnchor.hpp"
 #include "Log.hpp"
+#include "Gondola.hpp"
 
 HardwareAnchor *HardwareAnchor::s_Instance = NULL;
 
@@ -11,11 +12,9 @@ HardwareAnchor *HardwareAnchor::create(pins_t pinSetup, Coordinate coord, float 
   return s_Instance;
 }
 
-HardwareAnchor::HardwareAnchor(pins_t pinSetup, Coordinate coord, float spooledDistance)
- : m_AnchorPosition(coord)
+HardwareAnchor::HardwareAnchor(pins_t pinSetup, Coordinate anchorPos, float spooledDistance)
+ : IAnchor(spooledDistance, anchorPos)
  , m_Pins(pinSetup)
- , m_SpooledDistance(spooledDistance)
- , m_SpoolingSpeed(1.0)
  , m_StepsTodo(0)
  , m_Direction(1)
 {
@@ -37,14 +36,9 @@ HardwareAnchor::~HardwareAnchor()
 
 void HardwareAnchor::setTargetSpooledDistance(float targetDistance, float speed)
 {
-  m_SpoolingSpeed = speed;
+  m_Speed = speed;
   m_TargetSpooledDistance = targetDistance;
   calculate();
-}
-
-float HardwareAnchor::getTargetSpooledDistance(void)
-{
-  return m_TargetSpooledDistance;
 }
 
 long HardwareAnchor::missingSteps()
@@ -58,16 +52,6 @@ void HardwareAnchor::configurePins()
   pinMode(m_Pins.stp, OUTPUT);
   pinMode(m_Pins.dir, OUTPUT);
   digitalWrite(m_Pins.en, LOW);
-}
-
-Coordinate HardwareAnchor::getAnchorPosition()
-{
-  return m_AnchorPosition;
-}
-
-void HardwareAnchor::setAnchorPosition(Coordinate coord)
-{
-  m_AnchorPosition = coord;
 }
 
 void HardwareAnchor::startStep()
@@ -95,18 +79,20 @@ void HardwareAnchor::move()
   endStep();
   delay(STEP_DELAY / 1000);
   m_StepsTodo--;
-  m_SpooledDistance += m_Direction * ( 1 / STEP_CM / MICROSTEPS);
+  m_CurrentSpooledDistance += m_Direction * ( 1 / STEP_CM / MICROSTEPS);
+  if (m_StepsTodo)
+    Gondola::get()->setAnchorReady(m_ID, true);
 }
 
 void HardwareAnchor::calculate()
 {
-  float distanceTodo = m_TargetSpooledDistance - m_SpooledDistance;
+  float distanceTodo = m_TargetSpooledDistance - m_CurrentSpooledDistance;
 
   if (distanceTodo == 0)
     return;
 
   Log::logDebug("Spooled: ");
-  Log::logDebug(m_SpooledDistance);
+  Log::logDebug(m_CurrentSpooledDistance);
   Log::logDebug("cm, Delta ");
   Log::logDebug(distanceTodo);
 

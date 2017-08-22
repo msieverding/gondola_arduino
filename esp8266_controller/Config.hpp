@@ -5,9 +5,12 @@
 #include "Coordinate.hpp"
 #include <IPAddress.h>
 
-// Forward declaration of conType_t from ConnectionMgr
-enum conType_s : byte;
-typedef enum conType_s conType_t;
+// Forward declaration of connectionType_t from ConnectionMgr
+enum connectionType_s : byte;
+typedef enum connectionType_s connectionType_t;
+// Forward declaration of serverType from ConnectionMgr
+enum serverType_s : byte;
+typedef enum serverType_s serverType_t;
 
 /**
  * Singleton class to store the setup of gondola
@@ -91,17 +94,16 @@ public:
   void setAP_URL(std::string url);
 
   // ConnectionMgr
-  void setCM_CONTYPE(conType_t contype);
-  conType_t getCM_CONTYPE() { return CM_CONTYPE; }
-
-  // Gondola
-  void setGO_MASTER(bool master);
-  bool getGO_MASTER() { return GO_MASTER; }
-  void setGO_MASTER_URL(std::string url);
-  std::string getGO_MASTER_URL() { return GO_MASTER_URL; }
+  void setCM_CONNECTIONTYPE(connectionType_t connecrtionType);
+  connectionType_t getCM_CONNECTIONTYPE() { return CM_CONNECTIONTYPE; }
 
   // WebServer
   uint16_t getWS_PORT() { return WS_PORT; }
+  void setWS_TYPE(serverType_t serverType);
+  serverType_t getWS_TYPE() { return WS_TYPE; }
+  void setWS_MASTER_URL(std::string url);
+  std::string getWS_MASTER_URL() { return WS_MASTER_URL; }
+
 
   // Serial
   uint32_t getSE_BAUDRATE() { return SE_BAUDRATE; }
@@ -155,14 +157,12 @@ private:
   std::string AP_URL;
 
   // ConnectionMgr
-  conType_t CM_CONTYPE;
-
-  // Gondola
-  bool GO_MASTER;
-  std::string GO_MASTER_URL;
+  connectionType_t CM_CONNECTIONTYPE;
 
   // WebServer
   uint16_t WS_PORT;
+  serverType_t WS_TYPE;
+  std::string WS_MASTER_URL;
 
   // Serial
   uint32_t SE_BAUDRATE;

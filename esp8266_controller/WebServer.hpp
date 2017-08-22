@@ -31,12 +31,14 @@ public:
 protected:
   // HTTP Handler
   virtual void handleRoot();
-  virtual void handleSetup();
+  virtual void handleSetupWiFi();
+  virtual void handleSetupSystem();
   virtual void handleNotFound();
 
   // Helper functions to build web pages
   virtual void prepareHeader(std::string &s);
-  void prepareSetupPage(std::string &s);
+  void prepareSetupWiFiPage(std::string &s);
+  void prepareSetupSystemPage(std::string &s);
 
   // Membervariables
   ESP8266WebServer          m_Server;

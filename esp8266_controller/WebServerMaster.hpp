@@ -15,6 +15,7 @@ protected:
   // HTTP handler
   virtual void handleGondolaMove();
   virtual void handleAddWebAnchor();
+  virtual void handleReportSpoolingFinished();
   // Helper functions to build web pages
   virtual void prepareHeader(std::string &s);
   void prepareGondolaMovePage(std::string &s);

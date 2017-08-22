@@ -11,14 +11,11 @@ public:
   WebAnchor(Coordinate anchorPos, float spooledDistance, IPAddress ip);
   virtual ~WebAnchor();
 
-  virtual void setTargetSpooledDistance(float distance, float speed);
+  virtual void setTargetSpooledDistance(float targetDistance, float speed);
 
-  virtual Coordinate getAnchorPosition();
+  IPAddress getIPAddress();
 
 private:
-  Coordinate        m_AnchorPosition;
-  float             m_SpooledDistance;
-  float             m_SpoolingSpeed;
   IPAddress         m_IPAddress;
 };
 

@@ -4,13 +4,11 @@
 
 DualConnection *DualConnection::s_Instance = NULL;
 
-DualConnection *DualConnection::create(WebServer *webServer,
-      std::string ap_ssid, std::string ap_pw, IPAddress ap_ip, IPAddress ap_gw, IPAddress ap_nm, std::string ap_url,
-      std::string wc_ssid, std::string wc_pw, std::string wc_hostname, IPAddress wc_ip, IPAddress wc_gw, IPAddress wc_nm)
+DualConnection *DualConnection::create(std::string ap_ssid, std::string ap_pw, IPAddress ap_ip, IPAddress ap_gw, IPAddress ap_nm, std::string ap_url,
+                                       std::string wc_ssid, std::string wc_pw, std::string wc_hostname, IPAddress wc_ip, IPAddress wc_gw, IPAddress wc_nm)
 {
   if (!s_Instance)
-    s_Instance = new DualConnection(webServer,
-                                    ap_ssid, ap_pw, ap_ip, ap_gw, ap_nm, ap_url,
+    s_Instance = new DualConnection(ap_ssid, ap_pw, ap_ip, ap_gw, ap_nm, ap_url,
                                     wc_ssid, wc_pw, wc_hostname, wc_ip, wc_gw, wc_nm);
 
   return s_Instance;
@@ -24,11 +22,9 @@ DualConnection::~DualConnection()
   s_Instance = NULL;
 }
 
-DualConnection::DualConnection(WebServer *webServer,
-                                std::string ap_ssid, std::string ap_pw, IPAddress ap_ip, IPAddress ap_gw, IPAddress ap_nm, std::string ap_url,
-                                std::string wc_ssid, std::string wc_pw, std::string wc_hostname, IPAddress wc_ip, IPAddress wc_gw, IPAddress wc_nm)
- : m_WebServer(webServer)
- , m_AP_SSID(ap_ssid)
+DualConnection::DualConnection(std::string ap_ssid, std::string ap_pw, IPAddress ap_ip, IPAddress ap_gw, IPAddress ap_nm, std::string ap_url,
+                               std::string wc_ssid, std::string wc_pw, std::string wc_hostname, IPAddress wc_ip, IPAddress wc_gw, IPAddress wc_nm)
+ : m_AP_SSID(ap_ssid)
  , m_AP_Passphrase(ap_pw)
  , m_AP_IPAddress(ap_ip)
  , m_AP_Gateway(ap_gw)
@@ -53,7 +49,8 @@ DualConnection::DualConnection(WebServer *webServer,
 void DualConnection::loop()
 {
   m_AP_DnsServer.processNextRequest();
-  m_WebServer->loop();
+  if (m_WebServer)
+    m_WebServer->loop();
 }
 
 void DualConnection::setupWiFiConnection()

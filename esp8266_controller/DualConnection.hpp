@@ -18,7 +18,6 @@ class DualConnection : public IConnection
 public:
   /**
    * Create the instance of the dual connection
-   * @param  webServer   WebServer to handle with these connections
    * @param  ap_ssid     SSID for the AP
    * @param  ap_pw       Passphrase for the AP
    * @param  ap_ip       IP for the AP
@@ -33,8 +32,7 @@ public:
    * @param  wc_nm       static netmask to use / 0.0.0.0 for DHCP
    * @return             pointer to instance
    */
-  static DualConnection *create(WebServer *webServer,
-                                std::string ap_ssid, std::string ap_pw, IPAddress ap_ip, IPAddress ap_gw, IPAddress ap_nm, std::string ap_url,
+  static DualConnection *create(std::string ap_ssid, std::string ap_pw, IPAddress ap_ip, IPAddress ap_gw, IPAddress ap_nm, std::string ap_url,
                                 std::string wc_ssid, std::string wc_pw, std::string wc_hostname, IPAddress wc_ip, IPAddress wc_gw, IPAddress wc_nm);
   /**
    * virtual destructor
@@ -48,7 +46,6 @@ public:
 private:
   /**
    * Constructor of the dual connection
-   * @param  webServer   WebServer to handle with these connections
    * @param  ap_ssid     SSID for the AP
    * @param  ap_pw       Passphrase for the AP
    * @param  ap_ip       IP for the AP
@@ -62,8 +59,7 @@ private:
    * @param  wc_gw       static gateway to use / 0.0.0.0 for DHCP
    * @param  wc_nm       static netmask to use / 0.0.0.0 for DHCP
    */
-  DualConnection(WebServer *webServer,
-                 std::string ap_ssid, std::string ap_pw, IPAddress ap_ip, IPAddress ap_gw, IPAddress ap_nm, std::string ap_url,
+  DualConnection(std::string ap_ssid, std::string ap_pw, IPAddress ap_ip, IPAddress ap_gw, IPAddress ap_nm, std::string ap_url,
                  std::string wc_ssid, std::string wc_pw, std::string wc_hostname, IPAddress wc_ip, IPAddress wc_gw, IPAddress wc_nm);
 
   /**

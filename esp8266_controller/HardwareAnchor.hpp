@@ -24,40 +24,21 @@ public:
    * @param pinSetup pinsetup for stepper driver
    * @param coord    coordinate of anchor
    */
-  static HardwareAnchor *create(pins_t pinSetup, Coordinate pos, float spooledDistance);
+  static HardwareAnchor *create(pins_t pinSetup, Coordinate anchorPos, float spooledDistance);
 
   // TODO docu
   static HardwareAnchor *get();
-  
+
   /**
    * vitual Destructor
    */
   virtual ~HardwareAnchor();
 
   /**
-   * get the position of the anchor mouting
-   * @return coordinate of position
-   */
-   Coordinate getAnchorPosition();
-
-  /**
-   * Set the position and initialize the anchor
-   * @param coord    coordinate of anchor
-   * @param gondola  coordiante of the gondola
-   */
-  void setAnchorPosition(Coordinate coord);
-
-  /**
    * Set the target of the anchor spooling
    * @param targetDistance target distance
    */
   virtual void setTargetSpooledDistance(float targetDistance, float speed);
-
-  /**
-   * Get the target of the anchor spooling
-   * @return  target distance
-   */
-  float getTargetSpooledDistance(void);
 
   /**
    * start a step with the hardware
@@ -108,9 +89,6 @@ private:
   // membervariables
   Coordinate              m_AnchorPosition;
   pins_t                  m_Pins;
-  float                   m_SpooledDistance;
-  float                   m_TargetSpooledDistance;
-  float                   m_SpoolingSpeed;
   long                    m_StepsTodo;
   int8_t                  m_Direction;
 };

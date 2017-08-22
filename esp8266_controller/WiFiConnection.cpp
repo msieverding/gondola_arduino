@@ -4,16 +4,15 @@
 
 WiFiConnection *WiFiConnection::s_Instance = NULL;
 
-WiFiConnection *WiFiConnection::create(WebServer *webServer, std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm)
+WiFiConnection *WiFiConnection::create(std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm)
 {
   if (!s_Instance)
-    s_Instance = new WiFiConnection(webServer, ssid, passphrase, hostname, ip, gw, nm);
+    s_Instance = new WiFiConnection(ssid, passphrase, hostname, ip, gw, nm);
   return s_Instance;
 }
 
-WiFiConnection::WiFiConnection(WebServer *webServer, std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm)
- : m_WebServer(webServer)
- , m_SSID(ssid)
+WiFiConnection::WiFiConnection(std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm)
+ : m_SSID(ssid)
  , m_Passphrase(passphrase)
  , m_IPAddress(ip)
  , m_Hostname(hostname)
@@ -57,11 +56,6 @@ WiFiConnection::~WiFiConnection()
   s_Instance = NULL;
 }
 
-
-void WiFiConnection::loop()
-{
-  m_WebServer->loop();
-}
 
 void WiFiConnection::setupMDNS()
 {

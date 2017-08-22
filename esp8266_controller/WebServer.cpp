@@ -13,7 +13,8 @@ WebServer::WebServer(uint16_t port, bool configureServer)
   if (configureServer)
   {
     m_Server.on("/", std::bind(&WebServer::handleRoot, this));
-    m_Server.on("/Setup", std::bind(&WebServer::handleSetup, this));
+    m_Server.on("/SetupWiFi", std::bind(&WebServer::handleSetupWiFi, this));
+    m_Server.on("/SetupSystem", std::bind(&WebServer::handleSetupSystem, this));
     m_Server.onNotFound(std::bind(&WebServer::handleNotFound, this));
     m_Server.begin();
     Log::logInfo("HTTP Server configured and started\n");
@@ -38,7 +39,7 @@ void WebServer::handleRoot()
   m_Server.send(200, "text/html", answer.c_str());
 }
 
-void WebServer::handleSetup()
+void WebServer::handleSetupWiFi()
 {
   ConnectionMgr *conMgr = ConnectionMgr::get();
   Config *config = Config::get();
@@ -76,44 +77,72 @@ void WebServer::handleSetup()
     config->setAP_NETMASK(m_Server.arg("AP_NETMASK"));
 
 
-  if (m_Server.arg("WiFiType").equals("APConnection"))
+  if (m_Server.arg("WiFiType").equals("CON_ACCESS_POINT"))
   {
     conMgr->requestChangeConnection(CON_ACCESS_POINT);
-    config->setCM_CONTYPE(CON_ACCESS_POINT);
+    config->setCM_CONNECTIONTYPE(CON_ACCESS_POINT);
   }
-  else if (m_Server.arg("WiFiType").equals("WiFiConnection"))
+  else if (m_Server.arg("WiFiType").equals("CON_WIFI_CONNECTION"))
   {
     conMgr->requestChangeConnection(CON_WIFI_CONNECTION);
-    config->setCM_CONTYPE(CON_WIFI_CONNECTION);
+    config->setCM_CONNECTIONTYPE(CON_WIFI_CONNECTION);
   }
-  else if (m_Server.arg("WiFiType").equals("DualConnection"))
+  else if (m_Server.arg("WiFiType").equals("CON_DUAL_CONNECTION"))
   {
     conMgr->requestChangeConnection(CON_DUAL_CONNECTION);
-    config->setCM_CONTYPE(CON_DUAL_CONNECTION);
+    config->setCM_CONNECTIONTYPE(CON_DUAL_CONNECTION);
   }
-  else if (m_Server.arg("WiFiType").equals("restoreDefault"))
+  else if (m_Server.arg("WiFiType").equals("CON_RESTORE_DEFAULT"))
   {
     Config::resetConfig();
     config = Config::get();
-    conMgr->requestChangeConnection(config->getCM_CONTYPE());
-  }
-
-  if (m_Server.arg("GO_MASTER").length())
-  {
-    bool type = (m_Server.arg("GO_MASTER").equals("Master"));
-    Config::get()->setGO_MASTER(type);
-    // Request new and clean connection, when type was changed
-    conMgr->requestChangeConnection(config->getCM_CONTYPE());
-  }
-  if (m_Server.arg("GO_MASTER_URL").length())
-  {
-    Config::get()->setGO_MASTER_URL(std::string(m_Server.arg("GO_MASTER_URL").c_str()));
+    conMgr->requestChangeConnection(config->getCM_CONNECTIONTYPE());
   }
 
   config->writeToEEPROM();
 
   prepareHeader(answer);
-  prepareSetupPage(answer);
+  prepareSetupWiFiPage(answer);
+
+  m_Server.send(200, "text/html", answer.c_str());
+}
+
+void WebServer::handleSetupSystem()
+{
+  ConnectionMgr *conMgr = ConnectionMgr::get();
+  Config *config = Config::get();
+  std::string answer;
+
+  if (m_Server.arg("WS_TYPE").equals("SERV_MASTER"))
+  {
+    conMgr->requestChangeServerType(SERV_MASTER);
+    Config::get()->setWS_TYPE(SERV_MASTER);
+  }
+  else if (m_Server.arg("WS_TYPE").equals("SERV_SLAVE"))
+  {
+    conMgr->requestChangeServerType(SERV_SLAVE);
+    Config::get()->setWS_TYPE(SERV_SLAVE);
+  }
+  else if (m_Server.arg("WS_TYPE").equals("SERV_NORMAL"))
+  {
+    conMgr->requestChangeServerType(SERV_NORMAL);
+    Config::get()->setWS_TYPE(SERV_NORMAL);
+  }
+  else if (m_Server.arg("WS_TYPE").equals("SERV_NONE"))
+  {
+    conMgr->requestChangeServerType(SERV_NONE);
+    Config::get()->setWS_TYPE(SERV_NONE);
+  }
+
+  if (m_Server.arg("SW_MASTER_URL").length())
+  {
+    Config::get()->setWS_MASTER_URL(std::string(m_Server.arg("WS_MASTER_URL").c_str()));
+  }
+
+  config->writeToEEPROM();
+
+  prepareHeader(answer);
+  prepareSetupSystemPage(answer);
 
   m_Server.send(200, "text/html", answer.c_str());
 }
@@ -143,12 +172,13 @@ void WebServer::prepareHeader(std::string &s)
 {
   s.append("<html>");
   s.append("<a href=\"/\">Root</a> ");
-  s.append("<a href=\"/Setup\">Setup</a> ");
+  s.append("<a href=\"/SetupWiFi\">SetupWiFi</a> ");
+  s.append("<a href=\"/SetupSystem\">SetupSystem</a> ");
   s.append("<hr>");
   s.append("</html>");
 }
 
-void WebServer::prepareSetupPage(std::string &s)
+void WebServer::prepareSetupWiFiPage(std::string &s)
 {
   Config *config = Config::get();
 
@@ -209,27 +239,47 @@ void WebServer::prepareSetupPage(std::string &s)
 
   // WiFi Type
   s.append("<h4>Select WiFi Type</h4>");
-  s.append("<input type=\"radio\" id=\"WC\" name=\"WiFiType\" value=\"WiFiConnection\" " + std::string(config->getCM_CONTYPE() == CON_WIFI_CONNECTION ? "checked" : "") + ">");
+  s.append("<input type=\"radio\" id=\"WC\" name=\"WiFiType\" value=\"CON_WIFI_CONNECTION\" " + std::string(config->getCM_CONNECTIONTYPE() == CON_WIFI_CONNECTION ? "checked" : "") + ">");
   s.append("<label for=\"WC\">WiFi Connection</label><br>");
-  s.append("<input type=\"radio\" id=\"AP\" name=\"WiFiType\" value=\"APConnection\" " + std::string(config->getCM_CONTYPE() == CON_ACCESS_POINT ? "checked" : "") + ">");
+  s.append("<input type=\"radio\" id=\"AP\" name=\"WiFiType\" value=\"CON_ACCESS_POINT\" " + std::string(config->getCM_CONNECTIONTYPE() == CON_ACCESS_POINT ? "checked" : "") + ">");
   s.append("<label for=\"AP\">Access Point</label><br>");
-  s.append("<input type=\"radio\" id=\"DU\" name=\"WiFiType\" value=\"DualConnection\" " + std::string(config->getCM_CONTYPE() == CON_DUAL_CONNECTION ? "checked" : "") + ">");
+  s.append("<input type=\"radio\" id=\"DU\" name=\"WiFiType\" value=\"CON_DUAL_CONNECTION\" " + std::string(config->getCM_CONNECTIONTYPE() == CON_DUAL_CONNECTION ? "checked" : "") + ">");
   s.append("<label for=\"DU\">WiFi + AP Connection.</label><br>");
-  s.append("<input type=\"radio\" id=\"DE\" name=\"WiFiType\" value=\"restoreDefault\">");
+  s.append("<input type=\"radio\" id=\"DE\" name=\"WiFiType\" value=\"CON_RESTORE_DEFAULT\">");
   s.append("<label for=\"DE\">Back to Default</label><br>");
-
-  // Master Slave Radio
-  s.append("<h4>Master/Slave setup</h4><br>");
-  s.append("<input type=\"radio\" id=\"M\" name=\"GO_MASTER\" value=\"Master\" " + std::string(config->getGO_MASTER() == true ? "checked" : "") + ">");
-  s.append("<label for=\"M\">Master</label><br>");
-  s.append("<input type=\"radio\" id=\"S\" name=\"GO_MASTER\" value=\"Slave\" " + std::string(config->getGO_MASTER() == false ? "checked" : "") + ">");
-  s.append("<label for=\"S\">Slave</label><br>");
-  // Netmask
-  s.append("<label for=\"GO_MASTER_URL\">URL of Master:</label>");
-  s.append("<input type=\"text\" id=\"GO_MASTER_URL\" name=\"GO_MASTER_URL\" value=\"" + config->getGO_MASTER_URL() + "\"><br><br>");
 
   // Submit
   s.append("<br><button type=\"submit\">Go!</button>");
+  s.append("<br>(A new connection will be established!)");
+
+  s.append("</form>");
+  s.append("</html>");
+}
+
+
+void WebServer::prepareSetupSystemPage(std::string &s)
+{
+  Config *config = Config::get();
+
+  s.append("<html>");
+  s.append("<h1>System setup</h1>");
+  s.append("<form>");
+  // Setup WebServer
+  s.append("<h4>WebServer setup</h4>");
+  // Master Slave Normal Radio
+  s.append("<input type=\"radio\" id=\"M\" name=\"WS_TYPE\" value=\"SERV_MASTER\" " + std::string(config->getWS_TYPE() == SERV_MASTER ? "checked" : "") + ">");
+  s.append("<label for=\"M\">Master</label><br>");
+  s.append("<input type=\"radio\" id=\"S\" name=\"WS_TYPE\" value=\"SERV_SLAVE\" " + std::string(config->getWS_TYPE() == SERV_SLAVE ? "checked" : "") + ">");
+  s.append("<label for=\"S\">Slave</label><br>");
+  s.append("<input type=\"radio\" id=\"N\" name=\"WS_TYPE\" value=\"SERV_NORMAL\" " + std::string(config->getWS_TYPE() == SERV_NORMAL ? "checked" : "") + ">");
+  s.append("<label for=\"N\">Normal</label><br>");
+  // URL of Master, where a slave should connect to
+  s.append("<label for=\"WS_MASTER_URL\">URL of Master:</label>");
+  s.append("<input type=\"text\" id=\"WS_MASTER_URL\" name=\"WS_MASTER_URL\" value=\"" + config->getWS_MASTER_URL() + "\"><br><br>");
+
+  // Submit
+  s.append("<br><button type=\"submit\">Go!</button>");
+  s.append("<br>(A new WebServer will be started, when type changes.)");
 
   s.append("</form>");
   s.append("</html>");

@@ -2,6 +2,7 @@
 #include "config.hpp"
 #include "Log.hpp"
 #include "Gondola.hpp"
+#include "WebAnchor.hpp"
 
 Gondola *Gondola::s_Instance = NULL;
 
@@ -24,6 +25,7 @@ Gondola::Gondola(Coordinate startPos)
  , m_Speed(1.0)
  , m_Anchors(NULL)
  , m_NumAnchors(0)
+ , m_AnchorsReady(0)
 {
   Log::logDebug("Creating gondola at: \n");
   Log::logDebug(m_CurrentPosition.toString().c_str());
@@ -59,7 +61,7 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
   else
     m_Speed = speed;
 
-  IAnchor *anchor = NULL;
+  anchorList_t *anchorListEntry = NULL;
   long maxSteps = 0;
 
   if (m_CurrentPosition == m_TargetPosition)
@@ -70,15 +72,19 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
 
   for (uint8_t i = 0; i < m_NumAnchors; i++)
   {
-    anchor = getAnchor(i);
-    if (anchor == NULL)
+    anchorListEntry = getAnchorListEntry(i);
+    if (anchorListEntry == NULL)
     {
-      Log::logWarning("__FILE__:__LINE__:__FUNCTION__:getAnchor returns NULL.. return\n");
+      Log::logWarning("getAnchor returns NULL... (Line: )");
+      Log::logWarning(__LINE__);
+      Log::logWarning("id: ");
+      Log::logWarning(i);
       return;
     }
-    Coordinate anchorPos = anchor->getAnchorPosition();
+    Coordinate anchorPos = anchorListEntry->anchor->getAnchorPosition();
     float newSpooledDistance = Coordinate::euclideanDistance(anchorPos, m_TargetPosition);
-    anchor->setTargetSpooledDistance(newSpooledDistance, speed);
+    anchorListEntry->ready = false;
+    anchorListEntry->anchor->setTargetSpooledDistance(newSpooledDistance, speed);
   }
 }
 
@@ -86,6 +92,7 @@ void Gondola::addAnchor(IAnchor *anchor)
 {
   anchorList_t *ptr;
   anchorList_t *entry = new anchorList_t(anchor, NULL);
+  anchor->setID(m_NumAnchors++);
 
   if (m_Anchors == NULL)
   {
@@ -99,14 +106,13 @@ void Gondola::addAnchor(IAnchor *anchor)
 
     ptr->next = entry;
   }
-  m_NumAnchors++;
 }
 
 IAnchor *Gondola::getAnchor(uint8_t id)
 {
   if (id >= m_NumAnchors)
   {
-    Log::logWarning("Anchor not initialized... return NULL");
+    Log::logWarning("Anchor not initialized... return NULL\n");
     return NULL;
   }
   else
@@ -118,4 +124,43 @@ IAnchor *Gondola::getAnchor(uint8_t id)
     }
     return ptr->anchor;
   }
+}
+
+Gondola::anchorList_t *Gondola::getAnchorListEntry(uint8_t id)
+{
+  if (id >= m_NumAnchors)
+  {
+    Log::logWarning("Anchor not initialized... return NULL\n");
+    return NULL;
+  }
+  else
+  {
+    anchorList_t *ptr = m_Anchors;
+    for (uint8_t i = 0; i < id; i++)
+    {
+      ptr = ptr->next;
+    }
+    return ptr;
+  }
+}
+
+void Gondola::setAnchorReady(uint8_t id, bool ready)
+{
+  anchorList_t *anchorListEntry = getAnchorListEntry(id);
+  anchorListEntry->ready = ready;
+
+  for (uint8_t i = 0; i < m_NumAnchors; i++)
+  {
+    anchorListEntry = getAnchorListEntry(i);
+    if (anchorListEntry->ready == false)
+      return;
+  }
+
+  // If all anchors are ready, update current po
+  m_CurrentPosition = m_TargetPosition;
+}
+
+uint8_t Gondola::getNumAnchors(void)
+{
+  return m_NumAnchors;
 }
