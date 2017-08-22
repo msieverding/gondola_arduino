@@ -1,5 +1,4 @@
 ideas:
-- Rewrite Gondola::move() in a smarter way + Update the spooled distance during spooling + Consider missed time in anchor.cpp (startStep) + Move movement code into Anchor class
 - Scan for wifi networks and show them on html page (user can enter PW for a given network to connect)
 - find issue for curious serial output at startup
 - compile everything with Wall to find unused vars etc.
@@ -10,13 +9,14 @@ ideas:
 
 - save spooled distance of HardwareAnchor in Config/EEPROM
 
-Command Line interpreter:
-- set initial position of Anchors and Gondola
+- how to get current position now?
+  -> call if anchor is finished
+  -> if all anchors are finished update m_CurrentPosition
 
-WebSite:
+- check, wether ip is already registered (no doubled anchor)
+- maybe, if possible, check when slave disconnects
 
-Notes:
-- WiFiManager (https://github.com/tzapu/WiFiManager/blob/master/WiFiManager.cpp)
+- delete gondola, when master is destructed
 
 Hardware Ideas:
 - Reset (SW-)button to use default configuration (open AP...)

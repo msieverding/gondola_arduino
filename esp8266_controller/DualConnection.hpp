@@ -102,8 +102,7 @@ private:
   IPAddress                m_AP_Netmask;
   std::string              m_AP_URL;
   DNSServer                m_AP_DnsServer;
-  WiFiEventHandler         m_StationGotIPHandler;
-
+  WiFiEventHandler         m_APClientConnected;
   // wifi connection
   std::string              m_WC_SSID;
   std::string              m_WC_Passphrase;
@@ -111,6 +110,7 @@ private:
   std::string              m_WC_Hostname;
   IPAddress                m_WC_Gateway;
   IPAddress                m_WC_Netmask;
+  WiFiEventHandler         m_StationGotIPHandler;
 
 
 };

@@ -19,17 +19,20 @@ class HardwareAnchor : public IAnchor
 {
 public:
   /**
-   * constructor
+   * create instance of anchor
    * @param id       Anchor ID
    * @param pinSetup pinsetup for stepper driver
    * @param coord    coordinate of anchor
    */
-  HardwareAnchor(pins_t pinSetup, Coordinate pos, float spooledDistance);
+  static HardwareAnchor *create(pins_t pinSetup, Coordinate pos, float spooledDistance);
 
+  // TODO docu
+  static HardwareAnchor *get();
+  
   /**
    * vitual Destructor
    */
-  ~HardwareAnchor();
+  virtual ~HardwareAnchor();
 
   /**
    * get the position of the anchor mouting
@@ -75,9 +78,16 @@ public:
   /**
    * Call this function frequently to spool the anchor. Timing is considered within this function
    */
-  virtual void move();
+   void move();
 
 private:
+  /**
+   * constructor
+   * @param id       Anchor ID
+   * @param pinSetup pinsetup for stepper driver
+   * @param coord    coordinate of anchor
+   */
+  HardwareAnchor(pins_t pinSetup, Coordinate pos, float spooledDistance);
   /**
    * Configure the hardware pins
    */
@@ -93,13 +103,16 @@ private:
    */
   void calculate(void);
 
+  // instance
+  static HardwareAnchor  *s_Instance;
   // membervariables
-  Coordinate  m_AnchorPosition;
-  pins_t      m_Pins;
-  float       m_SpooledDistance;
-  float       m_TargetSpooledDistance;
-  float       m_SpoolingSpeed;
-  long        m_StepsTodo;
+  Coordinate              m_AnchorPosition;
+  pins_t                  m_Pins;
+  float                   m_SpooledDistance;
+  float                   m_TargetSpooledDistance;
+  float                   m_SpoolingSpeed;
+  long                    m_StepsTodo;
+  int8_t                  m_Direction;
 };
 
 #endif /* _ANCHOR_HPP_ */

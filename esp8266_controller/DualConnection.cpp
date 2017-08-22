@@ -21,6 +21,7 @@ DualConnection::~DualConnection()
   m_AP_DnsServer.stop();
   WiFi.softAPdisconnect(false);
   WiFi.disconnect(false);
+  s_Instance = NULL;
 }
 
 DualConnection::DualConnection(WebServer *webServer,

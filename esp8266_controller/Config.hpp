@@ -94,6 +94,12 @@ public:
   void setCM_CONTYPE(conType_t contype);
   conType_t getCM_CONTYPE() { return CM_CONTYPE; }
 
+  // Gondola
+  void setGO_MASTER(bool master);
+  bool getGO_MASTER() { return GO_MASTER; }
+  void setGO_MASTER_URL(std::string url);
+  std::string getGO_MASTER_URL() { return GO_MASTER_URL; }
+
   // WebServer
   uint16_t getWS_PORT() { return WS_PORT; }
 
@@ -148,8 +154,12 @@ private:
   std::string AP_PASSPHRASE;
   std::string AP_URL;
 
-  // IConnection
+  // ConnectionMgr
   conType_t CM_CONTYPE;
+
+  // Gondola
+  bool GO_MASTER;
+  std::string GO_MASTER_URL;
 
   // WebServer
   uint16_t WS_PORT;

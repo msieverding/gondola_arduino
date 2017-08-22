@@ -19,16 +19,27 @@ public:
    * @param _anchor [description]
    */
   typedef struct anchorList_s {
-    anchorList_s(IAnchor *_anchor) : anchor(_anchor), next(next) {}
+    anchorList_s(IAnchor *_anchor, anchorList_s *_next) : anchor(_anchor), next(_next) {}
     IAnchor *anchor;       // Pointer to an anchor
     anchorList_s *next;   // Pointe to the next Anchor
   } anchorList_t;
 
   /**
-  * Constrcutor
+  * create the instance
   * @param newPosition start position of gondola
   */
-  Gondola(Coordinate startPos);
+  static Gondola *create(Coordinate startPos);
+
+  /**
+   * get the instance
+   * ATTENTION: createt must be called before get()
+   * @return instance of gondola
+   */
+  static Gondola *get();
+  /*
+    virtual destructor
+   */
+  virtual ~Gondola();
   /**
    * Add an anchor to gondola
    * @param anchor anchor to add
@@ -57,7 +68,7 @@ public:
    * Get the target position of gondola
    * @return coordinate as which is target position
    */
-  Coordinate getTragetPosition();
+  Coordinate getTargetPosition();
   /**
    * Ser m_TargetPosition for gondola
    * @param targetPosition target position as coordinate
@@ -65,13 +76,16 @@ public:
    */
   void setTargetPosition(Coordinate &targetPos, float &speed);
 
-  /**
-   * Call this function to check for necessary movement
-   */
-  void move();
-
 private:
-  // Member variables
+  /**
+  * Constrcutor
+  * @param newPosition start position of gondola
+  */
+  Gondola(Coordinate startPos);
+
+  // instance
+  static Gondola  *s_Instance;
+  // membervariables
   Coordinate       m_CurrentPosition;
   Coordinate       m_TargetPosition;
   float            m_Speed;

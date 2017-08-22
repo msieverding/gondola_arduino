@@ -2,38 +2,27 @@
 #include "Coordinate.hpp"
 #include "ConnectionMgr.hpp"
 #include "Log.hpp"
+#include "IAnchor.hpp"
+#include "WebAnchor.hpp"
+#include <string>
+#include <functional>
 
-WebServer* WebServer::s_Instance = NULL;
-
-WebServer* WebServer::create(uint16_t port, Gondola *gondola)
-{
-  if (!s_Instance)
-    s_Instance = new WebServer(port, gondola);
-  return s_Instance;
-}
-
-WebServer::WebServer(uint16_t port, Gondola *gondola)
+WebServer::WebServer(uint16_t port, bool configureServer)
  : m_Server(port)
- , m_Gondola(gondola)
 {
-  initialize();
+  if (configureServer)
+  {
+    m_Server.on("/", std::bind(&WebServer::handleRoot, this));
+    m_Server.on("/Setup", std::bind(&WebServer::handleSetup, this));
+    m_Server.onNotFound(std::bind(&WebServer::handleNotFound, this));
+    m_Server.begin();
+    Log::logInfo("HTTP Server configured and started\n");
+  }
 }
 
 WebServer::~WebServer()
 {
-  s_Instance = NULL;
-}
 
-bool WebServer::initialize()
-{
-  m_Server.on("/", handleRoot);
-  m_Server.on("/InitGondola", handleInitGondola);
-  m_Server.on("/initgondola", handleInitGondola);
-  m_Server.on("/SetupWiFi", handleSetupWiFi);
-  m_Server.on("/setupwifi", handleSetupWiFi);
-  m_Server.onNotFound(handleNotFound);
-	m_Server.begin();
-  Log::logInfo("HTTP server started\n");
 }
 
 void WebServer::loop()
@@ -43,289 +32,123 @@ void WebServer::loop()
 
 void WebServer::handleRoot()
 {
-  ESP8266WebServer &server = s_Instance->m_Server;
   std::string answer;
   prepareHeader(answer);
 
-  uint8_t args = server.args();
-  if (args == 0)
-  {
-    prepareMainPage(answer);
-  }
-  else
-  {
-    Coordinate newCoordinate;
-    float speed = 0.0f;
-    Gondola *gondola = s_Instance->m_Gondola;
-
-    readOutMoveArgs(server, newCoordinate, speed);
-    prepareGondolaMovePage(answer, newCoordinate, speed);
-    if (gondola)
-      gondola->setTargetPosition(newCoordinate, speed);
-  }
-
-  server.send(200, "text/html", answer.c_str());
+  m_Server.send(200, "text/html", answer.c_str());
 }
 
-void WebServer::handleInitGondola()
+void WebServer::handleSetup()
 {
-  ESP8266WebServer &server = s_Instance->m_Server;
-  std::string answer;
-  Gondola *gondola = s_Instance->m_Gondola;
-  uint8_t args = server.args();
-  bool changed = false;
-
-  if (!gondola)
-  {
-    server.send(404, "text/plain", "FATAL ERROR: Gondola not initialized");
-  }
-
-  prepareHeader(answer);
-
-  Coordinate Coord = gondola->getCurrentPosition();
-
-  if (server.arg("x").length())
-  {
-    Coord.x = server.arg("x").toFloat();
-    changed = true;
-  }
-  if (server.arg("y").length())
-  {
-    Coord.y = server.arg("y").toFloat();
-    changed = true;
-  }
-  if (server.arg("z").length())
-  {
-    Coord.z = server.arg("z").toFloat();
-    changed = true;
-  }
-
-  if (changed)
-    gondola->setInitialPosition(Coord);
-
-  prepareGondolaInitPage(answer, *gondola);
-
-  server.send(200, "text/html", answer.c_str());
-}
-
-void WebServer::handleSetupWiFi()
-{
-  ESP8266WebServer &server = s_Instance->m_Server;
   ConnectionMgr *conMgr = ConnectionMgr::get();
   Config *config = Config::get();
   std::string answer;
 
-  uint8_t args = server.args();
-
-  prepareHeader(answer);
-
   // WiFi Connection Settings
-  if (server.arg("WC_SSID").length())
-    config->setWC_SSID(std::string(server.arg("WC_SSID").c_str()));
-  if (server.arg("WC_PASSPHRASE").length() && !server.arg("WC_NO_PASS").equals("true"))
-    config->setWC_PASSPHRASE(std::string(server.arg("WC_PASSPHRASE").c_str()));
-  else if (server.arg("WC_NO_PASS").equals("true"))
+  if (m_Server.arg("WC_SSID").length())
+    config->setWC_SSID(std::string(m_Server.arg("WC_SSID").c_str()));
+  if (m_Server.arg("WC_PASSPHRASE").length() && !m_Server.arg("WC_NO_PASS").equals("true"))
+    config->setWC_PASSPHRASE(std::string(m_Server.arg("WC_PASSPHRASE").c_str()));
+  else if (m_Server.arg("WC_NO_PASS").equals("true"))
     config->setWC_PASSPHRASE(std::string());
-  if (server.arg("WC_HOSTNAME").length())
-    config->setWC_HOSTNAME(std::string(server.arg("WC_HOSTNAME").c_str()));
-  if (server.arg("WC_IPADDRESS").length())
-    config->setWC_IPADDRESS(server.arg("WC_IPADDRESS"));
-  if (server.arg("WC_GATEWAY").length())
-    config->setWC_GATEWAY(server.arg("WC_GATEWAY"));
-  if (server.arg("WC_NETMASK").length())
-    config->setWC_NETMASK(server.arg("WC_NETMASK"));
+  if (m_Server.arg("WC_HOSTNAME").length())
+    config->setWC_HOSTNAME(std::string(m_Server.arg("WC_HOSTNAME").c_str()));
+  if (m_Server.arg("WC_IPADDRESS").length())
+    config->setWC_IPADDRESS(m_Server.arg("WC_IPADDRESS"));
+  if (m_Server.arg("WC_GATEWAY").length())
+    config->setWC_GATEWAY(m_Server.arg("WC_GATEWAY"));
+  if (m_Server.arg("WC_NETMASK").length())
+    config->setWC_NETMASK(m_Server.arg("WC_NETMASK"));
 
-  if (server.arg("AP_SSID").length())
-    config->setAP_SSID(std::string(server.arg("AP_SSID").c_str()));
-  if (server.arg("AP_PASSPHRASE").length() && !server.arg("AP_NO_PASS").equals("true"))
-    config->setAP_PASSPHRASE(std::string(server.arg("AP_PASSPHRASE").c_str()));
-  else if (server.arg("AP_NO_PASS").equals("true"))
+  if (m_Server.arg("AP_SSID").length())
+    config->setAP_SSID(std::string(m_Server.arg("AP_SSID").c_str()));
+  if (m_Server.arg("AP_PASSPHRASE").length() && !m_Server.arg("AP_NO_PASS").equals("true"))
+    config->setAP_PASSPHRASE(std::string(m_Server.arg("AP_PASSPHRASE").c_str()));
+  else if (m_Server.arg("AP_NO_PASS").equals("true"))
     config->setAP_PASSPHRASE(std::string());
-  if (server.arg("AP_URL").length())
-    config->setAP_URL(std::string(server.arg("AP_URL").c_str()));
-  if (server.arg("AP_IPADDRESS").length())
-    config->setAP_IPADDRESS(server.arg("AP_IPADDRESS"));
-  if (server.arg("AP_GATEWAY").length())
-    config->setAP_GATEWAY(server.arg("AP_GATEWAY"));
-  if (server.arg("AP_NETMASK").length())
-    config->setAP_NETMASK(server.arg("AP_NETMASK"));
+  if (m_Server.arg("AP_URL").length())
+    config->setAP_URL(std::string(m_Server.arg("AP_URL").c_str()));
+  if (m_Server.arg("AP_IPADDRESS").length())
+    config->setAP_IPADDRESS(m_Server.arg("AP_IPADDRESS"));
+  if (m_Server.arg("AP_GATEWAY").length())
+    config->setAP_GATEWAY(m_Server.arg("AP_GATEWAY"));
+  if (m_Server.arg("AP_NETMASK").length())
+    config->setAP_NETMASK(m_Server.arg("AP_NETMASK"));
 
 
-  if (server.arg("WiFiType").equals("APConnection"))
+  if (m_Server.arg("WiFiType").equals("APConnection"))
   {
     conMgr->requestChangeConnection(CON_ACCESS_POINT);
     config->setCM_CONTYPE(CON_ACCESS_POINT);
   }
-  else if (server.arg("WiFiType").equals("WiFiConnection"))
+  else if (m_Server.arg("WiFiType").equals("WiFiConnection"))
   {
     conMgr->requestChangeConnection(CON_WIFI_CONNECTION);
     config->setCM_CONTYPE(CON_WIFI_CONNECTION);
   }
-  else if (server.arg("WiFiType").equals("DualConnection"))
+  else if (m_Server.arg("WiFiType").equals("DualConnection"))
   {
     conMgr->requestChangeConnection(CON_DUAL_CONNECTION);
     config->setCM_CONTYPE(CON_DUAL_CONNECTION);
   }
-  else if (server.arg("WiFiType").equals("restoreDefault"))
+  else if (m_Server.arg("WiFiType").equals("restoreDefault"))
   {
     Config::resetConfig();
     config = Config::get();
     conMgr->requestChangeConnection(config->getCM_CONTYPE());
   }
 
+  if (m_Server.arg("GO_MASTER").length())
+  {
+    bool type = (m_Server.arg("GO_MASTER").equals("Master"));
+    Config::get()->setGO_MASTER(type);
+    // Request new and clean connection, when type was changed
+    conMgr->requestChangeConnection(config->getCM_CONTYPE());
+  }
+  if (m_Server.arg("GO_MASTER_URL").length())
+  {
+    Config::get()->setGO_MASTER_URL(std::string(m_Server.arg("GO_MASTER_URL").c_str()));
+  }
+
   config->writeToEEPROM();
 
-  prepareWiFiSetupPage(answer);
-  server.send(200, "text/html", answer.c_str());
+  prepareHeader(answer);
+  prepareSetupPage(answer);
+
+  m_Server.send(200, "text/html", answer.c_str());
 }
 
 void WebServer::handleNotFound()
 {
-  ESP8266WebServer &server = s_Instance->m_Server;
   std::string header;
   prepareHeader(header);
 	String message = header.c_str();
-  message += "<br><p>";
-  message += "File Not Found<br><br>";
-	message += "URI: ";
-	message += server.uri();
+  message += "<br><p>File Not Found<br><br>URI:";
+	message += m_Server.uri();
 	message += "<br>Method: ";
-	message += ( server.method() == HTTP_GET ) ? "GET" : "POST";
+	message += ( m_Server.method() == HTTP_GET ) ? "GET" : "POST";
 	message += "<br>Arguments: ";
-	message += server.args();
+	message += m_Server.args();
 	message += "<br>";
 
-	for ( uint8_t i = 0; i < server.args(); i++ )
+	for ( uint8_t i = 0; i < m_Server.args(); i++ )
   {
-		message += " " + server.argName(i) + ": " + server.arg(i) + "<br>";
+		message += " " + m_Server.argName(i) + ": " + m_Server.arg(i) + "<br>";
 	}
 
-	server.send(404, "text/html", message);
+	m_Server.send(404, "text/html", message);
 }
 
 void WebServer::prepareHeader(std::string &s)
 {
   s.append("<html>");
-  s.append("<a href=\"/\">Move</a> ");
-  s.append("<a href=\"/SetupWiFi\">SetupWiFi</a> ");
-  s.append("<a href=\"/InitGondola\">InitGondola</a> ");
+  s.append("<a href=\"/\">Root</a> ");
+  s.append("<a href=\"/Setup\">Setup</a> ");
   s.append("<hr>");
   s.append("</html>");
 }
 
-void WebServer::prepareMainPage(std::string &s)
-{
-  s.append("<html>");
-
-  if (!s_Instance->m_Gondola)
-  {
-    s.append("Gondola is not initialized.");
-    s.append("</html>");
-    return;
-  }
-  Coordinate Coord = s_Instance->m_Gondola->getCurrentPosition();
-
-  s.append("<br><br>");
-  s.append("New position:");
-  s.append("<form>");
-  s.append("<label for=\"x\">X:");
-  s.append("<input type=\"text\" id=\"x\" name=\"x\" value=\"" + Coord.compToString('x') + "\">");
-  s.append("</label>");
-  s.append("<label for=\"y\">Y:");
-  s.append("<input type=\"text\" id=\"y\" name=\"y\" value=\"" + Coord.compToString('y') + "\">");
-  s.append("</label>");
-  s.append("<label for=\"z\">Z:");
-  s.append("<input type=\"text\" id=\"z\" name=\"z\" value=\"" + Coord.compToString('z') + "\">");
-  s.append("</label>");
-  s.append("<br><br>");
-  s.append("<label for=\"speed\">Speed:");
-  s.append("<input type=\"text\" id=\"speed\" name=\"speed\" value=\"1.0\">");
-  s.append("</label>");
-  s.append("<br><br>");
-  s.append("<button type=\"submit\">Move!</button>");
-  s.append("</form>");
-  s.append("</html>");
-}
-
-void WebServer::prepareGondolaMovePage(std::string &s, Coordinate &coord, float &speed)
-{
-  char buf[20];
-  dtostrf(speed, 4, 2, buf);
-
-  s.append("<html>");
-  s.append("<h1>Move Request</h1>");
-  s.append("Move Gondola to: "+ coord.toString() + " with speed ");
-  s.append(buf);
-  s.append("<br><hr />");
-  prepareMainPage(s);
-}
-
-void WebServer::prepareGondolaInitPage(std::string &s, Gondola &gondola)
-{
-  Coordinate Coord = gondola.getCurrentPosition();
-
-  s.append("<html><h1>Set Gondolas initial position</h1>");
-  s.append("<form>");
-  s.append("<label for=\"x\">X:");
-  s.append("<input type=\"text\" id=\"x\" name=\"x\" value=\"" + Coord.compToString('x') + "\">");
-  s.append("</label><br>");
-  s.append("<label for=\"y\">Y:");
-  s.append("<input type=\"text\" id=\"y\" name=\"y\" value=\"" + Coord.compToString('y') + "\">");
-  s.append("</label><br>");
-  s.append("<label for=\"z\">Z:");
-  s.append("<input type=\"text\" id=\"z\" name=\"z\" value=\"" + Coord.compToString('z') + "\">");
-  s.append("</label><br>");
-  s.append("<br><br>");
-  s.append("<button type=\"submit\">Set!</button>");
-  s.append("</form>");
-  s.append("</html>");
-}
-
-void WebServer::readOutMoveArgs(ESP8266WebServer &server, Coordinate &coord, float &s)
-{
-  // get X coordinate. Consider lower and upper case
-  if(server.arg("x").length())
-  {
-    coord.x = server.arg("x").toFloat();
-  }
-  else if(server.arg("X").length())
-  {
-    coord.x = server.arg("X").toFloat();
-  }
-  // get Y coordinate. Consider lower and upper case
-  if(server.arg("y").length())
-  {
-    coord.y = server.arg("y").toFloat();
-  }
-  else if(server.arg("Y").length())
-  {
-    coord.y = server.arg("Y").toFloat();
-  }
-  // get Z coordinate. Consider lower and upper case
-  if(server.arg("z").length())
-  {
-    coord.z = server.arg("z").toFloat();
-  }
-  else if(server.arg("Z").length())
-  {
-    coord.z = server.arg("Z").toFloat();
-  }
-  // get Speed. Consider lower case, upper case and first letter in upper case
-  if (server.arg("speed").length())
-  {
-    s = server.arg("speed").toFloat();
-  }
-  else if (server.arg("Speed").length())
-  {
-    s = server.arg("Speed").toFloat();
-  }
-  else if (server.arg("SPEED").length())
-  {
-    s = server.arg("SPEED").toFloat();
-  }
-}
-
-void WebServer::prepareWiFiSetupPage(std::string &s)
+void WebServer::prepareSetupPage(std::string &s)
 {
   Config *config = Config::get();
 
@@ -394,6 +217,17 @@ void WebServer::prepareWiFiSetupPage(std::string &s)
   s.append("<label for=\"DU\">WiFi + AP Connection.</label><br>");
   s.append("<input type=\"radio\" id=\"DE\" name=\"WiFiType\" value=\"restoreDefault\">");
   s.append("<label for=\"DE\">Back to Default</label><br>");
+
+  // Master Slave Radio
+  s.append("<h4>Master/Slave setup</h4><br>");
+  s.append("<input type=\"radio\" id=\"M\" name=\"GO_MASTER\" value=\"Master\" " + std::string(config->getGO_MASTER() == true ? "checked" : "") + ">");
+  s.append("<label for=\"M\">Master</label><br>");
+  s.append("<input type=\"radio\" id=\"S\" name=\"GO_MASTER\" value=\"Slave\" " + std::string(config->getGO_MASTER() == false ? "checked" : "") + ">");
+  s.append("<label for=\"S\">Slave</label><br>");
+  // Netmask
+  s.append("<label for=\"GO_MASTER_URL\">URL of Master:</label>");
+  s.append("<input type=\"text\" id=\"GO_MASTER_URL\" name=\"GO_MASTER_URL\" value=\"" + config->getGO_MASTER_URL() + "\"><br><br>");
+
   // Submit
   s.append("<br><button type=\"submit\">Go!</button>");
 

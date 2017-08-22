@@ -4,21 +4,19 @@
 
 SerialConnection *SerialConnection::s_Instance = NULL;
 
-SerialConnection *SerialConnection::create(uint32_t baudrate, Gondola *gondola)
+SerialConnection *SerialConnection::create(uint32_t baudrate)
 {
   if (!s_Instance)
-    s_Instance = new SerialConnection(baudrate, gondola);
+    s_Instance = new SerialConnection(baudrate);
   return s_Instance;
 }
 
-SerialConnection::SerialConnection(uint32_t baudrate, Gondola *gondola)
+SerialConnection::SerialConnection(uint32_t baudrate)
  : m_Baudrate(baudrate)
- , m_Gondola(gondola)
  , m_CommandInterpreter()
 {
-  Log::logInfo("Starting Serial Connection\n");
-  // following line is already done in main. Use it twice will fail
-  // Serial.begin(m_Baudrate);
+  Serial.begin(m_Baudrate);
+  Log::logInfo("\n\nStarting Serial Connection\n");
 
   m_CommandInterpreter = CommandInterpreter::get();
   m_CommandInterpreter->addCommand("move", moveCommand);
@@ -92,7 +90,11 @@ void SerialConnection::moveCommand(std::string &s)
   CI->getArgument(s, arg, 3);
   speed = atof(arg.c_str());
 
-  s_Instance->m_Gondola->setTargetPosition(newPosition, speed);
+  Gondola * gondola = Gondola::get();
+  if (gondola)
+    gondola->setTargetPosition(newPosition, speed);
+  else
+    Log::logWarning("Gondola was not created\n");
 }
 
 void SerialConnection::loglevelCommand(std::string &s)

@@ -8,7 +8,7 @@ void Log::setLogLevel(logLevel_t level)
   s_LogLevel = level;
 }
 
-void Log::logWarning(std::string &s)
+void Log::logWarning(std::string s)
 {
   if (s_LogLevel >= LOG_WARNING)
     Serial.print(s.c_str());
@@ -38,7 +38,7 @@ void Log::logWarning(float f)
     Serial.print(f);
 }
 
-void Log::logDebug(std::string &s)
+void Log::logDebug(std::string s)
 {
   if (s_LogLevel >= LOG_DEBUG)
     Serial.print(s.c_str());
@@ -68,7 +68,7 @@ void Log::logDebug(float f)
     Serial.print(f);
 }
 
-void Log::logInfo(std::string &s)
+void Log::logInfo(std::string s)
 {
   if (s_LogLevel >= LOG_INFO)
     Serial.print(s.c_str());

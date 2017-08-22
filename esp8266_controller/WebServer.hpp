@@ -12,12 +12,11 @@ class WebServer
 {
 public:
   /**
-   * Create instance of WebServer
-   * @param  port    Port to use for the server
-   * @param  gondola Gondola to move when a request comes in
-   * @return         instnce of WebServer
+   * private constructor
+   * @param  port           Port to use for the server
+   * @param  startServer    constrcutor configures server if true
    */
-  static WebServer* create(uint16_t port, Gondola *gondola);
+  WebServer(uint16_t port, bool configureServer = true);
 
   /**
    * Virtual desctructor
@@ -25,36 +24,21 @@ public:
   virtual ~WebServer();
 
   /**
-   * Call this loop in periodically to handle WebServer and DNS requests
+   * Call this loop periodically to handle WebServer and DNS requests
    */
-  void loop();
+  virtual void loop();
 
-private:
-  /**
-   * private constructor
-   * @param  port    Port to use for the server
-   * @param  gondola Gondola to move when a request comes in
-   */
-  WebServer(uint16_t port, Gondola *gondola);
-  // initialize WebServer
-  bool initialize();
+protected:
   // HTTP Handler
-  static void handleRoot();
-  static void handleInitGondola();
-  static void handleSetupWiFi();
-  static void handleNotFound();
-  // Helper functions for building web pages
-  static void prepareHeader(std::string &s);
-  static void prepareMainPage(std::string &s);
-  static void prepareGondolaMovePage(std::string &s, Coordinate &coord, float &speed);
-  static void prepareGondolaInitPage(std::string &s, Gondola &gondola);
-  static void readOutMoveArgs(ESP8266WebServer &server, Coordinate &coord, float &speed);
-  static void prepareWiFiSetupPage(std::string &s);
+  virtual void handleRoot();
+  virtual void handleSetup();
+  virtual void handleNotFound();
 
-  // instance
-  static WebServer         *s_Instance;
+  // Helper functions to build web pages
+  virtual void prepareHeader(std::string &s);
+  void prepareSetupPage(std::string &s);
+
   // Membervariables
   ESP8266WebServer          m_Server;
-  Gondola                  *m_Gondola;
 };
 #endif /* _WEB_SERVER_HPP_ */

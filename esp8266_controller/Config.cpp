@@ -35,6 +35,9 @@
 // Placeholder for more features until address 299
 
 #define EEPROM_CM_CONTYPE_START         300
+#define EEPROM_GO_MASTER_START          301
+#define EEPROM_GO_MASTER_URL_START      302
+#define EEPROM_GO_MASTER_URL_LENGTH     40
 
 
 
@@ -64,9 +67,12 @@ Config::Config()
  , AP_NETMASK(255, 255, 255, 0)
  , AP_SSID("GondolaWiFi")
  , AP_PASSPHRASE("TU_GRAZ_ITI")
- , AP_URL("www.gondola.com")
+ , AP_URL("www.gondola-slave.com")
  // ConnectionMgr Setup
- , CM_CONTYPE(CON_ACCESS_POINT)
+ , CM_CONTYPE(CON_DUAL_CONNECTION)
+ // Gondola Master / Slave
+ , GO_MASTER(false)
+ , GO_MASTER_URL("www.gondola-master.com")
  // WebServer
  , WS_PORT(80)
  // Serial
@@ -118,6 +124,9 @@ bool Config::writeToEEPROM()
   persistString(    AP_URL,         EEPROM_AP_URL_START,            EEPROM_AP_URL_LENGTH);
 
   EEPROM.write(EEPROM_CM_CONTYPE_START, static_cast<uint8_t>(CM_CONTYPE));
+  EEPROM.write(EEPROM_GO_MASTER_START, static_cast<uint8_t>(GO_MASTER));
+
+  persistString(    GO_MASTER_URL,  EEPROM_GO_MASTER_URL_START,     EEPROM_GO_MASTER_URL_LENGTH);
 
   return EEPROM.commit();
 }
@@ -141,6 +150,9 @@ void Config::readFromEEPROM()
   readString(    AP_URL,         EEPROM_AP_URL_START,            EEPROM_AP_URL_LENGTH);
 
   CM_CONTYPE = static_cast<conType_t>(EEPROM.read(EEPROM_CM_CONTYPE_START));
+  GO_MASTER = static_cast<bool>(EEPROM.read(EEPROM_GO_MASTER_START));
+
+  readString(    GO_MASTER_URL,  EEPROM_GO_MASTER_URL_START,     EEPROM_GO_MASTER_URL_LENGTH);
 }
 
 void Config::persistString(std::string &s, uint16_t start, uint8_t maxLength)
@@ -302,4 +314,15 @@ void Config::setAP_URL(std::string url)
 void Config::setCM_CONTYPE(conType_t contype)
 {
   CM_CONTYPE = contype;
+}
+
+
+void Config::setGO_MASTER(bool master)
+{
+  GO_MASTER = master;
+}
+
+void Config::setGO_MASTER_URL(std::string url)
+{
+  GO_MASTER_URL = url;
 }

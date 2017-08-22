@@ -14,7 +14,7 @@ public:
    * @param  gondola  gondola to use for requests
    * @return          pointer to Instance
    */
-  static SerialConnection *create(uint32_t baudrate, Gondola *gondola);
+  static SerialConnection *create(uint32_t baudrate);
   /**
    * virtual destructor
    */
@@ -26,7 +26,7 @@ public:
   virtual void loop();
 
 private:
-  SerialConnection(uint32_t baudrate, Gondola *m_Gondola);
+  SerialConnection(uint32_t baudrate);
   static void moveCommand(std::string &s);
   static void loglevelCommand(std::string &s);
   static void helpCommand(std::string &s);
@@ -35,7 +35,6 @@ private:
   static SerialConnection    *s_Instance;
   // membervariables
   uint32_t                    m_Baudrate;
-  Gondola                    *m_Gondola;
   CommandInterpreter         *m_CommandInterpreter;
 };
 

@@ -62,6 +62,18 @@ bool Coordinate::operator==(Coordinate const& c)
   return true;
 }
 
+bool Coordinate::operator!=(Coordinate const& c)
+{
+  if (this->x != c.x)
+    return true;
+  if (this->y != c.y)
+    return true;
+  if (this->z != c.z)
+    return true;
+
+  return false;
+}
+
 // =============== FUNCTIONS ===============
 float Coordinate::euclideanDistance(Coordinate p1, Coordinate p2)
 {

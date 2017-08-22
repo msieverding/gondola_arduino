@@ -14,17 +14,17 @@ public:
 
   static void setLogLevel(logLevel_t level);
 
-  static void logWarning(std::string &s);
+  static void logWarning(std::string s);
   static void logWarning(const char * c);
   static void logWarning(int i);
   static void logWarning(long int l);
   static void logWarning(float f);
-  static void logDebug(std::string &s);
+  static void logDebug(std::string s);
   static void logDebug(const char * c);
   static void logDebug(int i);
   static void logDebug(long int l);
   static void logDebug(float f);
-  static void logInfo(std::string &s);
+  static void logInfo(std::string s);
   static void logInfo(const char * c);
   static void logInfo(int i);
   static void logInfo(long int l);

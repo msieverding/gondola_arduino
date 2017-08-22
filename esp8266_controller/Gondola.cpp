@@ -3,6 +3,20 @@
 #include "Log.hpp"
 #include "Gondola.hpp"
 
+Gondola *Gondola::s_Instance = NULL;
+
+Gondola* Gondola::create(Coordinate startPos)
+{
+  if (!s_Instance)
+    s_Instance = new Gondola(startPos);
+
+  return s_Instance;
+}
+
+Gondola* Gondola::get()
+{
+  return s_Instance;
+}
 
 Gondola::Gondola(Coordinate startPos)
  : m_CurrentPosition(startPos)
@@ -16,6 +30,11 @@ Gondola::Gondola(Coordinate startPos)
   Log::logDebug("\n");
 }
 
+Gondola::~Gondola()
+{
+  s_Instance = NULL;
+}
+
 Coordinate Gondola::getCurrentPosition()
 {
   return m_CurrentPosition;
@@ -27,7 +46,7 @@ void Gondola::setInitialPosition(Coordinate &initPos)
   m_TargetPosition = initPos;
 }
 
-Coordinate Gondola::getTragetPosition()
+Coordinate Gondola::getTargetPosition()
 {
   return m_TargetPosition;
 }
@@ -45,7 +64,7 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
 
   if (m_CurrentPosition == m_TargetPosition)
   {
-    Log::logDebug("Travel distance = 0. Nothing to do.n");
+    Log::logDebug("Travel distance = 0. Nothing to do\n");
     return;
   }
 
@@ -54,7 +73,7 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
     anchor = getAnchor(i);
     if (anchor == NULL)
     {
-      Log::logWarning("getAnchor returns NULL.. return");
+      Log::logWarning("__FILE__:__LINE__:__FUNCTION__:getAnchor returns NULL.. return\n");
       return;
     }
     Coordinate anchorPos = anchor->getAnchorPosition();
@@ -66,7 +85,7 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
 void Gondola::addAnchor(IAnchor *anchor)
 {
   anchorList_t *ptr;
-  anchorList_t *entry = new anchorList_t(anchor);
+  anchorList_t *entry = new anchorList_t(anchor, NULL);
 
   if (m_Anchors == NULL)
   {
@@ -98,20 +117,5 @@ IAnchor *Gondola::getAnchor(uint8_t id)
       ptr = ptr->next;
     }
     return ptr->anchor;
-  }
-}
-
-void Gondola::move()
-{
-  IAnchor *anchor;
-  for (uint8_t i = 0; i < m_NumAnchors; i++)
-  {
-    anchor = getAnchor(i);
-    if (anchor == NULL)
-    {
-      Log::logWarning("getAnchor returns NULL.. return");
-      return;
-    }
-    anchor->move();
   }
 }

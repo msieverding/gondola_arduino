@@ -2,20 +2,37 @@
 #include "HardwareAnchor.hpp"
 #include "Log.hpp"
 
+HardwareAnchor *HardwareAnchor::s_Instance = NULL;
+
+HardwareAnchor *HardwareAnchor::create(pins_t pinSetup, Coordinate coord, float spooledDistance)
+{
+  if (!s_Instance)
+    s_Instance = new HardwareAnchor(pinSetup, coord, spooledDistance);
+  return s_Instance;
+}
+
 HardwareAnchor::HardwareAnchor(pins_t pinSetup, Coordinate coord, float spooledDistance)
  : m_AnchorPosition(coord)
  , m_Pins(pinSetup)
  , m_SpooledDistance(spooledDistance)
  , m_SpoolingSpeed(1.0)
  , m_StepsTodo(0)
+ , m_Direction(1)
 {
   Log::logDebug("Creating anchor\n");
   configurePins();
 }
 
+HardwareAnchor *HardwareAnchor::get()
+{
+  return s_Instance;
+}
+
 HardwareAnchor::~HardwareAnchor()
 {
-  Log::logDebug("Deleting Anchror\n");
+  Log::logDebug("Deleting Anchor\n");
+  delete(s_Instance);
+  s_Instance = NULL;
 }
 
 void HardwareAnchor::setTargetSpooledDistance(float targetDistance, float speed)
@@ -70,7 +87,7 @@ void HardwareAnchor::move()
   // TODO find possibility to decrease speed
   if (m_StepsTodo == 0)
   {
-    Log::logDebug("No steps todo\n");
+    // Log::logDebug("No steps todo\n");
     return;
   }
   startStep();
@@ -78,6 +95,7 @@ void HardwareAnchor::move()
   endStep();
   delay(STEP_DELAY / 1000);
   m_StepsTodo--;
+  m_SpooledDistance += m_Direction * ( 1 / STEP_CM / MICROSTEPS);
 }
 
 void HardwareAnchor::calculate()
@@ -98,11 +116,13 @@ void HardwareAnchor::calculate()
     digitalWrite(m_Pins.dir, HIGH);
     // build absolute value
     distanceTodo = abs(distanceTodo);
+    m_Direction = -1;
   }
   else
   {
     // direction_todo = -1;
     digitalWrite(m_Pins.dir, LOW);
+    m_Direction = 1;
   }
   // round to a given precision
   distanceTodo = roundPrecision(distanceTodo, MIN_PRECISION);

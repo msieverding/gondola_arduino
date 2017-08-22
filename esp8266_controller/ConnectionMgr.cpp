@@ -5,6 +5,8 @@
 #include "DualConnection.hpp"
 #include "CommandInterpreter.hpp"
 #include "Log.hpp"
+#include "WebServerMaster.hpp"
+#include "WebServerSlave.hpp"
 
 ConnectionMgr *ConnectionMgr::s_Instance = NULL;
 
@@ -17,27 +19,22 @@ ConnectionMgr *ConnectionMgr::get()
 }
 
 ConnectionMgr::ConnectionMgr()
- : m_ConType(CON_NONE)
+ : m_ConType(Config::get()->getCM_CONTYPE())
  , m_ChangeRequest(false)
  , m_ChangeContype(CON_NONE)
  , m_Connection(NULL)
  , m_WebServer(NULL)
 {
   CommandInterpreter::get()->addCommand(std::string("contype"), contypeCommand);
+
+  changeConnection(m_ConType);
 }
 
 ConnectionMgr::~ConnectionMgr()
 {
   CommandInterpreter::get()->deleteCommand(std::string("contype"), contypeCommand);
+  delete(m_WebServer);
   s_Instance = NULL;
-}
-
-bool ConnectionMgr::initConnection(WebServer *webServer)
-{
-  Config *config = Config::get();
-  m_ConType = config->getCM_CONTYPE();
-  m_WebServer = webServer;
-  changeConnection(m_ConType);
 }
 
 bool ConnectionMgr::changeConnection(conType_t contype)
@@ -52,7 +49,22 @@ bool ConnectionMgr::changeConnection(conType_t contype)
     m_Connection = NULL;
   }
 
+  if (m_WebServer != NULL)
+  {
+    delete(m_WebServer);
+    m_WebServer = NULL;
+  }
+
   delay(100);
+
+  Log::logDebug("ConMgr::Change::0");
+
+  if (Config::get()->getGO_MASTER())
+    m_WebServer = new WebServerMaster(Config::get()->getWS_PORT());
+  else
+    m_WebServer = new WebServerSlave(Config::get()->getWS_PORT());
+
+  Log::logDebug("ConMgr::Change::1\n");
 
   // initialize a new connection
   switch(contype)
@@ -66,6 +78,7 @@ bool ConnectionMgr::changeConnection(conType_t contype)
       break;
 
     case CON_DUAL_CONNECTION:
+    Log::logDebug("ConMgr::Change::2\n");
       m_Connection = DualConnection::create(m_WebServer,
                                             config->getAP_SSID(), config->getAP_PASSPHRASE(), config->getAP_IPADDRESS(), config->getAP_GATEWAY(), config->getAP_NETMASK(), config->getAP_URL(),
                                             config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME(), config->getWC_IPADDRESS(), config->getWC_GATEWAY(), config->getWC_NETMASK());

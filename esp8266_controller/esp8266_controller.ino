@@ -7,46 +7,41 @@
 #include "SerialConnection.hpp"
 #include "APConnection.hpp"
 #include "WebServer.hpp"
+#include "WebServerMaster.hpp"
+#include "WebServerSlave.hpp"
 #include "CommandInterpreter.hpp"
 #include "ConnectionMgr.hpp"
 #include "Log.hpp"
 
-Gondola *gondola;
-WebServer *server;
 IConnection *serial;
 ConnectionMgr *conMgr;
+HardwareAnchor *anchor;
 
 void setup()
 {
   Config* config = Config::get();
   config->readFromEEPROM();
 
-  Serial.begin(config->getSE_BAUDRATE());
-  Serial.print("\n\n");
+  serial = SerialConnection::create(config->getSE_BAUDRATE());
 
-  gondola = new Gondola(gondolaStart);
-  for (int i = 0; i < NUM_ANCHORS; i++)
-  {
-    gondola->addAnchor(new HardwareAnchor({enable_pin[i], step_pin[i], dir_pin[i]}, anchorPos[i], 0.0f));
-  }
+  anchor = HardwareAnchor::create({enable_pin[0], step_pin[0], dir_pin[0]}, anchorPos[0], 0.0f);
 
-  serial = SerialConnection::create(config->getSE_BAUDRATE(), gondola);
-
-  server = WebServer::create(config->getWS_PORT(), gondola);
+  Gondola::create(gondolaStart);
 
   conMgr = ConnectionMgr::get();
-  conMgr->initConnection(server);
 
   wdt_enable(1000);
+  // ESP.wdtEnable(1000);
 }
 
 void loop()
 {
   wdt_reset();
+  // ESP.wdtFeed();
   if (serial)
     serial->loop();
   if (conMgr)
     conMgr->loop();
-  if (gondola)
-    gondola->move();
+  if (anchor)
+    anchor->move();
 }
