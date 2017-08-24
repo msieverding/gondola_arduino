@@ -8,9 +8,18 @@
 class IConnection
 {
 public:
+  /**
+   * Loop to call periodically
+   */
   virtual void loop() {}
+  /**
+   * Destrcutor
+   */
   virtual ~IConnection() {}
 protected:
+  /**
+   * Constrcutor
+   */
   IConnection() {}
 };
 

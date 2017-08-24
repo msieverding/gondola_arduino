@@ -66,10 +66,12 @@ private:
    * setup the WiFi Connection
    */
   void setupWiFiConnection();
+
   /**
    * setup mDNS for WiFi Connection
    */
   void setupMDNS();
+
   /**
    * Event handler when the WiFi Connection gets an IP
    * @param event event to handle
@@ -80,33 +82,31 @@ private:
    * setup the access point
    */
   void setupAccessPoint();
+
   /**
    * Setup DNS Serveer for access point
    */
   void setupDNS();
 
   // instance
-  static DualConnection   *s_Instance;
+  static DualConnection   *s_Instance;                //!< Instance of singleton
   // membervariables
-  // general
-  WebServer               *m_WebServer;
   // access point
-  std::string              m_AP_SSID;
-  std::string              m_AP_Passphrase;
-  IPAddress                m_AP_IPAddress;
-  IPAddress                m_AP_Gateway;
-  IPAddress                m_AP_Netmask;
-  std::string              m_AP_URL;
-  DNSServer                m_AP_DnsServer;
-  WiFiEventHandler         m_APClientConnected;
+  std::string              m_AP_SSID;                 //!< Name for access point
+  std::string              m_AP_Passphrase;           //!< Passphrase for access point
+  IPAddress                m_AP_IPAddress;            //!< IP Address of this chip
+  IPAddress                m_AP_Gateway;              //!< Gateway to use
+  IPAddress                m_AP_Netmask;              //!< Netmask of network
+  std::string              m_AP_URL;                  //!< URL of this chip
+  DNSServer                m_AP_DnsServer;            //!< DNS Server to provide
   // wifi connection
-  std::string              m_WC_SSID;
-  std::string              m_WC_Passphrase;
-  IPAddress                m_WC_IPAddress;
-  std::string              m_WC_Hostname;
-  IPAddress                m_WC_Gateway;
-  IPAddress                m_WC_Netmask;
-  WiFiEventHandler         m_StationGotIPHandler;
+  std::string              m_WC_SSID;                 //!< SSID of network to connect to
+  std::string              m_WC_Passphrase;           //!< Passphrase for Network SSID
+  IPAddress                m_WC_IPAddress;            //!< IPAddress of this chip
+  std::string              m_WC_Hostname;             //!< Hostname of this chip in this connection
+  IPAddress                m_WC_Gateway;              //!< Gateway to use
+  IPAddress                m_WC_Netmask;              //!< Netmask of this network
+  WiFiEventHandler         m_WC_StationGotIPHandler;  //!< Handler is called, when this station got an IP
 
 
 };

@@ -4,15 +4,19 @@ ideas:
 - compile everything with Wall to find unused vars etc.
 - checksum for EEPROM
 - save gondolas position in EEPROM
-
 - save spooled distance of HardwareAnchor in Config/EEPROM
+- use speed for movement :-D
 
 - check, wether ip is already registered (no doubled anchor)
-- maybe, if possible, check when slave disconnects
+- maybe, if possible, check when a slave disconnects
 - mabye, if possible, call AddWebAnchor webpage when a slave got a new connection
-- maybe? Don't store  connection and server type in config AND in class -> can cause logical errros in programmers brain
+- maybe? Don't store connection and server type in config AND in class -> can cause logical errros in programmers brain
 
 - delete gondola, when master is destructed
+
+- DualConnection as a heritage of APConnection and WiFiConnection to use their members and methods?
+
+
 
 Hardware Ideas:
 - Reset (SW-)button to use default configuration (open AP...)

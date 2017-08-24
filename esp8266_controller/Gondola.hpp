@@ -8,32 +8,36 @@
 #include "HardwareAnchor.hpp"
 
 /**
- * Class to store all information and provide function
- * for the gondola with its anchors
+ * Class to store all information and provide functions
+ * for gondola with its anchors
  */
 class Gondola
 {
 public:
   /**
    * List to store all anchors of this gondola
-   * @param _anchor [description]
    */
   typedef struct anchorList_s {
+    /**
+     * Constructor
+     * @param _anchor anchor to store
+     * @param _next   next element int list
+     */
     anchorList_s(IAnchor *_anchor, anchorList_s *_next) : anchor(_anchor), next(_next), ready(true) {}
-    IAnchor *anchor;        // Pointer to an anchor
-    bool ready;             // Ready to spool
-    anchorList_s *next;     // Pointe to the next Anchor
+    IAnchor *anchor;        //!< Pointer to an anchor
+    bool ready;             //!< Ready to spool
+    anchorList_s *next;     //!< Pointe to the next Anchor
   } anchorList_t;
 
   /**
   * create the instance
-  * @param newPosition start position of gondola
+  * @param startPos start position of gondola
   */
   static Gondola *create(Coordinate startPos);
 
   /**
    * get the instance
-   * ATTENTION: createt must be called before get()
+   * ATTENTION: create must be called before get()
    * @return instance of gondola
    */
   static Gondola *get();
@@ -60,8 +64,8 @@ public:
   Coordinate getCurrentPosition();
 
   /**
-   * Set m_CurrentPosition and m_TargetPosition
-   * @param newPosition Coordinate to set
+   * Sets the current and the target position
+   * @param initPos Coordinate to set
    */
   void setInitialPosition(Coordinate &initPos);
 
@@ -70,18 +74,32 @@ public:
    * @return coordinate as which is target position
    */
   Coordinate getTargetPosition();
+
   /**
-   * Ser m_TargetPosition for gondola
-   * @param targetPosition target position as coordinate
-   * @param speed          speed to use during movement to target
+   * Set target position of gondola
+   * @param targetPos  target position as coordinate
+   * @param speed      speed to use during movement to target
    */
   void setTargetPosition(Coordinate &targetPos, float &speed);
 
-  // TODO docu
+  /**
+   * Get an entry of the anchor list
+   * @param  id id of anchor
+   * @return    pointer to an element of the list / NULL if invalid id
+   */
   anchorList_t *getAnchorListEntry(uint8_t id);
 
+  /**
+   * Set or reset the ready bit in an anchor of the anchorlist
+   * @param id    id of anchor
+   * @param ready anchor is ready(=true) or not (=false)
+   */
   void setAnchorReady(uint8_t id, bool ready);
 
+  /**
+   * Get the number of registered anchors
+   * @return  number of registered anchors
+   */
   uint8_t getNumAnchors(void);
 
 private:
@@ -92,14 +110,13 @@ private:
   Gondola(Coordinate startPos);
 
   // instance
-  static Gondola         *s_Instance;
+  static Gondola         *s_Instance;           //!< Instance of singleton
   // membervariables
-  Coordinate              m_CurrentPosition;
-  Coordinate              m_TargetPosition;
-  float                   m_Speed;
-  anchorList_t           *m_Anchors;
-  uint8_t                 m_NumAnchors;
-  uint8_t                 m_AnchorsReady;
+  Coordinate              m_CurrentPosition;    //!< Current position of gondola
+  Coordinate              m_TargetPosition;     //!< Target position of gondola
+  float                   m_Speed;              //!< Allowed speed for movement
+  anchorList_t           *m_Anchors;            //!< List of registerd anchors
+  uint8_t                 m_NumAnchors;         //!< Number of registerd anchors
 };
 
 

@@ -25,7 +25,6 @@ Gondola::Gondola(Coordinate startPos)
  , m_Speed(1.0)
  , m_Anchors(NULL)
  , m_NumAnchors(0)
- , m_AnchorsReady(0)
 {
   Log::logDebug("Creating gondola at: \n");
   Log::logDebug(m_CurrentPosition.toString().c_str());

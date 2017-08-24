@@ -13,8 +13,8 @@ class WebServer
 public:
   /**
    * private constructor
-   * @param  port           Port to use for the server
-   * @param  startServer    constrcutor configures server if true
+   * @param  port               Port to use for the server
+   * @param  configureServer    constrcutor configures server if true
    */
   WebServer(uint16_t port, bool configureServer = true);
 

@@ -13,23 +13,28 @@ public:
    * Type of a command function
    */
   typedef void (*commandFunc)(std::string&);
+
   /**
-   * Structure for all registered commands
-   * @param s  commandWord to react on
-   * @param cf function to call when commandWord is found
+   * Structure for a single ended list of all registered commands
    */
   typedef struct commandList_s {
+    /**
+     * Constructor for struct element
+     * @param s  command to use
+     * @param cf function which belongs to this command
+     */
     commandList_s(std::string &s, commandFunc cf) : command(s), func(cf), next(NULL) {}
-    std::string command;
-    commandFunc func;
-    commandList_s *next;
+    std::string command;    //!< Command to react on
+    commandFunc func;       //!< function to call when command appears
+    commandList_s *next;    //!< next element in list
   } commandList_t;
 
   /**
    * Get instance of CommandInterpreter
-   * @return pointer to instance
+   * @return pointer to the instance
    */
   static CommandInterpreter *get();
+
   /**
    * virtual destructor
    */
@@ -42,23 +47,27 @@ public:
    */
   void addCommand(std::string commandWord, commandFunc commandFunction);
   /**
-   * delete a command from the interpreter
+   * delete a command from the command interpreter
    * @param commandWord     command to react on
    * @param commandFunction function to call when commandWord was found
    */
   void deleteCommand(std::string commandWord, commandFunc commandFunction);
 
   /**
-   * interprete the string s and search for a valid command
+   * interprete a string s
+   * When a registered command word appears, the given callback is called
+   * by this interpreter
    * @param s input string to interprete
    */
   void interprete(std::string &s);
+
   /**
-   * get the commandword of a string
+   * Get the commandWord of a string s
    * @param  s string to interprete
    * @return   command of string s
    */
   static std::string getCommandWord(std::string &s);
+
   /**
    * Get an argument of an input s
    * @param  s      input to use
@@ -67,6 +76,7 @@ public:
    * @return        success
    */
   static bool getArgument(std::string &s, std::string &arg, uint8_t argNum);
+
   /**
    * Get the number of arguments
    * @param  s input to use
@@ -84,16 +94,17 @@ private:
    * private constructor
    */
   CommandInterpreter();
+
   /**
   * delete the whole command list
   */
   void deleteCommandList();
 
   // instance
-  static CommandInterpreter  *s_Instance;
+  static CommandInterpreter  *s_Instance;         //!< Instance of singleton
 
   // membervariables
-  commandList_t              *m_CommandList;
+  commandList_t              *m_CommandList;      //!< List of all registered Commands
 };
 
 #endif /* _COMMAND_INTERPRETER_HPP_ */

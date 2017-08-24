@@ -49,8 +49,6 @@ DualConnection::DualConnection(std::string ap_ssid, std::string ap_pw, IPAddress
 void DualConnection::loop()
 {
   m_AP_DnsServer.processNextRequest();
-  if (m_WebServer)
-    m_WebServer->loop();
 }
 
 void DualConnection::setupWiFiConnection()
@@ -63,8 +61,7 @@ void DualConnection::setupWiFiConnection()
   // Hostname
   WiFi.hostname(m_WC_Hostname.c_str());
   // Event for Connection changes
-
-  m_StationGotIPHandler = WiFi.onStationModeGotIP(&onEventGotIP);
+  m_WC_StationGotIPHandler = WiFi.onStationModeGotIP(&onEventGotIP);
 }
 
 void DualConnection::onEventGotIP(const WiFiEventStationModeGotIP &event)

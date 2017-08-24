@@ -13,7 +13,7 @@ enum serverType_s : byte;
 typedef enum serverType_s serverType_t;
 
 /**
- * Singleton class to store the setup of gondola
+ * Singleton class to store the setup of the application
  */
 class Config
 {
@@ -34,6 +34,7 @@ public:
    * @return success
    */
   bool writeToEEPROM();
+
   /**
    * read the setup from the internal EEPROM
    */
@@ -117,19 +118,22 @@ private:
    * @param maxLength maximum length in EEPROM
    */
   void persistString(std::string &s, uint16_t start, uint8_t maxLength);
+
   /**
-   * Read a string from a griven address
+   * Read a string from a given address
    * @param s         string to read
    * @param start     start address in EERPON
    * @param maxLength maximum length of string
    */
   void readString(std::string &s, uint16_t start, uint8_t maxLength);
+
   /**
    * Write an IPAddres to the EEPROM
    * @param ip    IPAddress to save
    * @param start start address in EEPROM
    */
   void persistIPAddress(IPAddress &ip, uint16_t start);
+
   /**
    * Read an IPAddress from the EEPROM
    * @param ip    IPAddress to read

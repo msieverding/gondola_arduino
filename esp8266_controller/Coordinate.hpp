@@ -33,6 +33,7 @@ public:
    * @return      'comp' as string
    */
   std::string compToString(char comp);
+
   /**
    * Get whole coordinate as string
    * @return String with coordinate
@@ -64,13 +65,13 @@ public:
   /**
    * x to the power of 2
    * @param  x  x to square
-   * @return   square of x
+   * @return   x^2
    */
   static float pow2(float x);
 
-  float x;
-  float y;
-  float z;
+  float x;      //!< x part of coordinate
+  float y;      //!< y part of coordinate
+  float z;      //!< z part of coordinate
 };
 
 #endif /* _COORDINATE_HPP_ */

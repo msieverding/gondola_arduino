@@ -34,7 +34,7 @@
 #define EEPROM_AP_URL_LENGTH            40
 // Placeholder for more features until address 299
 
-#define EEPROM_CM_connectionType_sTART         300
+#define EEPROM_CM_CONNECTIONTYPE_START  300
 #define EEPROM_WS_TYPE_START            301
 #define EEPROM_WS_MASTER_START          302
 #define EEPROM_WS_MASTER_URL_LENGTH     40
@@ -122,7 +122,7 @@ bool Config::writeToEEPROM()
   persistIPAddress( AP_NETMASK,     EEPROM_AP_NETMASK_START);
   persistString(    AP_URL,         EEPROM_AP_URL_START,            EEPROM_AP_URL_LENGTH);
 
-  EEPROM.write(EEPROM_CM_connectionType_sTART, static_cast<uint8_t>(CM_CONNECTIONTYPE));
+  EEPROM.write(EEPROM_CM_CONNECTIONTYPE_START, static_cast<uint8_t>(CM_CONNECTIONTYPE));
 
   EEPROM.write(EEPROM_WS_TYPE_START, static_cast<uint8_t>(WS_TYPE));
   persistString(    WS_MASTER_URL,  EEPROM_WS_MASTER_START,        EEPROM_WS_MASTER_URL_LENGTH);
@@ -148,7 +148,7 @@ void Config::readFromEEPROM()
   readIPAddress( AP_NETMASK,     EEPROM_AP_NETMASK_START);
   readString(    AP_URL,         EEPROM_AP_URL_START,            EEPROM_AP_URL_LENGTH);
 
-  CM_CONNECTIONTYPE = static_cast<connectionType_t>(EEPROM.read(EEPROM_CM_connectionType_sTART));
+  CM_CONNECTIONTYPE = static_cast<connectionType_t>(EEPROM.read(EEPROM_CM_CONNECTIONTYPE_START));
 
   WS_TYPE = static_cast<serverType_t>(EEPROM.read(EEPROM_WS_TYPE_START));
   readString(    WS_MASTER_URL,  EEPROM_WS_MASTER_START,     EEPROM_WS_MASTER_URL_LENGTH);

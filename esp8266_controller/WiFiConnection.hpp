@@ -52,14 +52,14 @@ private:
   void setupMDNS();
 
   // instance
-  static WiFiConnection     *s_Instance;
+  static WiFiConnection     *s_Instance;        //!< Instace of the connection
   // Membervariables
-  std::string                m_SSID;
-  std::string                m_Passphrase;
-  IPAddress                  m_IPAddress;
-  std::string                m_Hostname;
-  IPAddress                  m_Gateway;
-  IPAddress                  m_Netmask;
+  std::string                m_SSID;            //!< SSID to connect to
+  std::string                m_Passphrase;      //!< Passphrase to use for the network
+  IPAddress                  m_IPAddress;       //!< IPaddres to use / 0.0.0.0 for DHCP
+  std::string                m_Hostname;        //!< Hostname for this chip
+  IPAddress                  m_Gateway;         //!< Gateway to use / 0.0.0.0 for DHCP
+  IPAddress                  m_Netmask;         //!< Netmask to use / 0.0.0.0 for DHCP
 };
 
 #endif /* _WIFI_CONNECTION_HPP_ */

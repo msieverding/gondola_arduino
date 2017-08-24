@@ -7,9 +7,9 @@
 
 /** Struct for pin setup of ESP8266 */
 typedef struct {
-  uint8_t en;     // enable pin
-  uint8_t stp;    // step pin
-  uint8_t dir;    // direction pin
+  uint8_t en;     //!< enable pin
+  uint8_t stp;    //!< step pin
+  uint8_t dir;    //!< direction pin
 } pins_t;
 
 /**
@@ -20,13 +20,15 @@ class HardwareAnchor : public IAnchor
 public:
   /**
    * create instance of anchor
-   * @param id       Anchor ID
-   * @param pinSetup pinsetup for stepper driver
-   * @param coord    coordinate of anchor
+   * @param pinSetup    pinsetup for stepper driver
+   * @param anchorPos   coordinate of anchor
    */
   static HardwareAnchor *create(pins_t pinSetup, Coordinate anchorPos, float spooledDistance);
 
-  // TODO docu
+  /**
+   * get pointer to the instance
+   * @return pointer to HardwareAnchor instance
+   */
   static HardwareAnchor *get();
 
   /**
@@ -36,7 +38,8 @@ public:
 
   /**
    * Set the target of the anchor spooling
-   * @param targetDistance target distance
+   * @param targetDistance  target distance
+   * @param speed           allowed movement speed
    */
   virtual void setTargetSpooledDistance(float targetDistance, float speed);
 
@@ -64,18 +67,22 @@ public:
 private:
   /**
    * constructor
-   * @param id       Anchor ID
-   * @param pinSetup pinsetup for stepper driver
-   * @param coord    coordinate of anchor
+   * @param pinSetup        pinsetup for stepper driver
+   * @param anchorPos       coordinate of anchor
+   * @param spooledDistance currently spooled distance
    */
-  HardwareAnchor(pins_t pinSetup, Coordinate pos, float spooledDistance);
+  HardwareAnchor(pins_t pinSetup, Coordinate anchorPos, float spooledDistance);
+
   /**
    * Configure the hardware pins
    */
   void configurePins();
 
   /**
-   * Round precision of float
+   * Round a float to a given precision
+   * @param f             float to round
+   * @param precision     precision of rounding
+   * @return  rounded f
    */
   float roundPrecision(float f, float precision);
 
@@ -85,12 +92,12 @@ private:
   void calculate(void);
 
   // instance
-  static HardwareAnchor  *s_Instance;
+  static HardwareAnchor  *s_Instance;           //!< instance of singleton
   // membervariables
-  Coordinate              m_AnchorPosition;
-  pins_t                  m_Pins;
-  long                    m_StepsTodo;
-  int8_t                  m_Direction;
+  Coordinate              m_AnchorPosition;     //!< Position of the anchor
+  pins_t                  m_Pins;               //!< pin setup of this anchor
+  long                    m_StepsTodo;          //!< step todo to reach the targget position
+  int8_t                  m_Direction;          //!< Direction of movement -1 or +1
 };
 
 #endif /* _ANCHOR_HPP_ */
