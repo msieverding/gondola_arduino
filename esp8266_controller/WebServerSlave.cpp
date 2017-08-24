@@ -138,7 +138,6 @@ void WebServerSlave::reportSpoolingFinished()
     Log::logDebug("WebServerSlave::sendSpoolingDistance::connection failed\n");
     return;
   }
-  Coordinate coord = m_Anchor->getAnchorPosition();
   String url = "/ReportSpoolingFinished?&id=";
   url += m_Anchor->getID();
   url += "&spooledDistance=";

@@ -180,7 +180,6 @@ void Config::persistString(std::string &s, uint16_t start, uint8_t maxLength)
 
 void Config::readString(std::string &s, uint16_t start, uint8_t maxLength)
 {
-  int length = 0;
   uint8_t byte;
   char * str = new char[maxLength + 1];
 

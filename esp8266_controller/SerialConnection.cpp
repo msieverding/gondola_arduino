@@ -38,9 +38,6 @@ void SerialConnection::loop()
   if (Serial.available() > 0)
   {
     char command[255];
-    Coordinate newPosition;
-    float speed;
-    long start_time;
     uint8_t bytesRead;
 
     // read a line from serial

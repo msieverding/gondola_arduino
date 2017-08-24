@@ -65,7 +65,6 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
     m_Speed = speed;
 
   anchorList_t *anchorListEntry = NULL;
-  long maxSteps = 0;
 
   if (m_CurrentPosition == m_TargetPosition)
   {

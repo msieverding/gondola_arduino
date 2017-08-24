@@ -1,7 +1,6 @@
 ideas:
 - Scan for wifi networks and show them on html page (user can enter PW for a given network to connect)
 - find issue for curious serial output at startup
-- compile everything with Wall to find unused vars etc.
 - checksum for EEPROM
 - save gondolas position in EEPROM
 - save spooled distance of HardwareAnchor in Config/EEPROM
@@ -11,8 +10,6 @@ ideas:
 - maybe, if possible, check when a slave disconnects
 - mabye, if possible, call AddWebAnchor webpage when a slave got a new connection
 - maybe? Don't store connection and server type in config AND in class -> can cause logical errros in programmers brain
-
-- delete gondola, when master is destructed
 
 - DualConnection as a heritage of APConnection and WiFiConnection to use their members and methods?
 

@@ -62,7 +62,7 @@ void WebServerMaster::handleGondolaMove()
 
 void WebServerMaster::handleAddWebAnchor()
 {
-  float spooledDistance;
+  float spooledDistance = 0.0;
   Coordinate coord;
   IPAddress ip;
 
