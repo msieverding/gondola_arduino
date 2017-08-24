@@ -105,9 +105,12 @@ public:
   void setWS_MASTER_URL(std::string url);
   std::string getWS_MASTER_URL() { return WS_MASTER_URL; }
 
-
   // Serial
   uint32_t getSE_BAUDRATE() { return SE_BAUDRATE; }
+
+  // Gondola
+  Coordinate getGO_POSITION(void) { return GO_POSITION; }
+  void setGO_POSITION(Coordinate position);
 
 private:
   /**
@@ -141,6 +144,20 @@ private:
    */
   void readIPAddress(IPAddress &ip, uint16_t start);
 
+  /**
+   * Write a coordinate to the EEPROM
+   * @param coord Coordinate to persist
+   * @param start start address in EEPROM
+   */
+  void persistCoordinate(Coordinate &coord, uint16_t start);
+
+  /**
+   * Read a coordinate from the EEPROM
+   * @param coord Coordinate to read
+   * @param start start address in EEPROM
+   */
+  void readCoordinate(Coordinate &coord, uint16_t start);
+
   // instance of Configuration
   static Config       *s_Instance;
 
@@ -170,6 +187,9 @@ private:
 
   // Serial
   uint32_t SE_BAUDRATE;
+
+  // Gondola
+  Coordinate GO_POSITION;
 };
 
 // STEPPER SETTINGS
@@ -186,9 +206,6 @@ private:
 // precision of 1 step in cm
 #define MIN_PRECISION ((float)(1 / STEP_CM))
 #define MICROSTEPS 16L
-
-// GONDOLA START POSITIONG
-static Coordinate gondolaStart = {0.0f, 0.0f, 0.0f};
 
 // ANCHORS POSITION
 #define NUM_ANCHORS 1

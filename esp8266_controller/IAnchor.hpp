@@ -42,7 +42,7 @@ public:
 
   /**
    * Get the mounting position of this anchor
-   * @return mounting positiong
+   * @return mounting position
    */
   virtual Coordinate getAnchorPosition() { return m_AnchorPosition; }
 
@@ -62,6 +62,13 @@ public:
    * @return unique ID
    */
   uint8_t getID() { return m_ID; }
+
+  /**
+   * Get information about the existance of the anchor. Wether the anchor is
+   * locally present or a remote anchor
+   * @return    true if anchor is not locally present (remote)
+   */
+  virtual bool isRemoteAnchor() { return false; }
 
 protected:
   /**

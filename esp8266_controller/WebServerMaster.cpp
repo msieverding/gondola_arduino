@@ -30,7 +30,7 @@ WebServerMaster::WebServerMaster(uint16_t port)
 
 WebServerMaster::~WebServerMaster()
 {
-
+  delete(m_Gondola);
 }
 
 void WebServerMaster::handleGondolaMove()

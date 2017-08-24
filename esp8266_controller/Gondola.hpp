@@ -23,7 +23,7 @@ public:
      * @param _anchor anchor to store
      * @param _next   next element int list
      */
-    anchorList_s(IAnchor *_anchor, anchorList_s *_next) : anchor(_anchor), next(_next), ready(true) {}
+    anchorList_s(IAnchor *_anchor, anchorList_s *_next) : anchor(_anchor), ready(true), next(_next) {}
     IAnchor *anchor;        //!< Pointer to an anchor
     bool ready;             //!< Ready to spool
     anchorList_s *next;     //!< Pointe to the next Anchor
@@ -37,19 +37,22 @@ public:
 
   /**
    * get the instance
-   * ATTENTION: create must be called before get()
+   * If instance wasn't created before, data will be loaded from Config class
    * @return instance of gondola
    */
   static Gondola *get();
+
   /*
     virtual destructor
    */
   virtual ~Gondola();
+
   /**
    * Add an anchor to gondola
    * @param anchor anchor to add
    */
   void addAnchor(IAnchor *anchor);
+
   /**
    * Get an anchor of gondola
    * @param  id Anchor ID to get
@@ -108,6 +111,11 @@ private:
   * @param startPos start position of gondola
   */
   Gondola(Coordinate startPos);
+
+  /**
+   * Delete the anchorlist
+   */
+  void deleteAnchorList(void);
 
   // instance
   static Gondola         *s_Instance;           //!< Instance of singleton

@@ -26,8 +26,6 @@ void setup()
 
   anchor = HardwareAnchor::create({enable_pin[0], step_pin[0], dir_pin[0]}, anchorPos[0], 0.0f);
 
-  Gondola::create(gondolaStart);
-
   conMgr = ConnectionMgr::get();
 
   wdt_enable(1000);

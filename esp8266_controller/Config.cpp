@@ -38,6 +38,7 @@
 #define EEPROM_WS_TYPE_START            301
 #define EEPROM_WS_MASTER_START          302
 #define EEPROM_WS_MASTER_URL_LENGTH     40
+#define EEPROM_GO_POSITIONG_START       342
 
 
 
@@ -76,6 +77,7 @@ Config::Config()
  , WS_MASTER_URL("www.gondola-master.com")
  // Serial
  , SE_BAUDRATE(115200)
+ , GO_POSITION(0.0, 0.0, 0.0)
 {
   CommandInterpreter::get()->addCommand("configReset", configResetCommand);
   EEPROM.begin(EEPROM_LENGTH);
@@ -127,6 +129,8 @@ bool Config::writeToEEPROM()
   EEPROM.write(EEPROM_WS_TYPE_START, static_cast<uint8_t>(WS_TYPE));
   persistString(    WS_MASTER_URL,  EEPROM_WS_MASTER_START,        EEPROM_WS_MASTER_URL_LENGTH);
 
+  persistCoordinate(GO_POSITION, EEPROM_GO_POSITIONG_START);
+
   return EEPROM.commit();
 }
 
@@ -152,6 +156,8 @@ void Config::readFromEEPROM()
 
   WS_TYPE = static_cast<serverType_t>(EEPROM.read(EEPROM_WS_TYPE_START));
   readString(    WS_MASTER_URL,  EEPROM_WS_MASTER_START,     EEPROM_WS_MASTER_URL_LENGTH);
+
+  readCoordinate(GO_POSITION, EEPROM_GO_POSITIONG_START);
 }
 
 void Config::persistString(std::string &s, uint16_t start, uint8_t maxLength)
@@ -203,8 +209,21 @@ void Config::readIPAddress(IPAddress &ip, uint16_t start)
     ip[i] = EEPROM.read(start + i);
 }
 
-// WiFi Connection
+void Config::persistCoordinate(Coordinate &coord, uint16_t start)
+{
+  EEPROM.write(start, coord.x);
+  EEPROM.write(start + 1, coord.y);
+  EEPROM.write(start + 2, coord.z);
+}
 
+void Config::readCoordinate(Coordinate &coord, uint16_t start)
+{
+  coord.x = EEPROM.read(start);
+  coord.y = EEPROM.read(start + 1);
+  coord.z = EEPROM.read(start + 2);
+}
+
+// WiFi Connection
 void Config::setWC_IPADDRESS(IPAddress ip)
 {
   WC_IPADDRESS = ip;
@@ -324,4 +343,10 @@ void Config::setWS_TYPE(serverType_t serverType)
 void Config::setWS_MASTER_URL(std::string url)
 {
   WS_MASTER_URL = url;
+}
+
+// Gondola
+void Config::setGO_POSITION(Coordinate position)
+{
+  GO_POSITION = position;
 }

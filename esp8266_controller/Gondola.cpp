@@ -16,6 +16,9 @@ Gondola* Gondola::create(Coordinate startPos)
 
 Gondola* Gondola::get()
 {
+  if (!s_Instance)
+    s_Instance = new Gondola(Config::get()->getGO_POSITION());
+
   return s_Instance;
 }
 
@@ -33,6 +36,7 @@ Gondola::Gondola(Coordinate startPos)
 
 Gondola::~Gondola()
 {
+  deleteAnchorList();
   s_Instance = NULL;
 }
 
@@ -162,4 +166,19 @@ void Gondola::setAnchorReady(uint8_t id, bool ready)
 uint8_t Gondola::getNumAnchors(void)
 {
   return m_NumAnchors;
+}
+
+void Gondola::deleteAnchorList(void)
+{
+  anchorList_t *ptr = m_Anchors;
+  anchorList_t *next;
+
+  while(ptr != NULL)
+  {
+    next = ptr->next;
+    if (ptr->anchor->isRemoteAnchor())
+      delete(ptr->anchor);
+    delete(ptr);
+    ptr = next;
+  }
 }

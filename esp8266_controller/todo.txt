@@ -24,3 +24,7 @@ Hardware Ideas:
 - 8 LEDs to show LSB of IP address instead of LCD
 - 1 LED for erstablished connection
 - 1 or 2 LEDs for mode
+
+
+Out of code documentation
+- Setup ATOM build environment

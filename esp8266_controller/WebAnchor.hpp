@@ -13,7 +13,7 @@ class WebAnchor : public IAnchor
 public:
   /**
    * Constructor
-   * @param anchorPos       Mounting positiong of the anchor
+   * @param anchorPos       Mounting position of the anchor
    * @param spooledDistance current spooled distance
    * @param ip              ip of the board
    */
@@ -36,6 +36,11 @@ public:
    * @return IPAddress
    */
   IPAddress getIPAddress();
+
+  /**
+   * Since this ancor is already remote, return true
+   */
+  virtual bool isRemoteAnchor(void) { return true; }
 
 private:
   IPAddress         m_IPAddress;        //!< IPAddress of the board with the given WebAnchor
