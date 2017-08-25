@@ -105,9 +105,6 @@ public:
   void setWS_MASTER_URL(std::string url);
   std::string getWS_MASTER_URL() { return WS_MASTER_URL; }
 
-  // Serial
-  uint32_t getSE_BAUDRATE() { return SE_BAUDRATE; }
-
   // Gondola
   Coordinate getGO_POSITION(void) { return GO_POSITION; }
   void setGO_POSITION(Coordinate position);
@@ -158,6 +155,20 @@ private:
    */
   void readCoordinate(Coordinate &coord, uint16_t start);
 
+  // Checksum
+  /**
+   * Calculates and erites the checksum to the EEPROM
+   * @param start start address of checksum in EEPROM
+   */
+  void writeChecksum(uint16_t start);
+
+  /**
+   * Check the checksum from EEPROM with EEPROM Data
+   * @param  start start address of checksum in EEPROM
+   * @return       true if checksum is valid, false otherwise
+   */
+  bool checkChecksum(uint16_t start);
+
   // instance of Configuration
   static Config       *s_Instance;
 
@@ -184,10 +195,7 @@ private:
   uint16_t WS_PORT;
   serverType_t WS_TYPE;
   std::string WS_MASTER_URL;
-
-  // Serial
-  uint32_t SE_BAUDRATE;
-
+  
   // Gondola
   Coordinate GO_POSITION;
 };

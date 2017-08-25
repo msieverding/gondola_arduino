@@ -40,6 +40,10 @@
 #define EEPROM_WS_MASTER_URL_LENGTH     40
 #define EEPROM_GO_POSITIONG_START       342
 
+#define EEPROM_CHECKSUM_DATA_BEGIN      0
+#define EEPROM_CHECKSUM_DATA_END        342
+#define EEPROM_CHECKSUM_START           343
+
 
 
 Config *Config::s_Instance = NULL;
@@ -75,8 +79,7 @@ Config::Config()
  , WS_PORT(80)
  , WS_TYPE(SERV_NORMAL)
  , WS_MASTER_URL("www.gondola-master.com")
- // Serial
- , SE_BAUDRATE(115200)
+ // Gondola
  , GO_POSITION(0.0, 0.0, 0.0)
 {
   CommandInterpreter::get()->addCommand("configReset", configResetCommand);
@@ -131,11 +134,23 @@ bool Config::writeToEEPROM()
 
   persistCoordinate(GO_POSITION, EEPROM_GO_POSITIONG_START);
 
+  writeChecksum(EEPROM_CHECKSUM_START);
+
   return EEPROM.commit();
 }
 
 void Config::readFromEEPROM()
 {
+  // Check validity of data
+  if (checkChecksum(EEPROM_CHECKSUM_START) == false)
+  {
+    Log::logWarning("Checksum not valid! Use default values!\n");
+    return;
+  }
+  else
+  {
+    Log::logInfo("Checksum valid! Load Data from EEPROM!\n");
+  }
   // WiFI Connection Setup
   readString(    WC_SSID,        EEPROM_WC_SSID_START,           EEPROM_WC_SSID_LENGTH);
   readString(    WC_PASSPHRASE,  EEPROM_WC_PASSPHRASAE_START,    EEPROM_WC_PASSPHRASE_LENGTH);
@@ -220,6 +235,40 @@ void Config::readCoordinate(Coordinate &coord, uint16_t start)
   coord.x = EEPROM.read(start);
   coord.y = EEPROM.read(start + 1);
   coord.z = EEPROM.read(start + 2);
+}
+
+void Config::writeChecksum(uint16_t start)
+{
+  // Fletcher checksum
+  uint8_t chk1 = 0, chk2 = 0;
+  uint16_t i;
+  for (i = EEPROM_CHECKSUM_DATA_BEGIN; i <= EEPROM_CHECKSUM_DATA_END; i++)
+  {
+    chk1 = chk1 + EEPROM.read(i);
+    chk2 = chk2 + chk1;
+  }
+  EEPROM.write(EEPROM_CHECKSUM_START, chk1);
+  EEPROM.write(EEPROM_CHECKSUM_START + 1, chk2);
+}
+
+bool Config::checkChecksum(uint16_t start)
+{
+  // Fletcher checksum
+  uint8_t chk1 = 0, chk2 = 0;
+  uint8_t chk1EEPROM = EEPROM.read(EEPROM_CHECKSUM_START);
+  uint8_t chk2EEPROM = EEPROM.read(EEPROM_CHECKSUM_START + 1);
+  uint16_t i;
+
+  for (i = EEPROM_CHECKSUM_DATA_BEGIN; i <= EEPROM_CHECKSUM_DATA_END; i++)
+  {
+    chk1 = chk1 + EEPROM.read(i);
+    chk2 = chk2 + chk1;
+  }
+
+  if (chk1 == chk1EEPROM && chk2 == chk2EEPROM)
+    return true;
+  else
+    return false;
 }
 
 // WiFi Connection

@@ -1,7 +1,6 @@
 ideas:
 - Scan for wifi networks and show them on html page (user can enter PW for a given network to connect)
 - find issue for curious serial output at startup
-- checksum for EEPROM
 - save gondolas position in EEPROM
 - save spooled distance of HardwareAnchor in Config/EEPROM
 - use speed for movement :-D
@@ -23,5 +22,6 @@ Hardware Ideas:
 - 1 or 2 LEDs for mode
 
 
-Out of code documentation
+Out of code documentation:
 - Setup ATOM build environment
+- Fetcher checksum in EEPROM
