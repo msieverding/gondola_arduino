@@ -74,7 +74,7 @@ Config::Config()
  , AP_PASSPHRASE("TU_GRAZ_ITI")
  , AP_URL("www.gondola.com")
  // ConnectionMgr Setup
- , CM_CONNECTIONTYPE(CON_WIFI_CONNECTION)
+ , CM_CONNECTIONTYPE(CON_ACCESS_POINT)
  // WebServer
  , WS_PORT(80)
  , WS_TYPE(SERV_NORMAL)

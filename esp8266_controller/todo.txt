@@ -18,6 +18,7 @@ ideas:
 - slave must check answer from master. Actually it accepts every answer and think it's connected
 
 - delete static variables from config.hpp and put them into the Config class
+- check spooling speed an spooledDistance.. looks not right actually
 
 Hardware Ideas:
 - Reset (SW-)button to use default configuration (open AP...)
