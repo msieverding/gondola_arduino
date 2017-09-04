@@ -67,7 +67,7 @@ Config::Config()
  , WC_PASSPHRASE("marvin123")
  , WC_HOSTNAME("gondola")
  // Access Point
- , AP_IPADDRESS(192, 168, 5, 10)
+ , AP_IPADDRESS(192, 168, 5, 1)
  , AP_GATEWAY(192, 168, 5, 1)
  , AP_NETMASK(255, 255, 255, 0)
  , AP_SSID("GondolaWiFi")

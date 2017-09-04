@@ -20,6 +20,10 @@ ideas:
 - delete static variables from config.hpp and put them into the Config class
 - check spooling speed an spooledDistance.. looks not right actually
 
+"Another thing is that the call to wifi_station_set_hostname has to happen
+before the ESP starts talking to the DHCP server. So make sure you call it
+very early in your setup function."
+
 Hardware Ideas:
 - Reset (SW-)button to use default configuration (open AP...)
 - LCD to show Configuration or LEDs to show state
