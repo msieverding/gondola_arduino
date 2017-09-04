@@ -134,7 +134,7 @@ void WebServer::handleSetupSystem()
     Config::get()->setWS_TYPE(SERV_NONE);
   }
 
-  if (m_Server.arg("SW_MASTER_URL").length())
+  if (m_Server.arg("WS_MASTER_URL").length())
   {
     Config::get()->setWS_MASTER_URL(std::string(m_Server.arg("WS_MASTER_URL").c_str()));
   }
