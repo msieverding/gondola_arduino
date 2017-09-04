@@ -34,7 +34,6 @@ void WebServerSlave::loop()
 
   if (!m_RegisteredAtMAster && millis() > nextRegisterTry)
   {
-    Log::logDebug("Start to register at master\n");
     registerAtMaster();
     nextRegisterTry = millis() + 5000;
   }
@@ -54,6 +53,8 @@ void WebServerSlave::handleSetAnchorTargetPos()
   float spooledDistance = 0.0f;
   float speed = 1.0f;
 
+  Log::logDebug("handleSetAnchorTargetPos\n");
+
   m_Server.send(200);
 
   if (m_Server.arg("spooledDistance").length())
@@ -68,6 +69,12 @@ void WebServerSlave::handleSetAnchorTargetPos()
   }
   if (changes == 2)
   {
+    Log::logDebug("Set new target spooled distance: ");
+    Log::logDebug(spooledDistance);
+    Log::logDebug("\t");
+    Log::logDebug(speed);
+    Log::logDebug("\n");
+
     HardwareAnchor::get()->setTargetSpooledDistance(spooledDistance, speed);
   }
 }
@@ -86,13 +93,19 @@ void WebServerSlave::prepareHeader(std::string &s)
 void WebServerSlave::registerAtMaster()
 {
   WiFiClient client;
+  Log::logDebug("Start to register at master: ");
+  Log::logDebug(Config::get()->getWS_MASTER_URL());
+  Log::logDebug(":");
+  Log::logDebug(Config::get()->getWS_PORT());
+  Log::logDebug("\n");
+  
   if (!client.connect(Config::get()->getWS_MASTER_URL().c_str(), Config::get()->getWS_PORT()))
   {
     Log::logDebug("WebServerSlave::registerAtMaster::connection failed\n");
     return;
   }
   Coordinate coord = m_Anchor->getAnchorPosition();
-  String url = "/addWebAnchor?x=";
+  String url = "/AddWebAnchor?x=";
   url += coord.compToString('x').c_str();
   url += "&y=";
   url += coord.compToString('y').c_str();
@@ -111,6 +124,7 @@ void WebServerSlave::registerAtMaster()
 
   client.print(request);
 
+  // TODO timeout necessary?
   while(client.available() == 0)
   {
     delay(500);
@@ -119,14 +133,26 @@ void WebServerSlave::registerAtMaster()
   Log::logDebug("\n");
 
   // Read all the lines of the reply from server and print them to Serial
+  Log::logDebug("Answer from registration: (Contains Anchor ID:)\n");
   while(client.available())
   {
     String line = client.readStringUntil('\r');
-    Log::logDebug("Answer from registration: (Anchor ID:)");
+
+    //  Some lines start with an LF. Delete it.
+    if (line.startsWith("\n"))
+      line = line.substring(1);
+
     Log::logDebug(line.c_str());
     Log::logDebug("\n");
-    m_Anchor->setID(line.toInt());
-    m_RegisteredAtMAster = true;
+
+    if (line.startsWith("ID:"))
+    {
+      m_Anchor->setID(line.substring(3).toInt());
+      Log::logDebug("Got ID from Master: ");
+      Log::logDebug(m_Anchor->getID());
+      Log::logDebug("\n");
+      m_RegisteredAtMAster = true;
+    }
   }
 }
 

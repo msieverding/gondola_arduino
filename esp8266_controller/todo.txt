@@ -12,7 +12,12 @@ ideas:
 
 - DualConnection as a heritage of APConnection and WiFiConnection to use their members and methods?
 
+- website to print serial debug output
+- reconnect, when network disappears
 
+- slave must check answer from master. Actually it accepts every answer and think it's connected
+
+- delete static variables from config.hpp and put them into the Config class
 
 Hardware Ideas:
 - Reset (SW-)button to use default configuration (open AP...)

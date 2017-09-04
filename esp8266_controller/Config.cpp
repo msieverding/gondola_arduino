@@ -63,8 +63,8 @@ Config::Config()
  , WC_NETMASK(0, 0, 0, 0)
  // , WC_SSID("Virus.exe")
  // , WC_PASSPHRASE("10542284208956097103")
- , WC_SSID("FRITZ!Box 7360")
- , WC_PASSPHRASE("04688692052151450821")
+ , WC_SSID("Marvins iPhone")
+ , WC_PASSPHRASE("marvin123")
  , WC_HOSTNAME("gondola")
  // Access Point
  , AP_IPADDRESS(192, 168, 5, 10)
@@ -72,13 +72,13 @@ Config::Config()
  , AP_NETMASK(255, 255, 255, 0)
  , AP_SSID("GondolaWiFi")
  , AP_PASSPHRASE("TU_GRAZ_ITI")
- , AP_URL("www.gondola-slave.com")
+ , AP_URL("www.gondola.com")
  // ConnectionMgr Setup
- , CM_CONNECTIONTYPE(CON_DUAL_CONNECTION)
+ , CM_CONNECTIONTYPE(CON_WIFI_CONNECTION)
  // WebServer
  , WS_PORT(80)
  , WS_TYPE(SERV_NORMAL)
- , WS_MASTER_URL("www.gondola-master.com")
+ , WS_MASTER_URL("gondola.local")
  // Gondola
  , GO_POSITION(0.0, 0.0, 0.0)
 {

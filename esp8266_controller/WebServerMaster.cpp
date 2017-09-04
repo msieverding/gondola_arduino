@@ -88,7 +88,8 @@ void WebServerMaster::handleAddWebAnchor()
   IAnchor *anchor = new WebAnchor(coord, spooledDistance, ip);
   m_Gondola->addAnchor(anchor);
 
-  String answer(anchor->getID());
+  String answer("ID:");
+  answer += anchor->getID();
 
   m_Server.send(200, "text/plain", answer);
 }
