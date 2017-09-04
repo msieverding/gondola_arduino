@@ -20,10 +20,9 @@ HardwareAnchor *anchor;
 void setup()
 {
   serial = SerialConnection::create(115200);
-  
+
   Config* config = Config::get();
   config->readFromEEPROM();
-
 
   anchor = HardwareAnchor::create({enable_pin[0], step_pin[0], dir_pin[0]}, anchorPos[0], 0.0f);
 
