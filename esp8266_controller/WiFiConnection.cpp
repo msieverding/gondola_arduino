@@ -19,6 +19,7 @@ WiFiConnection::WiFiConnection(std::string ssid, std::string passphrase, std::st
  , m_Gateway(gw)
  , m_Netmask(nm)
 {
+  // TODO test functionality of the new location of the following two instructions
   // Set hostname for Client
   // https://github.com/esp8266/Arduino/blob/master/doc/esp8266wifi/station-class.rst#disconnect
   WiFi.hostname(m_Hostname.c_str());

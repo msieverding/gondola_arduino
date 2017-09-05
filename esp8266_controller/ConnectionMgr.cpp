@@ -133,6 +133,9 @@ void ConnectionMgr::requestChangeServerType(serverType_t serverType)
 
 void ConnectionMgr::loop()
 {
+  if (m_Connection)
+    m_Connection->loop();
+    
   if (m_WebServer)
     m_WebServer->loop();
 

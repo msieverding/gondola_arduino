@@ -21,8 +21,8 @@ APConnection::APConnection(std::string ssid, std::string passphrase, IPAddress i
  , m_URL(url)
 {
   WiFi.mode(WIFI_AP_STA);
-  WiFi.setOutputPower(20.5);  // set highest WiFi power
-  WiFi.setPhyMode(WIFI_PHY_MODE_11N);
+  WiFi.setOutputPower(20.5);            // set highest WiFi power
+  WiFi.setPhyMode(WIFI_PHY_MODE_11N);   // activate mixed WiFi
 
   Log::logInfo("Setting soft-AP configuration... ");
   Log::logInfo(WiFi.softAPConfig(m_IPAddress, m_Gateway, m_Netmask) ? "Ready\n" : "Failed!\n");
