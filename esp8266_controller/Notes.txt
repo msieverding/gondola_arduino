@@ -1,24 +1,22 @@
-ideas:
+TODO:
 - Scan for wifi networks and show them on html page (user can enter PW for a given network to connect)
 - find issue for curious serial output at startup
-- save gondolas position in EEPROM
 - save spooled distance of HardwareAnchor in Config/EEPROM
 - use speed for movement :-D
+
+- shorter timeout while registering at master
 
 - check, wether ip is already registered (no doubled anchor)
 - maybe, if possible, check when a slave disconnects
 - mabye, if possible, call AddWebAnchor webpage when a slave got a new connection
 - maybe? Don't store connection and server type in config AND in class -> can cause logical errros in programmers brain
 
-- DualConnection as a heritage of APConnection and WiFiConnection to use their members and methods?
-
 - website to print serial debug output
-- reconnect, when network disappears
-
-- slave must check answer from master. Actually it accepts every answer and think it's connected
-
-- delete static variables from config.hpp and put them into the Config class
 - check spooling speed an spooledDistance.. looks not right actually
+- [AP] show IPAddresses of clients: http://www.esp8266.com/viewtopic.php?f=32&t=5669# 
+
+Known issues:
+- Windows can't handle a new ESP8266 with the same Network name without removing the old one
 
 Hardware Ideas:
 - Reset (SW-)button to use default configuration (open AP...)
@@ -30,4 +28,8 @@ Hardware Ideas:
 
 Out of code documentation:
 - Setup ATOM build environment
+- Add libraries (https://www.youtube.com/watch?v=EBlHNBNHESQ)
 - Fetcher checksum in EEPROM
+
+Sources:
+- MqTT Server for ESP8266: https://github.com/FrancescoBaroneItaly/ME-MqTT-Server-for-ESP8266

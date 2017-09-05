@@ -19,13 +19,9 @@ WiFiConnection::WiFiConnection(std::string ssid, std::string passphrase, std::st
  , m_Gateway(gw)
  , m_Netmask(nm)
 {
-  // TODO test functionality of the new location of the following two instructions
   // Set hostname for Client
   // https://github.com/esp8266/Arduino/blob/master/doc/esp8266wifi/station-class.rst#disconnect
   WiFi.hostname(m_Hostname.c_str());
-
-  // Setup
-  setupMDNS();
 
   // DHCP is activated if ip = gw = nm = 0.0.0.0
   WiFi.config(m_IPAddress, m_Gateway, m_Netmask);
@@ -49,6 +45,9 @@ WiFiConnection::WiFiConnection(std::string ssid, std::string passphrase, std::st
   Log::logInfo("Local IP address: ");
   Log::logInfo(m_IPAddress.toString().c_str());
   Log::logInfo("\n");
+
+  // Setup
+  setupMDNS();
 }
 
 WiFiConnection::~WiFiConnection()
@@ -67,7 +66,7 @@ void WiFiConnection::setupMDNS()
   //   we send our IP address on the WiFi network
   if (!MDNS.begin(m_Hostname.c_str()))
   {
-    Log::logWarning("Error setting up mDNS responder!");
+    Log::logWarning("Error setting up mDNS responder!\n");
     return;
   }
   Log::logInfo("Use this URL to connect (mDNS): http://");
