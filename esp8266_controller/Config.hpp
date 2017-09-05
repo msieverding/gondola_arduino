@@ -195,7 +195,7 @@ private:
   uint16_t WS_PORT;
   serverType_t WS_TYPE;
   std::string WS_MASTER_URL;
-  
+
   // Gondola
   Coordinate GO_POSITION;
 };
@@ -214,22 +214,5 @@ private:
 // precision of 1 step in cm
 #define MIN_PRECISION ((float)(1 / STEP_CM))
 #define MICROSTEPS 16L
-
-// ANCHORS POSITION
-#define NUM_ANCHORS 1
-static Coordinate anchorPos[NUM_ANCHORS] = {
-  {0.0f, 0.0f, 0.0f}
-};
-
-// ARDUINO SETTINGS (wemos D1 mini based on esp8266)
-// data from
-// https://github.com/esp8266/Arduino/blob/master/variants/d1_mini/pins_arduino.h#L49-L61
-// schema from
-// https://a.pololu-files.com/picture/0J3360.600.png?d94ef1356fab28463db67ff0619afadf
-
-//#define LED_PIN LED_BUILTIN
-static uint8_t enable_pin[]  = {0};    // D3
-static uint8_t step_pin[]    = {5};    // D1
-static uint8_t dir_pin[]     = {4};    // D2
 
 #endif /* _CONFIG_HPP_ */

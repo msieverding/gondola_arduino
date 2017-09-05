@@ -26,7 +26,7 @@ void setup()
   Config* config = Config::get();
   config->readFromEEPROM();
 
-  anchor = HardwareAnchor::create({enable_pin[0], step_pin[0], dir_pin[0]}, anchorPos[0], 0.0f);
+  anchor = HardwareAnchor::create({0, 5, 4}, {0.0f, 0.0f, 0.0f}, 0.0f);
 
   conMgr = ConnectionMgr::get();
 
