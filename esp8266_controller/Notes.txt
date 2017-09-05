@@ -13,7 +13,7 @@ TODO:
 
 - website to print serial debug output
 - check spooling speed an spooledDistance.. looks not right actually
-- [AP] show IPAddresses of clients: http://www.esp8266.com/viewtopic.php?f=32&t=5669# 
+- [AP] show IPAddresses of clients: http://www.esp8266.com/viewtopic.php?f=32&t=5669#
 
 Known issues:
 - Windows can't handle a new ESP8266 with the same Network name without removing the old one
@@ -33,3 +33,4 @@ Out of code documentation:
 
 Sources:
 - MqTT Server for ESP8266: https://github.com/FrancescoBaroneItaly/ME-MqTT-Server-for-ESP8266
+  - Necessary to install certain libraries. They will show up as errors while building :D
