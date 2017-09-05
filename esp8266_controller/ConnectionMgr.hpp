@@ -11,6 +11,8 @@ typedef enum connectionType_s : byte {
   CON_ACCESS_POINT,                     //!< Open an access point
   CON_WIFI_CONNECTION,                  //!< Connect to a WiFi Network
   CON_DUAL_CONNECTION,                  //!< Open an access point and connect to a WiFi Network
+  CON_MQTT_SERVER,                      //!< Act as a MQTT Server
+  CON_MQTT_CLIENT,                      //!< Act a a MQTT Client
   CON_NONE                              //!< No connection
 } connectionType_t;
 

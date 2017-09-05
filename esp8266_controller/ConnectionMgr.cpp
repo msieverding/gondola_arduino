@@ -7,6 +7,8 @@
 #include "Log.hpp"
 #include "WebServerMaster.hpp"
 #include "WebServerSlave.hpp"
+#include "MQTTServer.hpp"
+#include "MQTTClient.hpp"
 
 ConnectionMgr *ConnectionMgr::s_Instance = NULL;
 
@@ -69,6 +71,14 @@ void ConnectionMgr::changeConnection(connectionType_t connectionType)
     case CON_DUAL_CONNECTION:
       m_Connection = DualConnection::create(config->getAP_SSID(), config->getAP_PASSPHRASE(), config->getAP_IPADDRESS(), config->getAP_GATEWAY(), config->getAP_NETMASK(), config->getAP_URL(),
                                             config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME(), config->getWC_IPADDRESS(), config->getWC_GATEWAY(), config->getWC_NETMASK());
+      break;
+
+    case CON_MQTT_SERVER:
+      m_Connection = new MQTTServer();
+      break;
+
+    case CON_MQTT_CLIENT:
+      m_Connection = new MQTTClient();
       break;
 
     case CON_NONE:
@@ -135,7 +145,7 @@ void ConnectionMgr::loop()
 {
   if (m_Connection)
     m_Connection->loop();
-    
+
   if (m_WebServer)
     m_WebServer->loop();
 

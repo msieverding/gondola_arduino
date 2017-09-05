@@ -76,9 +76,9 @@ Config::Config()
  , AP_PASSPHRASE("TU_GRAZ_ITI")
  , AP_URL("www.gondola.com")
  // ConnectionMgr Setup
- , CM_CONNECTIONTYPE(CON_ACCESS_POINT)
+ , CM_CONNECTIONTYPE(CON_MQTT_SERVER)
  // WebServer
- , WS_PORT(80)
+ , WS_PORT(81)
  , WS_TYPE(SERV_NORMAL)
  , WS_MASTER_URL("gondola.local")
  // Gondola

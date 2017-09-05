@@ -30,6 +30,7 @@ Out of code documentation:
 - Setup ATOM build environment
 - Add libraries (https://www.youtube.com/watch?v=EBlHNBNHESQ)
 - Fetcher checksum in EEPROM
+- Using std::bind with placeholders from #include <functional> with std::placeholder::_1, _N
 
 Sources:
 - MqTT Server for ESP8266: https://github.com/FrancescoBaroneItaly/ME-MqTT-Server-for-ESP8266
