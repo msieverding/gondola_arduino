@@ -3,6 +3,7 @@
 
 #include "IConnection.hpp"
 #include "WebServer.hpp"
+#include "IMQTTService.hpp"
 
 /**
  * Enumeration for all possible connections
@@ -11,8 +12,6 @@ typedef enum connectionType_s : byte {
   CON_ACCESS_POINT,                     //!< Open an access point
   CON_WIFI_CONNECTION,                  //!< Connect to a WiFi Network
   CON_DUAL_CONNECTION,                  //!< Open an access point and connect to a WiFi Network
-  CON_MQTT_SERVER,                      //!< Act as a MQTT Server
-  CON_MQTT_CLIENT,                      //!< Act a a MQTT Client
   CON_NONE                              //!< No connection
 } connectionType_t;
 
@@ -25,6 +24,15 @@ typedef enum serverType_s : byte {
   SERV_SLAVE,                           //!< Act as gondolas slave -> WebServerSlave
   SERV_NONE                             //!< Don't provide a WebServer
 } serverType_t;
+
+/**
+ * Enumeration for all possible server types
+ */
+typedef enum mqttType_s : byte {
+  MQTT_SERVER,                          //!< Act as a MQTT Server
+  MQTT_CLIENT,                          //!< Act a a MQTT Client
+  MQTT_NONE                             //!< Don't provide a MqTT service
+} mqttType_t;
 
 /**
  * Class to manage the connection of the chip
@@ -58,7 +66,7 @@ public:
   void requestChangeConnection(connectionType_t connectionType);
 
   /**
-   * Change the type of te provided WebServer
+   * Change the type of the provided WebServer
    * Server will only be changed, if it differs from the current one.
    * Exception: parameter force is set
    * @param serverType Server type to provide
@@ -69,9 +77,22 @@ public:
   /**
    * Request a change of the provided WebServer
    * Change will be handled dring next loop() execution
-   * @param serverType Type of WebServer to provide
+   * @param mqttType mqtt service to provide
    */
   void requestChangeServerType(serverType_t serverType);
+
+  /**
+   * Change the type of the provided mqtt service
+   * @param mqttType mqtt service to provide
+   */
+  void changeMqTTType(mqttType_t mqttType);
+
+  /**
+   * Request a change of the provided mqtt ervice
+   * Change will be handled dring next loop() execution
+   * @param mqttType Type of WebServer to provide
+   */
+  void requestchangeMqTTType(mqttType_t mqttType);
 
   /**
    * Call loop() frequently to handle change requests
@@ -101,8 +122,12 @@ private:
   serverType_t                  m_ServerType;               //!< type of WebServer to provide
   serverType_t                  m_ChangeServerType;         //!< type of WebServer to change to
   bool                          m_ChangeServerRequest;      //!< indicates a request to change the WebServer
+  mqttType_t                    m_MqTTType;                 //!< type of mqtt service
+  mqttType_t                    m_changeMqTTType;           //!< type of mqtt service to change to
+  bool                          m_ChangeMqTTRequest;        //!< indicates a request to change the mqtt service
   IConnection                  *m_Connection;               //!< Pointer to current connection
   WebServer                    *m_WebServer;                //!< Pointer to current WebServer
+  IMQTTService                 *m_MqTTService;              //!< Pointer to current MqTT Service
 };
 
 #endif /* _CONNECTION_MGR_HPP_ */

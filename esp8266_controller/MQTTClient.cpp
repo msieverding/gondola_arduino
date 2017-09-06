@@ -2,12 +2,13 @@
 #include "Arduino.h"
 #include <functional>
 
-#define wifi_ssid "MqTT"
-#define wifi_password "passw0rd"
+// #define wifi_ssid "MqTT"
+// #define wifi_password "passw0rd"
 
+// TODO add to Config class
 #define mqtt_server "192.168.4.1"
-#define mqtt_user "admin"
-#define mqtt_password "passw0rd"
+// #define mqtt_user "admin"
+// #define mqtt_password "passw0rd"
 
 
 // TODO use Log instead of serial
@@ -17,27 +18,26 @@ MQTTClient::MQTTClient()
  : m_espClient()
  , m_mqttClient(m_espClient)
 {
-  // We start by connecting to a WiFi network
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(wifi_ssid);
-
-  WiFi.begin(wifi_ssid, wifi_password);
-
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-  }
-
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
+  // // We start by connecting to a WiFi network
+  // Serial.println();
+  // Serial.print("Connecting to ");
+  // Serial.println(wifi_ssid);
+  //
+  // WiFi.begin(wifi_ssid, wifi_password);
+  //
+  // while (WiFi.status() != WL_CONNECTED)
+  // {
+  //   delay(500);
+  //   Serial.print(".");
+  // }
+  //
+  // Serial.println("");
+  // Serial.println("WiFi connected");
+  // Serial.println("IP address: ");
+  // Serial.println(WiFi.localIP());
 
   m_mqttClient.setServer(mqtt_server, 1883);
   m_mqttClient.setCallback(std::bind(&MQTTClient::callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-
 }
 
 MQTTClient::~MQTTClient()

@@ -1,11 +1,16 @@
-#include "IConnection.hpp"
+#ifndef _MQTT_SERVER_HPP_
+#define _MQTT_SERVER_HPP_
+
+#include "IMQTTService.hpp"
 #include "ESP8266MqTT.h"
 #include "ESP.h"
 
 #include <PubSubClient.h> // https://github.com/knolleary/pubsubclient/releases/tag/v2.3
 #include <ArduinoJson.h> // https://github.com/bblanchon/ArduinoJson/releases/tag/v5.0.7
 
-class MQTTServer : public IConnection
+// TODO DOCU
+
+class MQTTServer : public IMQTTService
 {
 public:
 
@@ -20,3 +25,5 @@ private:
 
   ME      m_mqttServer;
 };
+
+#endif /* _MQTT_SERVER_HPP_ */

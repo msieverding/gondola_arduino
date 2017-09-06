@@ -1,8 +1,11 @@
-#include "IConnection.hpp"
+#ifndef _MQTT_CLIENT_HPP_
+#define _MQTT_CLIENT_HPP_
+
+#include "IMQTTService.hpp"
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-class MQTTClient : public IConnection
+class MQTTClient : public IMQTTService
 {
 public:
   MQTTClient();
@@ -12,7 +15,9 @@ public:
 private:
   void reconnect();
   void callback(char* topic, byte* payload, unsigned int length);
-  
+
   WiFiClient    m_espClient;
   PubSubClient  m_mqttClient;
 };
+
+#endif /* _MQTT_CLIENT_HPP_ */

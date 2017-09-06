@@ -15,9 +15,7 @@
 #include <Arduino.h>
 
 #include <ESP8266WiFi.h>
-#include <ESP8266WiFiMulti.h>
 #include <ESP8266WebServer.h>
-#include "ESP8266WiFiAP.h"
 #include <ESP8266HTTPClient.h>
 #include <ESP8266TrueRandom.h>
 
@@ -111,7 +109,6 @@ void ME::init_timers()
 
 boolean ME::add_timer(String id)
 {
-
 	boolean added = false;
 	boolean full = true;
 	boolean found = false;
@@ -165,7 +162,6 @@ boolean ME::trigger_timer(String id, long timeout)
 	{
 		if (strcmp(timer_id[i].c_str(), id.c_str()) == 0)
 		{
-
 			if ((millis() - timer_ms[i]) > timeout || timer_ms[i] == 0)
 			{
 				timer_ms[i] = millis();
@@ -196,11 +192,6 @@ void ME::begin(HardwareSerial *param_serial)
 
 	log(TRACE, "Set WIFI off");
 	WIFI_connected = false;
-
-	//WIFI DEFAULT
-	WiFi.persistent(false);
-	WiFi.mode(WIFI_OFF);
-	WiFi.onEvent(int_wifi_callback);
 
 	//USE SPIFFS
 	boolean spiffs = SPIFFS.begin();
@@ -328,9 +319,8 @@ void ME::loop()
 		if (trigger_timer("CONFIG", 2000))
 		{
 			// if( load_field_EEPROM(0,1)=="1"){
-			if (Config::get()->getMQTT_SERV_CFG() == true)
+			if (Config::get()->getMQTT_SERV_CFG() == 1)
 			{
-
 				log(TRACE, "Proceed as configured");
 				STATE = CONFIGURED;
 			}
@@ -3000,15 +2990,6 @@ void ME::updateConfigFiles()
 	log(TRACE, "Update config files for www");
 
 	{
-		log(TRACE, "> config.val");
-		fs::File f = SPIFFS.open("/www/data/config.val", "w");
-		f.println(IP1 + "." + IP2 + "." + IP3 + "." + IP4);
-		f.println(MQTT_PORT);
-		f.println(AP_SSID);
-		f.close();
-	}
-
-	{
 		log(TRACE, "> users.val");
 		fs::File f = SPIFFS.open("/www/data/users.val", "w");
 
@@ -3075,7 +3056,7 @@ void ME::load_cfg()
 	//CFG DEVICENAME SERIAL AP_SSID AP_PASSWORD IPADDRESS MQTTPORT CRC  ADMIN USER  ADMIN PSW  SECURE
 
 	String CRC = String(Config::get()->getMQTT_SERV_CRC());
-	String CFG = (Config::get()->getMQTT_SERV_CFG() == true ? "1" : "0");
+	String CFG = String(Config::get()->getMQTT_SERV_CFG());
 	log(TRACE, "Module check config [" + CFG + "][" + CRC + "]");
 
 	if (CRC == "9")
@@ -3090,59 +3071,28 @@ void ME::load_cfg()
 
 			CONFIG_STATUS = ME_CONFIGURED;
 
-			AP_SSID = String(Config::get()->getAP_SSID().c_str());
-			AP_PASSWORD = String(Config::get()->getAP_PASSPHRASE().c_str());
-			/*
-			 IP1 = load_field_EEPROM(81,3);
-			 IP2 = load_field_EEPROM(84,3);
-			 IP3 = load_field_EEPROM(87,3);
-			 IP4 = load_field_EEPROM(90,3);
-			 */
 			SERVER_INSTANCE_NAME = String(Config::get()->getMQTT_SERV_DEVICE_NAME().c_str());
 			SERVER_SERIALNUMBER = String(Config::get()->getMQTT_SERV_SERIAL().c_str());
 			MQTT_PORT = Config::get()->getMQTT_SERV_PORT();
 
 			log(TRACE, ">SERVER NAME=" + SERVER_INSTANCE_NAME + " @ " + String(MQTT_PORT));
-			log(TRACE, ">AP Config Loaded SSID=" + AP_SSID + " PASSWORD=" + AP_PASSWORD);
-			WiFi.persistent(false);
-			WiFi.mode(WIFI_OFF);
-			WiFi.mode(WIFI_AP);
-
-			IPAddress ip(atoi(IP1.c_str()), atoi(IP2.c_str()), atoi(IP3.c_str()), atoi(IP4.c_str()));
-
-			IPAddress gateway(atoi(GW_IP1.c_str()), atoi(GW_IP2.c_str()), atoi(GW_IP3.c_str()), atoi(GW_IP4.c_str()));
-
-			IPAddress subnet(atoi(SB_IP1.c_str()), atoi(SB_IP2.c_str()), atoi(SB_IP3.c_str()), atoi(SB_IP4.c_str()));
 
 			// ADMIN_USER = load_field_EEPROM(98,8);
 			// ADMIN_PASSWORD = load_field_EEPROM(106,8);
 			//log(TRACE,"Set MqTT Management "+(ADMIN_USER.substring(0,1)) +"**** "+(ADMIN_PASSWORD.substring(0,1)) +"**** ");
 			log(TRACE, "Set MqTT Management " + ADMIN_USER + " " + ADMIN_PASSWORD);
 
-			log(TRACE,
-					">IP=" + IP1 + "." + IP2 + "." + IP3 + "." + IP4 + " SUBNET=" + SB_IP1 + "." + SB_IP2 + "." + SB_IP3
-							+ "." + SB_IP4 + " GATEWAY=" + GW_IP1 + "." + GW_IP2 + "." + GW_IP3 + "." + GW_IP4);
-			WiFi.softAPConfig(ip, gateway, subnet);
-			WiFi.softAP(AP_SSID.c_str(), AP_PASSWORD.c_str());
-
 			//2017.07.18
 			if (String(Config::get()->getMQTT_SERV_PSW().c_str()) == "1")
 			{
-
 				log(TRACE, ">MqTT security enabled");
 				USER_AUTH = true;
 			}
-
-			log(TRACE, ">WiFi loaded");
 		}
 			break;
 
 		case 9:
-			uint8_t mac[WL_MAC_ADDR_LENGTH];
-			WiFi.softAPmacAddress(mac);
-
-			log(TRACE, "Turn ON AP=" + ssid);
-			WiFi.softAP(ssid.c_str(), password.c_str());
+      // TODO this state still needed?
 			break;
 
 		default:
@@ -3157,12 +3107,6 @@ void ME::load_cfg()
 		Config::get()->setMQTT_SERV_CFG(9);
 		Config::get()->setMQTT_SERV_CRC(9);
 		Config::get()->writeToEEPROM();
-
-		uint8_t mac[WL_MAC_ADDR_LENGTH];
-		WiFi.softAPmacAddress(mac);
-
-		log(TRACE, "Turn ON AP=" + ssid);
-		WiFi.softAP(ssid.c_str(), password.c_str());
 	}
 
 	log(TRACE, "End Config Load");
@@ -3516,7 +3460,7 @@ void ME::handle_set_config_internal()
 				// save_field_EEPROM(17,deviceserial,32);
 			}
 
-			Config::get()->setMQTT_SERV_CFG(true);
+			Config::get()->setMQTT_SERV_CFG(1);
 			// save_field_EEPROM(0,"1",1);
 			rc = 0;
 

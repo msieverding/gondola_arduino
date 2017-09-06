@@ -24,9 +24,7 @@
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266WiFiMulti.h>
 #include <ESP8266WebServer.h>
-#include "ESP8266WiFiAP.h"
 #include <ESP8266HTTPClient.h>
 #include <ESP8266TrueRandom.h>
 
@@ -38,7 +36,7 @@
 #include <PubSubClient.h>
 #include <rBase64.h>
 
-#include <SoftwareSerial.h>
+// #include <SoftwareSerial.h>
 //#include <SD.h>
 #include <FS.h>
 
@@ -106,10 +104,6 @@ class ME
 	HardwareSerial *serial;
 	String MqTT_Server_InstanceID;
 
-	//BASE
-	String ssid     = "ESPBLANK";
-	String password = "alfafrancesco";
-
 	//FS
 	boolean hasSPIFFS=false;
 
@@ -170,20 +164,6 @@ class ME
 
 	//VAR
 	int CONFIG_STATUS=0;
-	String AP_SSID = "";
-	String AP_PASSWORD = "";
-	String IP1 = "192";
-	String IP2 = "168";
-	String IP3 = "4";
-	String IP4 = "1";
-	String GW_IP1 = "192";
-	String GW_IP2 = "168";
-	String GW_IP3 = "4";
-	String GW_IP4 = "1";
-	String SB_IP1 = "255";
-	String SB_IP2 = "255";
-	String SB_IP3 = "255";
-	String SB_IP4 = "0";
 	String SERVER_INSTANCE_NAME = "NONAME";
 	String SERVER_SERIALNUMBER = "";
 	int MQTT_PORT = 1883;

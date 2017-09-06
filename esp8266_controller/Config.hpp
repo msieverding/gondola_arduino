@@ -110,8 +110,8 @@ public:
   void setGO_POSITION(Coordinate position);
 
   // MQTT Server
-  bool getMQTT_SERV_CFG() { return MQTT_SERV_CFG; }
-  void setMQTT_SERV_CFG(bool cfg);
+  uint8_t getMQTT_SERV_CFG() { return MQTT_SERV_CFG; }
+  void setMQTT_SERV_CFG(uint8_t cfg);
   std::string getMQTT_SERV_DEVICE_NAME() { return MQTT_SERV_DEVICE_NAME; }
   void setMQTT_SERV_DEVICE_NAME(std::string devname);
   std::string getMQTT_SERV_SERIAL() { return MQTT_SERV_SERIAL; }
@@ -214,7 +214,7 @@ private:
   Coordinate GO_POSITION;
 
   // MQTT Server
-  bool MQTT_SERV_CFG;
+  uint8_t MQTT_SERV_CFG;
   std::string MQTT_SERV_DEVICE_NAME;
   std::string MQTT_SERV_SERIAL;
   uint8_t MQTT_SERV_CRC;

@@ -7,6 +7,7 @@
 #include "Log.hpp"
 #include "WebServerMaster.hpp"
 #include "WebServerSlave.hpp"
+#include "IMQTTService.hpp"
 #include "MQTTServer.hpp"
 #include "MQTTClient.hpp"
 
@@ -27,6 +28,10 @@ ConnectionMgr::ConnectionMgr()
  , m_ServerType(Config::get()->getWS_TYPE())
  , m_ChangeServerType(SERV_NORMAL)
  , m_ChangeServerRequest(false)
+ // TODO save in config
+ , m_MqTTType(MQTT_SERVER)
+ , m_changeMqTTType(MQTT_NONE)
+ , m_ChangeMqTTRequest(false)
  , m_Connection(NULL)
  , m_WebServer(NULL)
 {
@@ -34,6 +39,7 @@ ConnectionMgr::ConnectionMgr()
 
   changeServerType(m_ServerType, true);
   changeConnection(m_ConnectionType);
+  changeMqTTType(m_MqTTType);
 }
 
 ConnectionMgr::~ConnectionMgr()
@@ -73,14 +79,6 @@ void ConnectionMgr::changeConnection(connectionType_t connectionType)
                                             config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME(), config->getWC_IPADDRESS(), config->getWC_GATEWAY(), config->getWC_NETMASK());
       break;
 
-    case CON_MQTT_SERVER:
-      m_Connection = new MQTTServer();
-      break;
-
-    case CON_MQTT_CLIENT:
-      m_Connection = new MQTTClient();
-      break;
-
     case CON_NONE:
       break;
 
@@ -111,7 +109,7 @@ void ConnectionMgr::changeServerType(serverType_t serverType, bool force)
     m_WebServer = NULL;
   }
 
-  switch (Config::get()->getWS_TYPE())
+  switch (m_ServerType)
   {
     case SERV_MASTER:
       m_WebServer = new WebServerMaster(Config::get()->getWS_PORT());
@@ -132,13 +130,47 @@ void ConnectionMgr::changeServerType(serverType_t serverType, bool force)
       Log::logWarning("Requested wrong server type!\n");
       break;
   }
-
 }
 
 void ConnectionMgr::requestChangeServerType(serverType_t serverType)
 {
   m_ChangeServerType = serverType;
   m_ChangeServerRequest = true;
+}
+
+void ConnectionMgr::changeMqTTType(mqttType_t mqttType)
+{
+  m_MqTTType = mqttType;
+
+  if (m_MqTTService != NULL)
+  {
+    delete(m_MqTTService);
+    m_MqTTService = NULL;
+  }
+
+  switch (m_MqTTType)
+  {
+    case MQTT_CLIENT:
+      m_MqTTService = new MQTTClient();
+      break;
+
+    case MQTT_SERVER:
+      m_MqTTService = new MQTTServer();
+      break;
+
+    case MQTT_NONE:
+      break;
+
+    default:
+      Log::logWarning("Requested wrong MqTT service!\n");
+      break;
+  }
+}
+
+void ConnectionMgr::requestchangeMqTTType(mqttType_t mqttType)
+{
+  m_changeMqTTType = mqttType;
+  m_ChangeMqTTRequest = true;
 }
 
 void ConnectionMgr::loop()
@@ -148,6 +180,9 @@ void ConnectionMgr::loop()
 
   if (m_WebServer)
     m_WebServer->loop();
+
+  if (m_MqTTService)
+    m_MqTTService->loop();
 
   if (m_ChangeConnectionRequest)
   {
@@ -159,6 +194,12 @@ void ConnectionMgr::loop()
   {
     m_ChangeServerRequest = false;
     changeServerType(m_ChangeServerType);
+  }
+
+  if (m_ChangeMqTTRequest)
+  {
+    m_ChangeMqTTRequest = false;
+    changeMqTTType(m_changeMqTTType);
   }
 }
 
