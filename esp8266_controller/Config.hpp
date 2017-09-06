@@ -109,6 +109,20 @@ public:
   Coordinate getGO_POSITION(void) { return GO_POSITION; }
   void setGO_POSITION(Coordinate position);
 
+  // MQTT Server
+  bool getMQTT_SERV_CFG() { return MQTT_SERV_CFG; }
+  void setMQTT_SERV_CFG(bool cfg);
+  std::string getMQTT_SERV_DEVICE_NAME() { return MQTT_SERV_DEVICE_NAME; }
+  void setMQTT_SERV_DEVICE_NAME(std::string devname);
+  std::string getMQTT_SERV_SERIAL() { return MQTT_SERV_SERIAL; }
+  void setMQTT_SERV_SERIAL(std::string serial);
+  uint8_t getMQTT_SERV_CRC() { return MQTT_SERV_CRC; }
+  void setMQTT_SERV_CRC(uint8_t crc);
+  uint16_t getMQTT_SERV_PORT() { return MQTT_SERV_PORT; }
+  void setMQTT_SERV_PORT(uint16_t port);
+  std::string getMQTT_SERV_PSW() { return MQTT_SERV_PSW; }
+  void setMQTT_SERV_PSW(std::string psw);
+
 private:
   /**
    * persist a string to the EEPROM
@@ -198,6 +212,14 @@ private:
 
   // Gondola
   Coordinate GO_POSITION;
+
+  // MQTT Server
+  bool MQTT_SERV_CFG;
+  std::string MQTT_SERV_DEVICE_NAME;
+  std::string MQTT_SERV_SERIAL;
+  uint8_t MQTT_SERV_CRC;
+  uint16_t MQTT_SERV_PORT;
+  std::string MQTT_SERV_PSW;
 };
 
 // STEPPER SETTINGS

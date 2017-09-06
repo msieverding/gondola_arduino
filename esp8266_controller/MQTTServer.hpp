@@ -1,5 +1,5 @@
 #include "IConnection.hpp"
-#include "lib/ME-MqTT-Server-for-ESP8266/src/FB_IoT-MqttServer/src/ESP8266MqTT.h"
+#include "ESP8266MqTT.h"
 #include "ESP.h"
 
 #include <PubSubClient.h> // https://github.com/knolleary/pubsubclient/releases/tag/v2.3

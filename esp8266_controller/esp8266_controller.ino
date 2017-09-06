@@ -29,7 +29,7 @@ void setup()
 
 
   Config* config = Config::get();
-  // config->readFromEEPROM();
+  config->readFromEEPROM();
 
   anchor = HardwareAnchor::create({0, 5, 4}, {0.0f, 0.0f, 0.0f}, 0.0f);
 
@@ -44,8 +44,8 @@ void loop()
   wdt_reset();
   // ESP.wdtFeed();
 
-  // if (serial)
-  //   serial->loop();
+  if (serial)
+    serial->loop();
   if (conMgr)
     conMgr->loop();
   // if (anchor)

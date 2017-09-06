@@ -74,5 +74,5 @@ void WiFiConnection::setupMDNS()
   Log::logInfo(".local/\n");
 
   // Add service to MDNS-SD
-  MDNS.addService("http", "tcp", 80);
+  MDNS.addService("http", "tcp", Config::get()->getWS_PORT());
 }
