@@ -11,7 +11,8 @@ public:
 
 private:
   void reconnect();
-
+  void callback(char* topic, byte* payload, unsigned int length);
+  
   WiFiClient    m_espClient;
   PubSubClient  m_mqttClient;
 };

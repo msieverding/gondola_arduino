@@ -18,5 +18,5 @@ private:
 
   boolean mqttCallback(char* queue, byte* payload, unsigned int length);
 
-  ME      m_MQTTServer;
+  ME      m_mqttServer;
 };

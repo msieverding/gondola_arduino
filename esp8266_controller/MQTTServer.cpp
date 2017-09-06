@@ -2,14 +2,14 @@
 #include <functional>
 
 MQTTServer::MQTTServer()
- : m_MQTTServer("MqTT")
+ : m_mqttServer("MqTT")
 {
   // start
-  m_MQTTServer.begin(&Serial);
+  m_mqttServer.begin(&Serial);
 
   // add callback
-  m_MQTTServer.setCallback(std::bind(&MQTTServer::mqttCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-  m_MQTTServer.subscribe("/test/temperature", false);
+  m_mqttServer.setCallback(std::bind(&MQTTServer::mqttCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+  m_mqttServer.subscribe("/test/temperature", false);
 }
 
 MQTTServer::~MQTTServer()
@@ -20,7 +20,15 @@ MQTTServer::~MQTTServer()
 
 void MQTTServer::loop()
 {
-  m_MQTTServer.loop();
+  static uint32_t nextPublish = 0;
+
+  if (millis() > nextPublish)
+  {
+    m_mqttServer.publish("test/temperature", "Server publish");
+    nextPublish = millis() + 5000;
+  }
+
+  m_mqttServer.loop();
 }
 
 

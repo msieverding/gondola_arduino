@@ -1,5 +1,6 @@
 #include "MQTTClient.hpp"
 #include "Arduino.h"
+#include <functional>
 
 #define wifi_ssid "MqTT"
 #define wifi_password "passw0rd"
@@ -35,6 +36,8 @@ MQTTClient::MQTTClient()
   Serial.println(WiFi.localIP());
 
   m_mqttClient.setServer(mqtt_server, 1883);
+  m_mqttClient.setCallback(std::bind(&MQTTClient::callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+
 }
 
 MQTTClient::~MQTTClient()
@@ -80,6 +83,7 @@ void MQTTClient::reconnect()
   // if (m_mqttClient.connect("ESP8266Client")) {
   if (m_mqttClient.connect("ESP8266Client"))
   {
+    m_mqttClient.subscribe("test/temperature");
     Serial.println("connected");
   }
   else
@@ -90,4 +94,16 @@ void MQTTClient::reconnect()
     // Wait 5 seconds before retrying
     nextTry = millis() + 5000;
   }
+}
+
+void MQTTClient::callback(char* topic, byte* payload, unsigned int length)
+{
+  Serial.print("***************Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+  for (int i = 0; i < length; i++)
+  {
+    Serial.print((char)payload[i]);
+  }
+  Serial.println();
 }
