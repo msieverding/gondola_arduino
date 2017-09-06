@@ -97,7 +97,7 @@ Config::Config()
  , MQTT_SERV_CFG(false)
  , MQTT_SERV_DEVICE_NAME("")
  , MQTT_SERV_SERIAL("")
- , MQTT_SERV_CRC("0")
+ , MQTT_SERV_CRC(0)
  , MQTT_SERV_PORT(1883)
  , MQTT_SERV_PSW("0")
 {
