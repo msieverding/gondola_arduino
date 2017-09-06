@@ -1175,7 +1175,6 @@ void ME::loop()
 											log(TRACE, "> check if server internal subs");
 											if (mqtt_callback && strcmp(SERVER_INSTANCE_NAME.c_str(), csv[0].c_str()) == 0)
 											{
-
 												log(TRACE, "> server subs, deliver message");
 												if (!slowDown)
 												{
@@ -1573,7 +1572,7 @@ void ME::loop()
 				}
 
 				if (Password_len > 1)
-					log(TRACE, ">Password = " + Password.substring(0, 1) + "*****");
+					log(TRACE, ">Password = " + Password);
 
 				POS += (2 + Password_len);
 			}
@@ -2254,9 +2253,7 @@ void ME::loop()
 					{
 						if (counter > 2 && csv[1].length() > 0 && csv[2].length() > 0)
 						{
-							log(TRACE,
-									"Try to register user=" + csv[1] + " with password=" + csv[2].substring(0, 1)
-											+ "*****");
+							log(TRACE, "Try to register user=" + csv[1] + " with password=" + csv[2]);
 
 							RC = 0;
 							fs::File auth_file = SPIFFS.open("/auth/passwd", "r");
