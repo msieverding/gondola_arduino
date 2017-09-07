@@ -5,8 +5,8 @@
 #include "DualConnection.hpp"
 #include "CommandInterpreter.hpp"
 #include "Log.hpp"
-#include "WebServerMaster.hpp"
-#include "WebServerSlave.hpp"
+
+
 #include "IMQTTService.hpp"
 #include "MQTTServer.hpp"
 #include "MQTTClient.hpp"
@@ -25,19 +25,15 @@ ConnectionMgr::ConnectionMgr()
  : m_ConnectionType(Config::get()->getCM_CONNECTIONTYPE())
  , m_ChangeConnectionType(CON_NONE)
  , m_ChangeConnectionRequest(false)
- , m_ServerType(Config::get()->getWS_TYPE())
- , m_ChangeServerType(SERV_NORMAL)
- , m_ChangeServerRequest(false)
- // TODO save in config
- , m_MqTTType(MQTT_CLIENT)
+ , m_MqTTType(Config::get()->getCM_MQTTTYPE())
  , m_changeMqTTType(MQTT_NONE)
  , m_ChangeMqTTRequest(false)
  , m_Connection(NULL)
- , m_WebServer(NULL)
+ , m_WebServer(new WebServer(Config::get()->getWS_PORT()))
+ , m_MqTTService(NULL)
 {
   CommandInterpreter::get()->addCommand(std::string("contype"), contypeCommand);
 
-  changeServerType(m_ServerType, true);
   changeConnection(m_ConnectionType);
   changeMqTTType(m_MqTTType);
 }
@@ -94,50 +90,6 @@ void ConnectionMgr::requestChangeConnection(connectionType_t connectionType)
   m_ChangeConnectionType = connectionType;
 }
 
-void ConnectionMgr::changeServerType(serverType_t serverType, bool force)
-{
-  if (m_ServerType == serverType && force == false)
-  {
-    return;
-  }
-
-  m_ServerType = serverType;
-
-  if (m_WebServer != NULL)
-  {
-    delete(m_WebServer);
-    m_WebServer = NULL;
-  }
-
-  switch (m_ServerType)
-  {
-    case SERV_MASTER:
-      m_WebServer = new WebServerMaster(Config::get()->getWS_PORT());
-      break;
-
-    case SERV_SLAVE:
-      m_WebServer = new WebServerSlave(Config::get()->getWS_PORT());
-      break;
-
-    case SERV_NORMAL:
-      m_WebServer = new WebServer(Config::get()->getWS_PORT());
-      break;
-
-    case SERV_NONE:
-      break;
-
-    default:
-      Log::logWarning("Requested wrong server type!\n");
-      break;
-  }
-}
-
-void ConnectionMgr::requestChangeServerType(serverType_t serverType)
-{
-  m_ChangeServerType = serverType;
-  m_ChangeServerRequest = true;
-}
-
 void ConnectionMgr::changeMqTTType(mqttType_t mqttType)
 {
   m_MqTTType = mqttType;
@@ -167,7 +119,7 @@ void ConnectionMgr::changeMqTTType(mqttType_t mqttType)
   }
 }
 
-void ConnectionMgr::requestchangeMqTTType(mqttType_t mqttType)
+void ConnectionMgr::requestChangeMqTTType(mqttType_t mqttType)
 {
   m_changeMqTTType = mqttType;
   m_ChangeMqTTRequest = true;
@@ -188,12 +140,6 @@ void ConnectionMgr::loop()
   {
     m_ChangeConnectionRequest = false;
     changeConnection(m_ChangeConnectionType);
-  }
-
-  if (m_ChangeServerRequest)
-  {
-    m_ChangeServerRequest = false;
-    changeServerType(m_ChangeServerType);
   }
 
   if (m_ChangeMqTTRequest)

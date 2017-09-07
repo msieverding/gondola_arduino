@@ -18,16 +18,6 @@ typedef enum connectionType_s : byte {
 /**
  * Enumeration for all possible server types
  */
-typedef enum serverType_s : byte {
-  SERV_NORMAL,                          //!< Only basic functions are provided -> WebServer
-  SERV_MASTER,                          //!< Act as gondolas master -> WebServerMaster
-  SERV_SLAVE,                           //!< Act as gondolas slave -> WebServerSlave
-  SERV_NONE                             //!< Don't provide a WebServer
-} serverType_t;
-
-/**
- * Enumeration for all possible server types
- */
 typedef enum mqttType_s : byte {
   MQTT_SERVER,                          //!< Act as a MQTT Server
   MQTT_CLIENT,                          //!< Act a a MQTT Client
@@ -66,22 +56,6 @@ public:
   void requestChangeConnection(connectionType_t connectionType);
 
   /**
-   * Change the type of the provided WebServer
-   * Server will only be changed, if it differs from the current one.
-   * Exception: parameter force is set
-   * @param serverType Server type to provide
-   * @param force      Force a cange in server type
-   */
-  void changeServerType(serverType_t serverType, bool force = false);
-
-  /**
-   * Request a change of the provided WebServer
-   * Change will be handled dring next loop() execution
-   * @param mqttType mqtt service to provide
-   */
-  void requestChangeServerType(serverType_t serverType);
-
-  /**
    * Change the type of the provided mqtt service
    * @param mqttType mqtt service to provide
    */
@@ -92,7 +66,7 @@ public:
    * Change will be handled dring next loop() execution
    * @param mqttType Type of WebServer to provide
    */
-  void requestchangeMqTTType(mqttType_t mqttType);
+  void requestChangeMqTTType(mqttType_t mqttType);
 
   /**
    * Call loop() frequently to handle change requests
@@ -115,13 +89,11 @@ private:
 
   // instance
   static ConnectionMgr         *s_Instance;                 //!< instance of singleton
+
   // memvervariables
   connectionType_t              m_ConnectionType;           //!< type of connection to provide
   connectionType_t              m_ChangeConnectionType;     //!< type of connection to change to
   bool                          m_ChangeConnectionRequest;  //!< indicates a request to change the connection
-  serverType_t                  m_ServerType;               //!< type of WebServer to provide
-  serverType_t                  m_ChangeServerType;         //!< type of WebServer to change to
-  bool                          m_ChangeServerRequest;      //!< indicates a request to change the WebServer
   mqttType_t                    m_MqTTType;                 //!< type of mqtt service
   mqttType_t                    m_changeMqTTType;           //!< type of mqtt service to change to
   bool                          m_ChangeMqTTRequest;        //!< indicates a request to change the mqtt service

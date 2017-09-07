@@ -10,13 +10,12 @@ MQTTServer::MQTTServer()
   // add callback
   m_mqttServer.setCallback(std::bind(&MQTTServer::mqttCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
   m_mqttServer.subscribe("/test/temperature", false);
-  // TODO set log level later
-  // m_mqttServer.setloglevel(1);
+  m_mqttServer.setloglevel(1);
 }
 
 MQTTServer::~MQTTServer()
 {
-
+  m_mqttServer.unsubscribe("/test/temperature");
 }
 
 void MQTTServer::loop()
@@ -25,7 +24,7 @@ void MQTTServer::loop()
 
   if (millis() > nextPublish)
   {
-    m_mqttServer.publish("test/temperature", "Server publish");
+    // m_mqttServer.publish("test/temperature", "Server publish");
     nextPublish = millis() + 5000;
   }
 

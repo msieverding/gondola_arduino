@@ -6,7 +6,6 @@
 #include "ESP.h"
 
 #include <PubSubClient.h> // https://github.com/knolleary/pubsubclient/releases/tag/v2.3
-#include <ArduinoJson.h> // https://github.com/bblanchon/ArduinoJson/releases/tag/v5.0.7
 
 // TODO DOCU
 

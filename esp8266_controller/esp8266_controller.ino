@@ -7,8 +7,8 @@
 #include "SerialConnection.hpp"
 #include "APConnection.hpp"
 #include "WebServer.hpp"
-#include "WebServerMaster.hpp"
-#include "WebServerSlave.hpp"
+
+
 #include "CommandInterpreter.hpp"
 #include "ConnectionMgr.hpp"
 #include "Log.hpp"

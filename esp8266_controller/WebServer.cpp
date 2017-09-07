@@ -113,30 +113,20 @@ void WebServer::handleSetupSystem()
   Config *config = Config::get();
   std::string answer;
 
-  if (m_Server.arg("WS_TYPE").equals("SERV_MASTER"))
+  if (m_Server.arg("CM_MQTTTYPE").equals("MQTT_SERVER"))
   {
-    conMgr->requestChangeServerType(SERV_MASTER);
-    Config::get()->setWS_TYPE(SERV_MASTER);
+    conMgr->requestChangeMqTTType(MQTT_SERVER);
+    Config::get()->setCM_MQTTTYPE(MQTT_SERVER);
   }
-  else if (m_Server.arg("WS_TYPE").equals("SERV_SLAVE"))
+  else if (m_Server.arg("CM_MQTTTYPE").equals("MQTT_CLIENT"))
   {
-    conMgr->requestChangeServerType(SERV_SLAVE);
-    Config::get()->setWS_TYPE(SERV_SLAVE);
+    conMgr->requestChangeMqTTType(MQTT_CLIENT);
+    Config::get()->setCM_MQTTTYPE(MQTT_CLIENT);
   }
-  else if (m_Server.arg("WS_TYPE").equals("SERV_NORMAL"))
+  else if (m_Server.arg("CM_MQTTTYPE").equals("MQTT_NONE"))
   {
-    conMgr->requestChangeServerType(SERV_NORMAL);
-    Config::get()->setWS_TYPE(SERV_NORMAL);
-  }
-  else if (m_Server.arg("WS_TYPE").equals("SERV_NONE"))
-  {
-    conMgr->requestChangeServerType(SERV_NONE);
-    Config::get()->setWS_TYPE(SERV_NONE);
-  }
-
-  if (m_Server.arg("WS_MASTER_URL").length())
-  {
-    Config::get()->setWS_MASTER_URL(std::string(m_Server.arg("WS_MASTER_URL").c_str()));
+    conMgr->requestChangeMqTTType(MQTT_NONE);
+    Config::get()->setCM_MQTTTYPE(MQTT_NONE);
   }
 
   config->writeToEEPROM();
@@ -265,21 +255,18 @@ void WebServer::prepareSetupSystemPage(std::string &s)
   s.append("<h1>System setup</h1>");
   s.append("<form>");
   // Setup WebServer
-  s.append("<h4>WebServer setup</h4>");
+  s.append("<h4>MQTT setup</h4>");
   // Master Slave Normal Radio
-  s.append("<input type=\"radio\" id=\"M\" name=\"WS_TYPE\" value=\"SERV_MASTER\" " + std::string(config->getWS_TYPE() == SERV_MASTER ? "checked" : "") + ">");
-  s.append("<label for=\"M\">Master</label><br>");
-  s.append("<input type=\"radio\" id=\"S\" name=\"WS_TYPE\" value=\"SERV_SLAVE\" " + std::string(config->getWS_TYPE() == SERV_SLAVE ? "checked" : "") + ">");
-  s.append("<label for=\"S\">Slave</label><br>");
-  s.append("<input type=\"radio\" id=\"N\" name=\"WS_TYPE\" value=\"SERV_NORMAL\" " + std::string(config->getWS_TYPE() == SERV_NORMAL ? "checked" : "") + ">");
-  s.append("<label for=\"N\">Normal</label><br>");
-  // URL of Master, where a slave should connect to
-  s.append("<label for=\"WS_MASTER_URL\">URL of Master:</label>");
-  s.append("<input type=\"text\" id=\"WS_MASTER_URL\" name=\"WS_MASTER_URL\" value=\"" + config->getWS_MASTER_URL() + "\"><br><br>");
+  s.append("<input type=\"radio\" id=\"S\" name=\"CM_MQTTTYPE\" value=\"MQTT_SERVER\" " + std::string(config->getCM_MQTTTYPE() == MQTT_SERVER ? "checked" : "") + ">");
+  s.append("<label for=\"S\">Server</label><br>");
+  s.append("<input type=\"radio\" id=\"C\" name=\"CM_MQTTTYPE\" value=\"MQTT_CLIENT\" " + std::string(config->getCM_MQTTTYPE() == MQTT_CLIENT ? "checked" : "") + ">");
+  s.append("<label for=\"C\">Client</label><br>");
+  s.append("<input type=\"radio\" id=\"N\" name=\"CM_MQTTTYPE\" value=\"MQTT_NONE\" " + std::string(config->getCM_MQTTTYPE() == MQTT_NONE ? "checked" : "") + ">");
+  s.append("<label for=\"N\">None</label><br>");
 
   // Submit
   s.append("<br><button type=\"submit\">Go!</button>");
-  s.append("<br>(A new WebServer will be started, when type changes.)");
+  s.append("<br>(A new servive will be started!)");
 
   s.append("</form>");
   s.append("</html>");

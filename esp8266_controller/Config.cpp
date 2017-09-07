@@ -35,24 +35,14 @@
 // Placeholder for more features until address 299
 
 #define EEPROM_CM_CONNECTIONTYPE_START  300
-#define EEPROM_WS_TYPE_START            301
-#define EEPROM_WS_MASTER_START          302
-#define EEPROM_WS_MASTER_URL_LENGTH     40
-#define EEPROM_GO_POSITION_START        342
+#define EEPROM_CM_MQTTTYPE_START        301
 
-#define EEPROM_MQTT_SERV_CFG_START            345
-#define EEPROM_MQTT_SERV_DEVICE_NAME_START    346
-#define EEPROM_MQTT_SERV_DEVICE_NAME_LENGTH   16
-#define EEPROM_MQTT_SERV_SERIAL_START         362
-#define EEPROM_MQTT_SERV_SERIAL_LENGTH        32
-#define EEPROM_MQTT_SERV_CRC_START            394
-#define EEPROM_MQTT_SERV_PORT_START           395
-#define EEPROM_MQTT_SERV_PSW_START            397
-#define EEPROM_MQTT_SERV_PSW_LENGTH           1
+#define EEPROM_GO_POSITION_START        302
 
+// Checksum
 #define EEPROM_CHECKSUM_DATA_BEGIN      0
-#define EEPROM_CHECKSUM_DATA_END        398
-#define EEPROM_CHECKSUM_START           399
+#define EEPROM_CHECKSUM_DATA_END        304
+#define EEPROM_CHECKSUM_START           305
 
 
 
@@ -87,19 +77,15 @@ Config::Config()
  , AP_URL("www.gondola.com")
  // ConnectionMgr Setup
  , CM_CONNECTIONTYPE(CON_ACCESS_POINT)
+ , CM_MQTTTYPE(MQTT_NONE)
  // WebServer
- , WS_PORT(81)
- , WS_TYPE(SERV_NORMAL)
- , WS_MASTER_URL("gondola.local")
+ , WS_PORT(80)
  // Gondola
  , GO_POSITION(0.0, 0.0, 0.0)
  // MQTT Server
- , MQTT_SERV_CFG(0)
- , MQTT_SERV_DEVICE_NAME("")
- , MQTT_SERV_SERIAL("")
- , MQTT_SERV_CRC(0)
- , MQTT_SERV_PORT(1883)
- , MQTT_SERV_PSW("0")
+ , MQTT_SERV_DEVICE_NAME("MqTT")
+ , MQTT_SERV_PORT(1883)     // Fixed port
+ , MQTT_SERV_USER_AUTH(0)   // User authorization is not implemented in MQTTSlave, so it's fixed off
 {
   CommandInterpreter::get()->addCommand("configReset", configResetCommand);
   EEPROM.begin(EEPROM_LENGTH);
@@ -147,17 +133,10 @@ bool Config::writeToEEPROM()
   persistString(    AP_URL,         EEPROM_AP_URL_START,            EEPROM_AP_URL_LENGTH);
 
   EEPROM.write(EEPROM_CM_CONNECTIONTYPE_START, static_cast<uint8_t>(CM_CONNECTIONTYPE));
-  EEPROM.write(EEPROM_WS_TYPE_START, static_cast<uint8_t>(WS_TYPE));
-  persistString(    WS_MASTER_URL,  EEPROM_WS_MASTER_START,        EEPROM_WS_MASTER_URL_LENGTH);
+  EEPROM.write(EEPROM_CM_MQTTTYPE_START, static_cast<uint8_t>(CM_MQTTTYPE));
+
   persistCoordinate(GO_POSITION,    EEPROM_GO_POSITION_START);
 
-  persistString(    MQTT_SERV_DEVICE_NAME,   EEPROM_MQTT_SERV_DEVICE_NAME_START,   EEPROM_MQTT_SERV_DEVICE_NAME_LENGTH);
-  persistString(    MQTT_SERV_SERIAL,        EEPROM_MQTT_SERV_SERIAL_START,        EEPROM_MQTT_SERV_SERIAL_LENGTH);
-  persistString(    MQTT_SERV_PSW,           EEPROM_MQTT_SERV_PSW_START,           EEPROM_MQTT_SERV_PSW_LENGTH);
-  EEPROM.write(EEPROM_MQTT_SERV_CFG_START,      MQTT_SERV_CFG);
-  EEPROM.write(EEPROM_MQTT_SERV_CRC_START,      MQTT_SERV_CRC);
-  EEPROM.write(EEPROM_MQTT_SERV_PORT_START,     static_cast<uint8_t>(MQTT_SERV_PORT & 0xFF));
-  EEPROM.write(EEPROM_MQTT_SERV_PORT_START + 1, static_cast<uint8_t>((MQTT_SERV_PORT >> 8) & 0xFF));
 
   writeChecksum(EEPROM_CHECKSUM_START);
 
@@ -193,18 +172,9 @@ void Config::readFromEEPROM()
   readString(    AP_URL,         EEPROM_AP_URL_START,            EEPROM_AP_URL_LENGTH);
 
   CM_CONNECTIONTYPE = static_cast<connectionType_t>(EEPROM.read(EEPROM_CM_CONNECTIONTYPE_START));
-  WS_TYPE = static_cast<serverType_t>(EEPROM.read(EEPROM_WS_TYPE_START));
-  readString(    WS_MASTER_URL,  EEPROM_WS_MASTER_START,     EEPROM_WS_MASTER_URL_LENGTH);
+  CM_MQTTTYPE = static_cast<mqttType_t>(EEPROM.read(EEPROM_CM_MQTTTYPE_START));
+
   readCoordinate(GO_POSITION,    EEPROM_GO_POSITION_START);
-
-  readString(    MQTT_SERV_DEVICE_NAME, EEPROM_MQTT_SERV_DEVICE_NAME_START,   EEPROM_MQTT_SERV_DEVICE_NAME_LENGTH);
-  readString(    MQTT_SERV_SERIAL,      EEPROM_MQTT_SERV_SERIAL_START,        EEPROM_MQTT_SERV_SERIAL_LENGTH);
-  readString(    MQTT_SERV_PSW,         EEPROM_MQTT_SERV_PSW_START,           EEPROM_MQTT_SERV_PSW_LENGTH);
-  MQTT_SERV_CFG = EEPROM.read(EEPROM_MQTT_SERV_CFG_START);
-  MQTT_SERV_CRC = EEPROM.read(EEPROM_MQTT_SERV_CRC_START);
-  MQTT_SERV_PORT = EEPROM.read(EEPROM_MQTT_SERV_PORT_START);
-  MQTT_SERV_PORT |= EEPROM.read(EEPROM_MQTT_SERV_PORT_START + 1) << 8;
-
 }
 
 void Config::persistString(std::string &s, uint16_t start, uint8_t maxLength)
@@ -414,15 +384,9 @@ void Config::setCM_CONNECTIONTYPE(connectionType_t connectionType)
   CM_CONNECTIONTYPE = connectionType;
 }
 
-
-void Config::setWS_TYPE(serverType_t serverType)
+void Config::setCM_MQTTTYPE(mqttType_t mqttType)
 {
-  WS_TYPE = serverType;
-}
-
-void Config::setWS_MASTER_URL(std::string url)
-{
-  WS_MASTER_URL = url;
+  CM_MQTTTYPE = mqttType;
 }
 
 // Gondola
@@ -433,32 +397,3 @@ void Config::setGO_POSITION(Coordinate position)
 
 
 // MQTT Server
-void Config::setMQTT_SERV_CFG(uint8_t cfg)
-{
-  MQTT_SERV_CFG = cfg;
-}
-
-void Config::setMQTT_SERV_DEVICE_NAME(std::string devname)
-{
-  MQTT_SERV_DEVICE_NAME = devname;
-}
-
-void Config::setMQTT_SERV_SERIAL(std::string serial)
-{
-  MQTT_SERV_SERIAL = serial;
-}
-
-void Config::setMQTT_SERV_CRC(uint8_t crc)
-{
-  MQTT_SERV_CRC = crc;
-}
-
-void Config::setMQTT_SERV_PORT(uint16_t port)
-{
-  MQTT_SERV_PORT = port;
-}
-
-void Config::setMQTT_SERV_PSW(std::string psw)
-{
-  MQTT_SERV_PSW = psw;
-}

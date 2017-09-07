@@ -8,9 +8,9 @@
 // Forward declaration of connectionType_t from ConnectionMgr
 enum connectionType_s : byte;
 typedef enum connectionType_s connectionType_t;
-// Forward declaration of serverType from ConnectionMgr
-enum serverType_s : byte;
-typedef enum serverType_s serverType_t;
+// Forward declaration of mqttType from ConnectionMgr
+enum mqttType_s : byte;
+typedef enum mqttType_s mqttType_t;
 
 /**
  * Singleton class to store the setup of the application
@@ -95,15 +95,13 @@ public:
   void setAP_URL(std::string url);
 
   // ConnectionMgr
-  void setCM_CONNECTIONTYPE(connectionType_t connecrtionType);
+  void setCM_CONNECTIONTYPE(connectionType_t connectionType);
   connectionType_t getCM_CONNECTIONTYPE() { return CM_CONNECTIONTYPE; }
+  void setCM_MQTTTYPE(mqttType_t mqttType);
+  mqttType_t getCM_MQTTTYPE() { return CM_MQTTTYPE; }
 
   // WebServer
   uint16_t getWS_PORT() { return WS_PORT; }
-  void setWS_TYPE(serverType_t serverType);
-  serverType_t getWS_TYPE() { return WS_TYPE; }
-  void setWS_MASTER_URL(std::string url);
-  std::string getWS_MASTER_URL() { return WS_MASTER_URL; }
 
   // Gondola
   Coordinate getGO_POSITION(void) { return GO_POSITION; }
@@ -113,15 +111,8 @@ public:
   uint8_t getMQTT_SERV_CFG() { return MQTT_SERV_CFG; }
   void setMQTT_SERV_CFG(uint8_t cfg);
   std::string getMQTT_SERV_DEVICE_NAME() { return MQTT_SERV_DEVICE_NAME; }
-  void setMQTT_SERV_DEVICE_NAME(std::string devname);
-  std::string getMQTT_SERV_SERIAL() { return MQTT_SERV_SERIAL; }
-  void setMQTT_SERV_SERIAL(std::string serial);
-  uint8_t getMQTT_SERV_CRC() { return MQTT_SERV_CRC; }
-  void setMQTT_SERV_CRC(uint8_t crc);
   uint16_t getMQTT_SERV_PORT() { return MQTT_SERV_PORT; }
-  void setMQTT_SERV_PORT(uint16_t port);
-  std::string getMQTT_SERV_PSW() { return MQTT_SERV_PSW; }
-  void setMQTT_SERV_PSW(std::string psw);
+  uint8_t getMQTT_SERV_USER_AUTH() { return MQTT_SERV_USER_AUTH; }
 
 private:
   /**
@@ -204,11 +195,10 @@ private:
 
   // ConnectionMgr
   connectionType_t CM_CONNECTIONTYPE;
+  mqttType_t CM_MQTTTYPE;
 
   // WebServer
   uint16_t WS_PORT;
-  serverType_t WS_TYPE;
-  std::string WS_MASTER_URL;
 
   // Gondola
   Coordinate GO_POSITION;
@@ -216,10 +206,10 @@ private:
   // MQTT Server
   uint8_t MQTT_SERV_CFG;
   std::string MQTT_SERV_DEVICE_NAME;
-  std::string MQTT_SERV_SERIAL;
-  uint8_t MQTT_SERV_CRC;
   uint16_t MQTT_SERV_PORT;
-  std::string MQTT_SERV_PSW;
+  uint8_t MQTT_SERV_USER_AUTH;
+
+  // MQTT Client
 };
 
 // STEPPER SETTINGS

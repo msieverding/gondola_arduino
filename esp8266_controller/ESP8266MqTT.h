@@ -1,4 +1,5 @@
 /*
+  Original file by:y
   Francesco Barone 2017(c)
   <barone_f@yahoo.com>
   ME PROJECT
@@ -23,21 +24,9 @@
 #endif
 
 #include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266HTTPClient.h>
-#include <ESP8266TrueRandom.h>
-
-#include <Wire.h>
-#include "RTClib.h"
-#include <ArduinoJson.h>
-#include <Hash.h>
-
 #include <PubSubClient.h>
-#include <rBase64.h>
+#include <ESP8266WiFi.h>
 
-// #include <SoftwareSerial.h>
-//#include <SD.h>
 #include <FS.h>
 
 #if defined(__SAM3X8E__)
@@ -46,14 +35,15 @@
 #endif
 
 extern "C" {
-
   #include "user_interface.h"
-  }
-
-#include <SPI.h>
+}
 
 #ifdef ESP8266
 	#include <functional>
+  #ifdef MQTT_CALLBACK_SIGNATURE
+    #undef MQTT_CALLBACK_SIGNATURE
+  #endif
+
 	#define MQTT_CALLBACK_SIGNATURE std::function<boolean(char*, uint8_t*, uint32_t)> mqtt_callback
 #endif
 
@@ -70,14 +60,6 @@ class ME
 	//LOG
 	void setloglevel(uint8_t level);
 	void log(uint8_t level, String payload);
-
-	//WWW
-	void handleNotFound_internal();
-	void handle_set_config_internal();
-	void handle_admin_user_internal();
-	void handle_index_internal();
-	void handle_login_internal();
-	//void handle_callback_internal();
 
 	//SERVER
 	ME& setCallback(MQTT_CALLBACK_SIGNATURE);
@@ -118,21 +100,8 @@ class ME
 
 	control_packet_connect C_CONNECT;
 
-	//WWW
-	String prefix = "";
-	String index_page = "";
-	ESP8266WebServer www_server = ESP8266WebServer(80);
-	bool loadFromSPIFFS(String path);
-	bool is_authentified();
-
 	//CONFIG
-	int getConfigStatus();
 	void load_cfg();
-	String ADMIN_USER = "admin";
-	String ADMIN_PASSWORD = "passw0rd";
-	#define DEFAULT_ADMIN_USER "admin"
-	#define DEFAULT_ADMIN_PASSWORD "passw0rd" //con lo zero :-)
-	boolean USER_AUTH=false;
 
 	//STATE
 	int STATE=0;
@@ -140,8 +109,8 @@ class ME
 	#define NOP 9999
 	#define START 10
 	#define CHECK_CONFIG 20
-	#define WAIT_CONFIG 30
-	#define CONFIG_CORRUPTED 21
+	// #define WAIT_CONFIG 30
+	// #define CONFIG_CORRUPTED 21
 	#define CONFIGURED 40
 	#define MQTT_LISTEN 50
 	#define START_SERVER 60
@@ -159,13 +128,9 @@ class ME
 	#define CLEAN_EXPIRED 170
 
 	//VAR
-	int CONFIG_STATUS=0;
 	String SERVER_INSTANCE_NAME = "NONAME";
 	String SERVER_SERIALNUMBER = "";
 	int MQTT_PORT = 1883;
-	#define ME_CONFIGURED 1
-	#define ME_UNCONFIGURED 9
-	boolean WWW_RUNNING=false;
 	boolean slowDownInternalCallback=false;
 	long t_slowDownInternalCallback=0;
 	int c_slowDownInternalCallback=0;
@@ -213,9 +178,6 @@ class ME
 	long inc_uptime=0;
 	long uptime_ms=0;
 	void updateConfigFiles();
-	//AUTH
-	boolean connectAuth(String UserName, String Password);
-	boolean isAdminSession(String UserName, String Password);
 
 	//OPTIMIZE WORKLOAD
 	int offset_process=0;
@@ -238,7 +200,6 @@ class ME
 	  long AliveTime;
 	  String UserName;
 	  String Password;
-	  boolean isAdminSession=false;
 	  };
 
 	mqtt_server_session SERVER_SESSION[MAX_SRV_CLIENTS];

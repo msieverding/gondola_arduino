@@ -1,4 +1,5 @@
 /*
+ Original file by:
  Francesco Barone 2017(c)
  <barone_f@yahoo.com>
  ME PROJECT
@@ -7,28 +8,13 @@
  */
 
 #if defined(ESP8266)
-#include <pgmspace.h>
+  #include <pgmspace.h>
 #else
-#include <avr/pgmspace.h>
+  #include <avr/pgmspace.h>
 #endif
 
 #include <Arduino.h>
-
 #include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266HTTPClient.h>
-#include <ESP8266TrueRandom.h>
-
-#include <Wire.h>
-#include "RTClib.h"
-#include <ArduinoJson.h>
-#include <Hash.h>
-
-#include <PubSubClient.h>
-#include <rBase64.h>
-
-#include <SoftwareSerial.h>
-//#include <SD.h>
 #include <FS.h>
 
 #include "Config.hpp"
@@ -41,31 +27,6 @@
 #include "ESP8266MqTT.h"
 
 ME *_me;
-
-void handleNotFound()
-{
-	_me->handleNotFound_internal();
-}
-
-void handle_login()
-{
-	_me->handle_login_internal();
-}
-
-void handle_index()
-{
-	_me->handle_index_internal();
-}
-
-void handle_set_config()
-{
-	_me->handle_set_config_internal();
-}
-
-void handle_admin_user()
-{
-	_me->handle_admin_user_internal();
-}
 
 //TIMER
 void ME::init_timers()
@@ -174,11 +135,11 @@ void ME::begin(HardwareSerial *param_serial)
 	//INIT TIMERS
 	log(TRACE, "Init Timers");
 	if (add_timer("CONFIG"))
-		log(TRACE, ">Timer CONFIG is ok");
+		log(TRACE, "> Timer CONFIG is ok");
 	if (add_timer("UPTIME"))
-		log(TRACE, ">Timer UPTIME is ok");
+		log(TRACE, "> Timer UPTIME is ok");
 	if (add_timer("PROCESS_EXPIRE"))
-		log(TRACE, ">Timer PROCESS_EXPIRE is ok");
+		log(TRACE, "> Timer PROCESS_EXPIRE is ok");
 
 	//Server Instance Time
 	start_timer("UPTIME");
@@ -202,9 +163,6 @@ void ME::begin(HardwareSerial *param_serial)
 
 void ME::loop()
 {
-	if (WWW_RUNNING)
-		www_server.handleClient();
-
 	switch (STATE)
 	{
 
@@ -217,81 +175,13 @@ void ME::loop()
 	case CHECK_CONFIG:
 
 		log(TRACE, "Check config");
-		STATE = CONFIG_CORRUPTED;
 
-		//Attiva il webserver
-		if (CONFIG_STATUS == ME_CONFIGURED)
+		if (hasSPIFFS)
 		{
-			if (hasSPIFFS)
-			{
-				updateConfigFiles();
-			}
-
-			log(TRACE, "Module is configured, Start web server");
-			prefix = "/www";
-			index_page = "index.htm";
-
-			//default
-			www_server.on("/login", handle_login);
-			www_server.on("/action/admin_user", handle_admin_user);
-
-#if defined(ARDUINO_ESP8266_ESP01)
-			log(TRACE,">www for ESP01 Module");
-			www_server.on("/", handle_index);
-			www_server.on("/index.htm", handle_index);
-#else
-			www_server.onNotFound(handleNotFound);
-#endif
-
-			//here the list of headers to be recorded
-			const char * headerkeys[] = { "User-Agent", "Cookie" };
-			size_t headerkeyssize = sizeof(headerkeys) / sizeof(char*);
-			//ask server to track these headers
-			www_server.collectHeaders(headerkeys, headerkeyssize);
-
-			www_server.begin();
-
-			WWW_RUNNING = true;
-
-			STATE = CONFIGURED;
+			updateConfigFiles();
 		}
 
-		if (CONFIG_STATUS == ME_UNCONFIGURED)
-		{
-			log(TRACE, "Start web server to config");
-			prefix = "/www";
-			index_page = "cfg_index.htm";
-
-			www_server.on("/action/set_config", handle_set_config);
-
-#if defined(ARDUINO_ESP8266_ESP01)
-			log(TRACE,">www for ESP01 Module");
-			www_server.on("/", handle_index);
-			www_server.on("/index.htm", handle_index);
-#else
-			www_server.onNotFound(handleNotFound);
-#endif
-
-			www_server.begin();
-
-			WWW_RUNNING = true;
-
-			STATE = WAIT_CONFIG;
-		}
-
-		break;
-
-	case WAIT_CONFIG:
-
-		if (trigger_timer("CONFIG", 2000))
-		{
-			// if( load_field_EEPROM(0,1)=="1"){
-			if (Config::get()->getMQTT_SERV_CFG() == 1)
-			{
-				log(TRACE, "Proceed as configured");
-				STATE = CONFIGURED;
-			}
-		}
+		STATE = CONFIGURED;
 		break;
 
 	case CONFIGURED:
@@ -369,7 +259,7 @@ void ME::loop()
 				String processline = fname + "/";
 
 				//il primo carattere � /
-				for (int i = 1; i < processline.length(); i++)
+				for (unsigned int i = 1; i < processline.length(); i++)
 				{
 					if (processline.substring(i, i + 1) == "/")
 					{
@@ -394,7 +284,7 @@ void ME::loop()
 				log(TRACE, "Check " + msg_filename);
 				if (!SPIFFS.exists(msg_filename + ".msg") || !SPIFFS.exists(msg_filename + ".st"))
 				{
-					log(TRACE, ">remove files");
+					log(TRACE, "> remove files");
 					SPIFFS.remove(fname);
 					SPIFFS.remove(msg_filename + ".msg");
 					SPIFFS.remove(msg_filename + ".st");
@@ -439,17 +329,6 @@ void ME::loop()
 				sprintf(temp, "Stats [%d][%d]", clients, subs);
 				log(TRACE, temp);
 			}
-
-			fs::File f = SPIFFS.open("/www/data/stats.val", "w");
-			f.println(in_msg);
-			f.println(out_msg);
-			f.println(clients);
-			f.println(subs);
-			f.close();
-
-			//incremental show
-			//in_msg=0;
-			//out_msg=0;
 		}
 	}
 
@@ -728,7 +607,7 @@ void ME::loop()
 
 					String processline = rdline + ":";
 
-					for (int i = 0; i < processline.length(); i++)
+					for (unsigned int i = 0; i < processline.length(); i++)
 					{
 						if (processline.substring(i, i + 1) == ":")
 						{
@@ -877,12 +756,12 @@ void ME::loop()
 						HeaderLine = rdline;
 						skipfirst = false;
 
-						log(TRACE, ">Headerline = " + HeaderLine);
+						log(TRACE, "> Headerline = " + HeaderLine);
 					}
 					else
 					{
 						//delivery list
-						log(TRACE, ">" + rdline);
+						log(TRACE, "> " + rdline);
 
 						//process st
 						{
@@ -893,7 +772,7 @@ void ME::loop()
 
 							String processline = rdline + ":";
 
-							for (int i = 0; i < processline.length(); i++)
+							for (unsigned int i = 0; i < processline.length(); i++)
 							{
 								if (processline.substring(i, i + 1) == ":")
 								{
@@ -923,7 +802,7 @@ void ME::loop()
 										log(TRACE, "Check if cd file " + csv[1] + " is still pending");
 										if (SPIFFS.exists(csv[1]))
 										{
-											log(TRACE, ">CD file exists");
+											log(TRACE, "> CD file exists");
 											CD += csv[1] + ":";
 										}
 									}
@@ -938,13 +817,13 @@ void ME::loop()
 									{
 										if (mqtt_clients[i].connected() && SERVER_SESSION[i].State == SESSION_ALLOCATED && strcmp(csv[0].c_str(), SERVER_SESSION[i].ClientID.c_str()) == 0)
 										{
-											log(TRACE, ">Client ID is in session");
+											log(TRACE, "> Client ID is in session");
 
 											log(TRACE, "Check if cd file " + csv[1] + " is still pending");
 											if (SPIFFS.exists(csv[1]))
 											{
 
-												log(TRACE, ">CD file exists");
+												log(TRACE, "> CD file exists");
 												CD += csv[1] + ":";
 											}
 										}
@@ -980,15 +859,15 @@ void ME::loop()
 					fs::File msg_filedat;
 
 					//retrieve Payload
-					log(TRACE, ">get Message Payload");
+					log(TRACE, "> get Message Payload");
 					String PAYLOAD = "";
 
-					log(TRACE, ">msg file name payload = " + msg_filename + ".msg");
+					log(TRACE, "> msg file name payload = " + msg_filename + ".msg");
 
 					msg_filedat = SPIFFS.open(msg_filename + ".msg", "r");
 					if (!msg_filedat)
 					{
-						log(TRACE, ">Problem reading msg file data");
+						log(TRACE, "> Problem reading msg file data");
 						remove_state_file = true;
 						RC = -1;
 
@@ -1008,11 +887,11 @@ void ME::loop()
 					//LOG
 					if (PAYLOAD.length() > 32)
 					{
-						log(TRACE, ">Payload = >" + PAYLOAD.substring(0, 32) + " ....");
+						log(TRACE, "> Payload = >" + PAYLOAD.substring(0, 32) + " ....");
 					}
 					else
 					{
-						log(TRACE, ">Payload = >" + PAYLOAD + "<");
+						log(TRACE, "> Payload = >" + PAYLOAD + "<");
 					}
 
 					/*
@@ -1033,7 +912,7 @@ void ME::loop()
 					 msg_filest = SPIFFS.open(fname, "w");
 					 if (!msg_filest) {
 
-					 log(TRACE,">Problem creating st file data");
+					 log(TRACE,"> Problem creating st file data");
 					 }else{
 
 					 //clientid-msgfileid-msgtime-
@@ -1061,7 +940,7 @@ void ME::loop()
 						}
 					}
 
-					for (int i = 0; i < CD.length(); i++)
+					for (unsigned int i = 0; i < CD.length(); i++)
 					{
 						//28.07
 						ESP.wdtFeed();
@@ -1091,7 +970,7 @@ void ME::loop()
 								rdline = String(buf);
 
 								//delivery list
-								log(TRACE, ">" + rdline);
+								log(TRACE, "> " + rdline);
 
 								//process msg
 								{
@@ -1102,7 +981,7 @@ void ME::loop()
 
 									String processline = rdline + ":";
 
-									for (int i = 0; i < processline.length(); i++)
+									for (unsigned int i = 0; i < processline.length(); i++)
 									{
 										if (processline.substring(i, i + 1) == ":")
 										{
@@ -1182,7 +1061,7 @@ void ME::loop()
 													/*
 													 {
 													 char temp[16];
-													 sprintf(temp,">loop=%d",i);
+													 sprintf(temp,"> loop=%d",i);
 													 log(TRACE,temp);
 													 }*/
 
@@ -1193,7 +1072,7 @@ void ME::loop()
 													boolean acl_block = false;
 
 													String admin_topic = "/SYS/" + MqTT_Server_InstanceID + "/console";
-													if (mqtt_clients[i].connected() && SERVER_SESSION[i].State == SESSION_ALLOCATED && csv[3] == admin_topic && !SERVER_SESSION[i].isAdminSession)
+													if (mqtt_clients[i].connected() && SERVER_SESSION[i].State == SESSION_ALLOCATED && csv[3] == admin_topic)
 													{
 														log(TRACE,
 																"Client ID " + SERVER_SESSION[i].ClientID
@@ -1203,7 +1082,7 @@ void ME::loop()
 
 													if (mqtt_clients[i].connected() && SERVER_SESSION[i].State == SESSION_ALLOCATED && strcmp(csv[0].c_str(), SERVER_SESSION[i].ClientID.c_str()) == 0 && !acl_block)
 													{
-														log(TRACE, ">Client ID is in session");
+														log(TRACE, "> Client ID is in session");
 
 														if (strcmp(csv[1].c_str(), "0") == 0)
 														{
@@ -1216,13 +1095,13 @@ void ME::loop()
 															//2017.06.27
 															ESP.wdtFeed();
 
-															log(TRACE, ">Send to " + TOPIC);
+															log(TRACE, "> Send to " + TOPIC);
 															//String PAYLOAD = "ABC";
 															int len = 2 + TOPIC.length() + PAYLOAD.length();
 
 															{
 																char temp[16];
-																sprintf(temp, ">len=%d ", len);
+																sprintf(temp, "> len=%d ", len);
 																log(TRACE, temp);
 															}
 
@@ -1249,7 +1128,7 @@ void ME::loop()
 															len = 1 + pos + TOPIC.length() + 2 + PAYLOAD.length();
 															{
 																char temp[16];
-																sprintf(temp, ">packet len=%d, pos=%d ", len, pos);
+																sprintf(temp, "> packet len=%d, pos=%d ", len, pos);
 																log(TRACE, temp);
 															}
 
@@ -1260,7 +1139,7 @@ void ME::loop()
 															OUT_PACKET[p++] = 0x30;
 
 															//REMAIN LENGTH
-															for (int y = 0; y < pos; y++)
+															for (unsigned int y = 0; y < pos; y++)
 															{
 																OUT_PACKET[p++] = REMANING_LEN[0];
 															}
@@ -1270,13 +1149,13 @@ void ME::loop()
 															OUT_PACKET[p++] = TOPIC.length() & 0xFF;
 
 															//copy topic to PACKET
-															for (int y = 0; y < TOPIC.length(); y++)
+															for (unsigned int y = 0; y < TOPIC.length(); y++)
 															{
 																OUT_PACKET[p++] = TOPIC[y];
 															}
 
 															//COPY PAYLOAD
-															for (int y = 0; y < PAYLOAD.length(); y++)
+															for (unsigned int y = 0; y < PAYLOAD.length(); y++)
 															{
 																OUT_PACKET[p++] = PAYLOAD[y];
 															}
@@ -1326,7 +1205,7 @@ void ME::loop()
 							 msg_filest = SPIFFS.open(fname, "a+");
 							 if (!msg_filest) {
 
-							 log(TRACE,">Problem updating st file data");
+							 log(TRACE,"> Problem updating st file data");
 							 }else{
 
 							 msg_filest.println(cdname);
@@ -1408,11 +1287,8 @@ void ME::loop()
 		String UserName = "";
 		String Password = "";
 		String ClientID = "";
-		boolean willretain_flag = false;
-		int willqos_flag = 0x00;
 		boolean will_flag = false;
 		boolean cleansession_flag = false;
-		int protocol_version = 4;
 
 		if (IN_PACKET[2] == 0 && IN_PACKET[3] == 4 && IN_PACKET[4] == int('M') && IN_PACKET[5] == int('Q') && IN_PACKET[6] == int('T') && IN_PACKET[7] == int('T') && IN_PACKET[8] == 4)
 		{
@@ -1439,7 +1315,7 @@ void ME::loop()
 
 			{
 				char temp[32];
-				sprintf(temp, ">KeepAliveTime = %ld ", keep_alive_time);
+				sprintf(temp, "> KeepAliveTime = %ld ", keep_alive_time);
 				log(TRACE, temp);
 			}
 
@@ -1459,13 +1335,13 @@ void ME::loop()
 				ClientID += char(IN_PACKET[POS + 2 + i]);
 			}
 
-			log(TRACE, ">ClientID = " + ClientID);
+			log(TRACE, "> ClientID = " + ClientID);
 			POS += (2 + ClientID_len);
 
 			//get will topic / will message
 			if (will_flag)
 			{
-				log(TRACE, ">Will flag");
+				log(TRACE, "> Will flag");
 				int WillTopic_len = 0;
 				int WillMessage_len = 0;
 
@@ -1492,7 +1368,7 @@ void ME::loop()
 			//check if user & password
 			if (username_flag)
 			{
-				log(TRACE, ">Username flag");
+				log(TRACE, "> Username flag");
 
 				int UserName_len = IN_PACKET[POS] << 8;
 				UserName_len += IN_PACKET[POS + 1];
@@ -1507,13 +1383,13 @@ void ME::loop()
 					UserName += char(IN_PACKET[POS + 2 + i]);
 				}
 
-				log(TRACE, ">UserName = " + UserName);
+				log(TRACE, "> UserName = " + UserName);
 				POS += (2 + UserName_len);
 			}
 
 			if (password_flag)
 			{
-				log(TRACE, ">Password flag");
+				log(TRACE, "> Password flag");
 
 				int Password_len = IN_PACKET[POS] << 8;
 				Password_len += IN_PACKET[POS + 1];
@@ -1529,42 +1405,9 @@ void ME::loop()
 				}
 
 				if (Password_len > 1)
-					log(TRACE, ">Password = " + Password);
+					log(TRACE, "> Password = " + Password);
 
 				POS += (2 + Password_len);
-			}
-
-			if (USER_AUTH)
-			{
-				log(TRACE, "Server has user authorization");
-
-				//2017.07.17
-				//first check auth
-				if (!username_flag && password_flag)
-					RC = 0x04;
-				if (!connectAuth(UserName, Password))
-				{
-					log(TRACE, "User Authorization failed");
-					RC = 0x05;
-				}
-
-				/*
-				 if(isAdminSession(UserName, Password)){
-
-				 log(TRACE,"Admin Session, force clean session=true");
-				 cleansession_flag=true;
-				 }
-				 */
-			}
-			else
-			{
-				/*
-				 if(username_flag && password_flag && isAdminSession(UserName, Password)){
-
-				 log(TRACE,"Admin Session, force clean session=true");
-				 cleansession_flag=true;
-				 }
-				 */
 			}
 
 			if (RC == 0x00)
@@ -1572,7 +1415,7 @@ void ME::loop()
 				//flags print
 				if (cleansession_flag)
 				{
-					log(TRACE, ">Clean Session Flag = 1");
+					log(TRACE, "> Clean Session Flag = 1");
 					CleanClientSession(ClientID);
 				}
 
@@ -1661,16 +1504,11 @@ void ME::loop()
 		log(TRACE, "SubScribe Request Control Packet Received");
 
 		String ClientID = SERVER_SESSION[c].ClientID;
-		log(TRACE, ">ClientID= " + ClientID);
-
-		if (SERVER_SESSION[c].isAdminSession)
-		{
-			log(TRACE, ">Request from admin session");
-		}
+		log(TRACE, "> ClientID= " + ClientID);
 
 		int pos = 0;
 		int pid = 0;
-		int topic_filter_len = 0;
+		unsigned int topic_filter_len = 0;
 		String topic_filter = "";
 		uint8_t qos = 0;
 
@@ -1719,7 +1557,7 @@ void ME::loop()
 
 				{
 					char temp[32];
-					sprintf(temp, ">Packet ID=%d", pid);
+					sprintf(temp, "> Packet ID=%d", pid);
 					log(TRACE, temp);
 				}
 				break;
@@ -1737,7 +1575,7 @@ void ME::loop()
 
 				{
 					char temp[32];
-					sprintf(temp, ">Topic Filter Len=%d", topic_filter_len);
+					sprintf(temp, "> Topic Filter Len=%d", topic_filter_len);
 					log(TRACE, temp);
 				}
 
@@ -1748,13 +1586,13 @@ void ME::loop()
 				if (topic_filter.length() >= topic_filter_len)
 				{
 					//ok topic filter ended, get QoS
-					log(TRACE, ">Topic Filter=" + topic_filter);
+					log(TRACE, "> Topic Filter=" + topic_filter);
 
 					qos = IN_PACKET[x];
 
 					{
 						char temp[32];
-						sprintf(temp, ">QoS=%d", qos);
+						sprintf(temp, "> QoS=%d", qos);
 						log(TRACE, temp);
 					}
 
@@ -1766,40 +1604,6 @@ void ME::loop()
 					{
 						if (topic_filter_len > 0)
 						{
-							if (RC == 0 && (SERVER_SESSION[c].isAdminSession || USER_AUTH))
-							{
-								log(TRACE, "Check ACL list");
-								log(TRACE, "> current user = " + SERVER_SESSION[c].UserName);
-
-								String admin_topic = "/SYS/" + MqTT_Server_InstanceID + "/console";
-
-								if (SERVER_SESSION[c].isAdminSession)
-								{
-									log(TRACE, "> admin session");
-									log(TRACE, "> admin topic=" + admin_topic);
-
-									if (strcmp(topic_filter.c_str(), admin_topic.c_str()) != 0)
-										RC = -99;
-								}
-								else
-								{
-									if (strcmp(topic_filter.c_str(), admin_topic.c_str()) == 0)
-									{
-
-										log(TRACE, ">Subscribe to admin topic without auth");
-										RC = -98;
-									}
-									else
-									{
-										if (USER_AUTH)
-										{
-
-											log(TRACE, "> loop acl file");
-										}
-									}
-								}
-							}
-
 							if (RC == 0)
 							{
 								wdt_disable();
@@ -1873,11 +1677,11 @@ void ME::loop()
 										log(TRACE, "Remove " + fname);
 										if (SPIFFS.remove(fname))
 										{
-											log(TRACE, ">File removed");
+											log(TRACE, "> File removed");
 
 											if (SERVER_SESSION[c].CleanSession)
 											{
-												log(TRACE, ">Clean Session=true, new=" + target_sub_finename);
+												log(TRACE, "> Clean Session=true, new=" + target_sub_finename);
 												CleanClientSession(CLIENTID);
 											}
 											else
@@ -1907,11 +1711,11 @@ void ME::loop()
 									fs::File topicsub_filedat = SPIFFS.open(target_sub_finename, "w");
 									if (!topicsub_filedat)
 									{
-										log(TRACE, ">Problem creating subscription file data");
+										log(TRACE, "> Problem creating subscription file data");
 									}
 									else
 									{
-										log(TRACE, ">File is created");
+										log(TRACE, "> File is created");
 										topicsub_filedat.println(ClientID);
 										topicsub_filedat.println(topic_filter);
 										topicsub_filedat.println(pid);
@@ -2006,7 +1810,7 @@ void ME::loop()
 		log(TRACE, "Publish message Control Packet Received");
 
 		String ClientID = SERVER_SESSION[c].ClientID;
-		log(TRACE, ">ClientID= " + ClientID);
+		log(TRACE, "> ClientID= " + ClientID);
 
 		int idx_in = 0;
 		//+2 considera il packet identifier finale
@@ -2024,7 +1828,7 @@ void ME::loop()
 
 			{
 				char temp[32];
-				sprintf(temp, ">Flag d%d q%d r%d", dup, qos, retain);
+				sprintf(temp, "> Flag d%d q%d r%d", dup, qos, retain);
 				log(TRACE, temp);
 			}
 
@@ -2052,48 +1856,10 @@ void ME::loop()
 				topic_filter += char(IN_PACKET[idx_in + offset_huge_payload_len + 4 + i]);
 			}
 
-			log(TRACE, ">Topic Filter = " + topic_filter);
+			log(TRACE, "> Topic Filter = " + topic_filter);
 
 			//2017.07.17 User Auth + Admin session
 			int RC = 0;
-			boolean admin_payload = false;
-
-			String admin_topic = "/SYS/" + MqTT_Server_InstanceID + "/console";
-			if (RC == 0 && (SERVER_SESSION[c].isAdminSession || USER_AUTH))
-			{
-				log(TRACE, "Check ACL list");
-				log(TRACE, "> current user = " + SERVER_SESSION[c].UserName);
-
-				if (SERVER_SESSION[c].isAdminSession)
-				{
-					log(TRACE, "> admin session");
-					log(TRACE, "> admin topic=" + admin_topic);
-
-					if (strcmp(topic_filter.c_str(), admin_topic.c_str()) == 0)
-					{
-						admin_payload = true;
-					}
-					else
-					{
-						RC = -99;
-					}
-				}
-				else
-				{
-					if (strcmp(topic_filter.c_str(), admin_topic.c_str()) == 0)
-					{
-						log(TRACE, ">Publish to admin topic without auth");
-						RC = -98;
-					}
-					else
-					{
-						if (USER_AUTH)
-						{
-							log(TRACE, "> loop acl file");
-						}
-					}
-				}
-			}
 
 			int offset_qos = 0;
 			if (qos > 0)
@@ -2129,139 +1895,19 @@ void ME::loop()
 				//LOG
 				if (payload.length() > 32)
 				{
-					log(TRACE, ">Payload = " + payload.substring(0, 32) + " ....");
+					log(TRACE, "> Payload = " + payload.substring(0, 32) + " ....");
 				}
 				else
 				{
-					log(TRACE, ">Payload = " + payload);
+					log(TRACE, "> Payload = " + payload);
 				}
-
-				if (admin_payload)
-				{
-					log(TRACE, "Process Admin Payload");
-					int RC = -99;
-
-					String csv[8];
-					int counter = 0;
-					int lastIndex = 0;
-
-					String processline = payload + " ";
-
-					for (int i = 0; i < processline.length(); i++)
-					{
-						if (processline.substring(i, i + 1) == " ")
-						{
-
-							if (counter < 8)
-								csv[counter] = processline.substring(lastIndex, i);
-
-							lastIndex = i + 1;
-							counter++;
-						}
-					}
-
-					//parse command
-					if (counter > 0 && strcmp(csv[0].c_str(), "LISTUSERS") == 0)
-					{
-						RC = 0;
-						fs::File auth_file = SPIFFS.open("/auth/passwd", "r");
-
-						boolean first = true;
-						payload += " [";
-						//read all
-						while (RC == 0 && auth_file.available())
-						{
-							String rdline = auth_file.readStringUntil('\n');
-							{
-								String csv[2];
-								int counter = 0;
-								int lastIndex = 0;
-
-								String processline = rdline + ":";
-
-								for (int i = 2; i < processline.length(); i++)
-								{
-									if (processline.substring(i, i + 1) == ":")
-									{
-										if (counter < 2)
-											csv[counter] = processline.substring(lastIndex, i);
-
-										lastIndex = i + 1;
-										counter++;
-									}
-								}
-
-								if (counter > 0)
-								{
-									if (!first)
-										payload += ",";
-									payload += csv[0];
-									first = false;
-								}
-							}
-						}
-
-						auth_file.close();
-
-						payload += "]";
-					}
-
-					if (counter > 0 && strcmp(csv[0].c_str(), "ADDUSER") == 0)
-					{
-						if (counter > 2 && csv[1].length() > 0 && csv[2].length() > 0)
-						{
-							log(TRACE, "Try to register user=" + csv[1] + " with password=" + csv[2]);
-
-							RC = 0;
-							fs::File auth_file = SPIFFS.open("/auth/passwd", "r");
-
-							//read all
-							while (RC == 0 && auth_file.available())
-							{
-								String rdline = auth_file.readStringUntil('\n');
-								if (rdline.startsWith(csv[1] + ":"))
-								{
-									log(TRACE, "User already defined");
-									RC = -102;
-								}
-							}
-
-							auth_file.close();
-
-							if (RC == 0)
-							{
-								log(TRACE, "Append user to passwd file");
-
-								auth_file = SPIFFS.open("/auth/passwd", "a+");
-								auth_file.println(csv[1] + ":" + csv[2]);
-								auth_file.close();
-
-								//update
-								updateConfigFiles();
-							}
-						}
-						else
-						{
-							RC = -101;
-						}
-
-					}
-
-					{
-						char temp[128];
-						sprintf(temp, "RC=%d", RC);
-						payload += " [" + String(temp) + "]";
-					}
-
-				}
-
 			}
 
 			//
 			idx_in += offset_huge_payload_len + 4 + topic_filter_len + offset_qos + payload_len;
 			{
 				char temp[16];
-				sprintf(temp, ">Process %d/%d", idx_in, idx);
+				sprintf(temp, "> Process %d/%d", idx_in, idx);
 				log(TRACE, temp);
 			}
 
@@ -2283,91 +1929,6 @@ void ME::loop()
 }
 
 //SERVER
-boolean ME::isAdminSession(String UserName, String Password)
-{
-
-	log(TRACE, "Check if admin session");
-
-	if (strcmp(ADMIN_USER.c_str(), UserName.c_str()) == 0 && strcmp(ADMIN_PASSWORD.c_str(), Password.c_str()) == 0)
-	{
-		log(TRACE, ">this is an admin session");
-		return true;
-	}
-
-	return false;
-}
-
-boolean ME::connectAuth(String UserName, String Password)
-{
-
-	log(TRACE, "Check auth user");
-
-	{
-		log(TRACE, ">check if admin");
-
-		log(TRACE, ">" + ADMIN_USER + "<>" + UserName + "-" + ADMIN_PASSWORD + "<>" + Password + "<");
-		if (strcmp(ADMIN_USER.c_str(), UserName.c_str()) == 0 && strcmp(ADMIN_PASSWORD.c_str(), Password.c_str()) == 0)
-		{
-			log(TRACE, ">admin validated");
-			return true;
-		}
-
-	}
-
-	{
-		log(TRACE, ">loop auth file");
-
-		int RC = -99;
-		fs::File auth_file = SPIFFS.open("/auth/passwd", "r");
-
-		//read all
-		while (RC < 0 && auth_file.available())
-		{
-			String rdline = auth_file.readStringUntil('\n');
-
-			char buf[rdline.length()];
-			sprintf(buf, "%s", rdline.c_str());
-			buf[rdline.length() - 1] = '\0';
-			rdline = String(buf);
-
-			//log(TRACE,">found "+rdline);
-			String csv[2];
-			int counter = 0;
-			int lastIndex = 0;
-
-			String processline = rdline + ":";
-
-			for (int i = 2; i < processline.length(); i++)
-			{
-				if (processline.substring(i, i + 1) == ":")
-				{
-					if (counter < 2)
-						csv[counter] = processline.substring(lastIndex, i);
-
-					lastIndex = i + 1;
-					counter++;
-				}
-			}
-
-			//log(TRACE,">compare >"+UserName+"<>"+csv[0]+"<>"+Password+"<>"+csv[1]+"<");
-			log(TRACE, ">Check " + UserName + "-" + csv[0]);
-			//if(counter>=1 && strcmp(UserName.c_str(),csv[0].c_str())==0 && strcmp(Password.c_str(),csv[1].c_str())==0 ){
-			if (counter > 1 && UserName == csv[0] && Password == csv[1])
-			{
-				log(TRACE, "User found and validated");
-				RC = 0;
-			}
-		}
-
-		auth_file.close();
-
-		if (RC == 0)
-			return true;
-	}
-
-	return false;
-}
-
 void ME::stop_callback()
 {
 	internal_callback_paused = true;
@@ -2408,7 +1969,7 @@ void ME::CleanClientSession(String CLIENTID)
 
 				String processline = rdline + ":";
 
-				for (int i = 0; i < processline.length(); i++)
+				for (unsigned int i = 0; i < processline.length(); i++)
 				{
 					if (processline.substring(i, i + 1) == ":")
 					{
@@ -2462,7 +2023,7 @@ boolean ME::storeMessage(String ClientID, String topic_filter, String payload, u
 		fs::File msg_filedat = SPIFFS.open(msg_filename + ".st", "w");
 		if (!msg_filedat)
 		{
-			log(TRACE, ">Problem creating msg file data");
+			log(TRACE, "> Problem creating msg file data");
 		}
 		else
 		{
@@ -2476,7 +2037,7 @@ boolean ME::storeMessage(String ClientID, String topic_filter, String payload, u
 		msg_filedat = SPIFFS.open(msg_filename + ".msg", "w");
 		if (!msg_filedat)
 		{
-			log(TRACE, ">Problem creating msg file data");
+			log(TRACE, "> Problem creating msg file data");
 		}
 		else
 		{
@@ -2509,7 +2070,7 @@ boolean ME::storeMessage(String ClientID, String topic_filter, String payload, u
 
 			if (fname.startsWith("/subs/CS"))
 			{
-				log(TRACE, ">" + fname);
+				log(TRACE, "> " + fname);
 
 				//
 				String TOPIC = "";
@@ -2570,7 +2131,7 @@ boolean ME::storeMessage(String ClientID, String topic_filter, String payload, u
 						msg_filedat = SPIFFS.open(msg_filename + ".st", "a+");
 						if (!msg_filedat)
 						{
-							log(TRACE, ">Problem appending st file " + msg_filename + ".st");
+							log(TRACE, "> Problem appending st file " + msg_filename + ".st");
 						}
 						else
 						{
@@ -2584,7 +2145,7 @@ boolean ME::storeMessage(String ClientID, String topic_filter, String payload, u
 						msg_filedat = SPIFFS.open(msg_filename + msg_state, "w");
 						if (!msg_filedat)
 						{
-							log(TRACE, ">Problem append data to msg file data");
+							log(TRACE, "> Problem append data to msg file data");
 						}
 						else
 						{
@@ -2603,7 +2164,7 @@ boolean ME::storeMessage(String ClientID, String topic_filter, String payload, u
 		t = millis() - t;
 		{
 			char temp[32];
-			sprintf(temp, ">Process QoS 0 Time %ld ms", t);
+			sprintf(temp, "> Process QoS 0 Time %ld ms", t);
 			log(TRACE, temp);
 		}
 
@@ -2622,7 +2183,7 @@ boolean ME::storeMessage(String ClientID, String topic_filter, String payload, u
 		t = millis() - t;
 		{
 			char temp[32];
-			sprintf(temp, "Process QoS 1 Time %d ms", t);
+			sprintf(temp, "Process QoS 1 Time %ld ms", t);
 			log(TRACE, temp);
 		}
 
@@ -2748,11 +2309,11 @@ boolean ME::subscribe(String topic_filter, boolean CleanSession)
 			log(TRACE, "Remove " + fname);
 			if (SPIFFS.remove(fname))
 			{
-				log(TRACE, ">File removed");
+				log(TRACE, "> File removed");
 
 				if (CleanSession)
 				{
-					log(TRACE, ">Clean Session=true, new=" + target_sub_finename);
+					log(TRACE, "> Clean Session=true, new=" + target_sub_finename);
 					CleanClientSession (SERVER_INSTANCE_NAME);
 				}
 				else
@@ -2782,12 +2343,12 @@ boolean ME::subscribe(String topic_filter, boolean CleanSession)
 		fs::File topicsub_filedat = SPIFFS.open(target_sub_finename, "w");
 		if (!topicsub_filedat)
 		{
-			log(TRACE, ">Problem creating subscription file data");
+			log(TRACE, "> Problem creating subscription file data");
 		}
 		else
 		{
 
-			log(TRACE, ">File is created");
+			log(TRACE, "> File is created");
 			topicsub_filedat.println(SERVER_INSTANCE_NAME);
 			topicsub_filedat.println(topic_filter);
 			topicsub_filedat.println(0);
@@ -2836,7 +2397,7 @@ boolean ME::checkMatchTopic(String topic1, String topic2)
 
 	String _topic_filter = topic1 + "/";
 
-	for (int i = 0; i < _topic_filter.length(); i++)
+	for (unsigned int i = 0; i < _topic_filter.length(); i++)
 	{
 		if (_topic_filter.substring(i, i + 1) == "/")
 		{
@@ -2853,7 +2414,7 @@ boolean ME::checkMatchTopic(String topic1, String topic2)
 	lastIndex = 0;
 
 	boolean match = true;
-	for (int i = 0; i < _topic_filter.length() && match; i++)
+	for (unsigned int i = 0; i < _topic_filter.length() && match; i++)
 	{
 		if (_topic_filter.substring(i, i + 1) == "/")
 		{
@@ -2939,8 +2500,6 @@ boolean ME::allocSession(int c, String ClientID, long KeepAliveTime, boolean Cle
 		SERVER_SESSION[c].UserName = UserName;
 		SERVER_SESSION[c].Password = Password;
 
-		SERVER_SESSION[c].isAdminSession = isAdminSession(UserName, Password);
-
 		{
 			char temp[32];
 			sprintf(temp, "Client ID has Session @ %d", c);
@@ -2954,30 +2513,7 @@ boolean ME::allocSession(int c, String ClientID, long KeepAliveTime, boolean Cle
 //CONFIG
 void ME::updateConfigFiles()
 {
-	log(TRACE, "Update config files for www");
-
 	{
-		log(TRACE, "> users.val");
-		fs::File f = SPIFFS.open("/www/data/users.val", "w");
-
-		fs::File u = SPIFFS.open("/auth/passwd", "r");
-		while (u.available())
-		{
-			String rdline = u.readStringUntil('\n');
-			log(TRACE, rdline);
-
-			f.println(rdline);
-		}
-		u.close();
-
-		f.close();
-	}
-
-	{
-		log(TRACE, "> parameter.val");
-		fs::File f = SPIFFS.open("/www/data/parameters.val", "w");
-		f.close();
-
 		log(TRACE, "Update parameters list");
 
 		fs::Dir dir_data = SPIFFS.openDir("/etc");
@@ -2997,555 +2533,18 @@ void ME::updateConfigFiles()
 				}
 			}
 			f.close();
-
-			if (paramline.length() > 0)
-			{
-				log(TRACE, "> append " + paramline);
-				f = SPIFFS.open("/www/data/parameters.val", "a+");
-				f.println(paramline);
-				f.close();
-			}
 		}
 	}
-}
-
-int ME::getConfigStatus()
-{
-	return CONFIG_STATUS;
 }
 
 void ME::load_cfg()
 {
-	log(TRACE, "Start Config Load");
+	log(TRACE, "Load Config");
 
-	//-------------
-	//0   1    	     17     49      65          81        93       97   98			106		   114	  115
-	//CFG DEVICENAME SERIAL AP_SSID AP_PASSWORD IPADDRESS MQTTPORT CRC  ADMIN USER  ADMIN PSW  SECURE
+	SERVER_INSTANCE_NAME = String(Config::get()->getMQTT_SERV_DEVICE_NAME().c_str());
+	MQTT_PORT = Config::get()->getMQTT_SERV_PORT();
 
-	String CRC = String(Config::get()->getMQTT_SERV_CRC());
-	String CFG = String(Config::get()->getMQTT_SERV_CFG());
-	log(TRACE, "Module check config [" + CFG + "][" + CRC + "]");
-
-	if (CRC == "9")
-	{
-		CONFIG_STATUS = atoi(CFG.c_str());
-
-		switch (CONFIG_STATUS)
-		{
-		case 1:
-		{
-			log(TRACE, "Module is configured");
-
-			CONFIG_STATUS = ME_CONFIGURED;
-
-			SERVER_INSTANCE_NAME = String(Config::get()->getMQTT_SERV_DEVICE_NAME().c_str());
-			SERVER_SERIALNUMBER = String(Config::get()->getMQTT_SERV_SERIAL().c_str());
-			MQTT_PORT = Config::get()->getMQTT_SERV_PORT();
-
-			log(TRACE, ">SERVER NAME=" + SERVER_INSTANCE_NAME + " @ " + String(MQTT_PORT));
-
-			// ADMIN_USER = load_field_EEPROM(98,8);
-			// ADMIN_PASSWORD = load_field_EEPROM(106,8);
-			//log(TRACE,"Set MqTT Management "+(ADMIN_USER.substring(0,1)) +"**** "+(ADMIN_PASSWORD.substring(0,1)) +"**** ");
-			log(TRACE, "Set MqTT Management " + ADMIN_USER + " " + ADMIN_PASSWORD);
-
-			//2017.07.18
-			if (String(Config::get()->getMQTT_SERV_PSW().c_str()) == "1")
-			{
-				log(TRACE, ">MqTT security enabled");
-				USER_AUTH = true;
-			}
-		}
-			break;
-
-		case 9:
-      // TODO this state still needed?
-			break;
-
-		default:
-			break;
-		}
-	}
-	else
-	{
-		log(TRACE, "Config corrupted, set as unconfigured");
-		CONFIG_STATUS = ME_UNCONFIGURED;
-
-		Config::get()->setMQTT_SERV_CFG(9);
-		Config::get()->setMQTT_SERV_CRC(9);
-		Config::get()->writeToEEPROM();
-	}
-
-	log(TRACE, "End Config Load");
-}
-
-//WWW
-bool ME::is_authentified()
-{
-	log(TRACE, "www Enter is_authentified");
-	if (www_server.hasHeader("Cookie"))
-	{
-
-		String cookie = www_server.header("Cookie");
-		log(TRACE, "Found cookie: " + cookie);
-
-		if (cookie.indexOf("ESPSESSIONID=1") != -1)
-		{
-			log(TRACE, "www Authentification Successful");
-			return true;
-		}
-	}
-
-	log(TRACE, "www Authentification Failed");
-	return false;
-}
-
-void ME::handle_login_internal()
-{
-	char temp[1024];
-
-	wdt_disable();
-	log(TRACE, "Serve internal login");
-
-	String msg;
-	if (www_server.hasHeader("Cookie"))
-	{
-
-		log(TRACE, "Found cookie: " + www_server.header("Cookie"));
-	}
-
-	if (www_server.hasArg("DISCONNECT"))
-	{
-		log(TRACE, "www Disconnection");
-		www_server.sendHeader("Location", "/login");
-		www_server.sendHeader("Cache-Control", "no-cache");
-		www_server.sendHeader("Set-Cookie", "ESPSESSIONID=0");
-		www_server.send(301);
-		return;
-	}
-
-	if (www_server.hasArg("USERNAME") && www_server.hasArg("PASSWORD"))
-	{
-		if (www_server.arg("USERNAME") == ADMIN_USER && www_server.arg("PASSWORD") == ADMIN_PASSWORD)
-		{
-			www_server.sendHeader("Location", "/admin.htm");
-			www_server.sendHeader("Cache-Control", "no-cache");
-			www_server.sendHeader("Set-Cookie", "ESPSESSIONID=1");
-			www_server.send(301);
-			log(TRACE, "www Log in Successful");
-			return;
-		}
-
-		msg = "Wrong username/password! try again.";
-		log(TRACE, "www Log in Failed");
-	}
-
-	sprintf(temp,
-			"<html>\
-<title>ME ESP8266 an MqTT Lite Instance - IoT Francesco Barone BASE v 1.0</title>\
-<head>\
-<link rel=\"stylesheet\" type=\"text/css\" href=\"css/admin.css\">\
-\
-<link rel=\"stylesheet\" href=\"css/jqm.css\" />\
-<script src=\"js/jq.js\"></script>\
-<script src=\"js/jqm.js\"></script>\
-\
-</head>");
-	www_server.sendContent(String(temp));
-
-	sprintf(temp,
-			"<body>\
-<div id='main' data-role='page' style='text-align:center;'>\
-  <div data-role='header'>\
-    <h1>ME - Manage Module</h1>\
-  </div>\
-  <div data-role='main' class='ui-content'>\
-    <form id='LOGIN' action='/login' method='POST'>\
-    <table id='config_div'>\
-    <tr><td style='vertical-align: top;'>\
-    <div id='title'>Login to admin server</div>\
-    <hr>");
-	www_server.sendContent(String(temp));
-
-	sprintf(temp,
-			"<div id='config-content'>\
-      <table>\
-      <tr><td id='COL_USERNAME' width=100px>ADMIN USER</td><td style='text-align: right;'><input maxlength='16' type=text name='USERNAME' id='USERNAME' value='%s'></td></tr>\
-      <tr><td id='COL_PASSWORD' width=100px>PASSWORD</td><td style='text-align: right;'><input maxlength='16' type=password name='PASSWORD' id='PASSWORD' value='%s'></td></tr>\
-      </table>\
-      </td></tr>\
-	  <tr><td colspan=2>\
-		<h1><input type=submit name='Login' value='Login'></h1>\
-	  </td></tr>\
-      </table>\
-    </div>\
-    </td></tr>\
-    </table>\
-  </div>\
-  <div data-role='footer' style='text-align:center;'>\
-  </div>\
-  </form>\
-</div> \
-</body>\
-</html>",
-			DEFAULT_ADMIN_USER, DEFAULT_ADMIN_PASSWORD);
-
-	www_server.sendContent(String(temp));
-	www_server.client().stop();
-
-	wdt_enable(25000);
-}
-
-void ME::handle_index_internal()
-{
-	char temp[2048];
-
-	//wdt_disable();
-
-	log(TRACE, "Serve internal index.html");
-
-	www_server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-	www_server.sendHeader("Pragma", "no-cache");
-	www_server.sendHeader("Expires", "-1");
-	www_server.setContentLength(CONTENT_LENGTH_UNKNOWN);
-	www_server.send(200, "text/html", "");
-
-	sprintf(temp,
-			"<html>\
-<title>ME ESP8266 an MqTT Lite Instance - IoT Francesco Barone BASE v 1.0</title>\
-<head>\
-</head>\
-<body>\
-<div data-role='page'>\
-  <div data-role='header'>\
-    <h1>Config Module</h1>\
-  </div>\
-  <div data-role='main' class='ui-content'>\
-    <form id='SET_CONFIG' action='/action/set_config' method='get'>\
-    <table id='config_div'>\
-    <tr><td style='vertical-align: top;'>\
-    <div id='title'>Title</div>\
-    <hr>");
-	www_server.sendContent(temp);
-
-	sprintf(temp,
-			"<div id='config-content'>\
-      <table>\
-      <tr><td id='COL_SRVNAME' width=100px>SERVER NAME</td><td style='text-align: right;'><input maxlength='16' type=text name='SRVNAME' id='SRVNAME' value='MqTT'></td></tr>\
-      <tr><td id='COL_SRVPORT' width=100px>SERVER PORT</td><td style='text-align: right;'><input maxlength='16' type=text name='SRVPORT' id='SRVPORT' value='1883'></td></tr>\
-	  \
-      <tr><td id='COL_SSID_AP' width=100px>SSID AP</td><td style='text-align: right;'><input type=text name='AP_SSID' id='AP_SSID' value='MqTT'></td></tr>\
-      <tr><td id='COL_PASSWORD_AP' width=100px>PASSWORD</td><td style='text-align: right;'><input type=text name='AP_PASSWORD' id='AP_PASSWORD' value='passw0rd'></td></tr>\
-      <tr><td id='COL_IP' width=100px>IP Address</td><td style='text-align: right;'>");
-	www_server.sendContent(temp);
-
-	sprintf(temp,
-			"<table><tr>\
-      <td>\
-      <div class='ui-block-a'>\
-        <input data-inline='true' style='width:50px' maxlength='3' type=text name='IP1' id='IP1' value='192'>\
-      </div>\
-      </td>\
-      <td>\
-      <div class='ui-block-a'>\
-        <input data-inline='true' style='width:50px' maxlength='3' type=text name='IP2' id='IP2' value='168'>\
-      </div>\
-      </td>\
-      <td>\
-      <div class='ui-block-a'>\
-        <input data-inline='true' style='width:50px' maxlength='3' type=text name='IP3' id='IP3' value='4'>\
-      </div>\
-      </td>");
-	www_server.sendContent(temp);
-
-	sprintf(temp,
-			"<td>\
-      <div class='ui-block-a'>\
-        <input data-inline='true' style='width:50px' maxlength='3' type=text name='IP4' id='IP4' value='1'>\
-      </div>\
-      </td>\
-      </tr>\
-      </table>\
-      </td></tr>\
-      </table>\
-    </div>\
-    </td></tr>\
-    </table>\
-  </div>\
-  <div data-role='footer'>\
-    <h1><input type=submit name='Save Config'></h1>\
-  </div>\
-  </form>\
-</div> \
-</body>\
-</html>");
-	www_server.sendContent(temp);
-
-	//content len not specified
-	www_server.client().stop();
-	//www_server.send(200, "text/html", temp);
-
-	//wdt_enable(5000);
-}
-
-void ME::handle_admin_user_internal()
-{
-	char temp[1024];
-	int rc = 0;
-
-	log(TRACE, "Process admin_user");
-	if (www_server.args() > 0)
-	{
-		String USERNAME = "", USERPWD = "";
-
-		for (uint8_t i = 0; i < www_server.args(); i++)
-		{
-			log(TRACE, www_server.argName(i) + "=" + www_server.arg(i));
-			if (www_server.argName(i) == "ADMIN_USER")
-				USERNAME = www_server.arg(i);
-			if (www_server.argName(i) == "ADMIN_PASSWORD")
-				USERPWD = www_server.arg(i);
-		}
-
-		if (USERNAME != "" && USERPWD != "")
-		{
-			log(TRACE, "Update admin user set Username=" + USERNAME);
-
-			ADMIN_USER = USERNAME;
-			ADMIN_PASSWORD = USERPWD;
-
-			log(TRACE, "Can't overwrite ADMIN credentials, since user deleted it in code");
-			// save_field_EEPROM(98,ADMIN_USER,8);
-			// save_field_EEPROM(106,ADMIN_PASSWORD,8);
-		}
-	}
-
-	sprintf(temp,
-
-			"<html>\
-		<head>\
-		  <title>ESP8266 ME-MqTT Lite</title>\
-		  <style>\
-			body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
-		  </style>\
-		</head>\
-		<body>\
-		  <h1>Request processed with RC=%d, Return to <a href=\"/admin.htm\">admin page</a></h1>\
-		</body>\
-	  </html>",
-			rc);
-
-	www_server.send(200, "text/html", temp);
-}
-
-void ME::handle_set_config_internal()
-{
-	char temp[1024];
-	int rc = 0;
-
-	log(TRACE, "Process set_config");
-	if (www_server.args() > 0)
-	{
-		String SRVNAME = "";
-		String SRVPORT = "";
-		String AP_SSID = "";
-		String AP_PASSWORD = "";
-		String IP1 = "192";
-		String IP2 = "168";
-		String IP3 = "4";
-		String IP4 = "1";
-
-		for (uint8_t i = 0; i < www_server.args(); i++)
-		{
-			log(TRACE, www_server.argName(i) + "=" + www_server.arg(i));
-			if (www_server.argName(i) == "SRVNAME")
-				SRVNAME = www_server.arg(i);
-			if (www_server.argName(i) == "SRVPORT")
-				SRVPORT = www_server.arg(i);
-			if (www_server.argName(i) == "AP_SSID")
-				AP_SSID = www_server.arg(i);
-			if (www_server.argName(i) == "AP_PASSWORD")
-				AP_PASSWORD = www_server.arg(i);
-			if (www_server.argName(i) == "IP1")
-				IP1 = www_server.arg(i);
-			if (www_server.argName(i) == "IP2")
-				IP2 = www_server.arg(i);
-			if (www_server.argName(i) == "IP3")
-				IP3 = www_server.arg(i);
-			if (www_server.argName(i) == "IP4")
-				IP4 = www_server.arg(i);
-			if (www_server.argName(i) == "SECURE" && www_server.arg(i) == "enabled")
-				USER_AUTH = true;
-		}
-
-		rc = -1;
-		if (SRVNAME != "" && SRVPORT != "")
-		{
-
-			log(TRACE, "Save to EEPROM");
-
-			//-------------
-			//0   1    	     17     49      65          81        93     97   98		  106		  114	 115
-			//CFG DEVICENAME SERIAL AP_SSID AP_PASSWORD IPADDRESS MQTTPORT CRC  ADMIN USER  ADMIN PSW	  SECURE
-
-			Config::get()->setMQTT_SERV_DEVICE_NAME(std::string(SRVNAME.c_str()));
-			// save_field_EEPROM(1,SRVNAME,16);
-			Config::get()->setAP_SSID(std::string(AP_SSID.c_str()));
-			// save_field_EEPROM(49,AP_SSID,16);
-			Config::get()->setAP_PASSPHRASE(std::string(AP_PASSWORD.c_str()));
-			// save_field_EEPROM(65,AP_PASSWORD,16);
-			Config::get()->setAP_IPADDRESS(IP1 + "." + IP2 + "." + IP3 + "." + IP4);
-			// save_field_EEPROM(81,IP1,3);
-			// save_field_EEPROM(84,IP2,3);
-			// save_field_EEPROM(87,IP3,3);
-			// save_field_EEPROM(90,IP4,3);
-			Config::get()->setMQTT_SERV_PORT(atoi(SRVPORT.c_str()));
-			// save_field_EEPROM(93,SRVPORT,4);
-
-			Config::get()->setMQTT_SERV_CRC(9);
-			// save_field_EEPROM(97,"9",1);
-
-			//mqtt management
-			log(TRACE, "Can't overwrite ADMIN credentials, since user deleted it in code");
-			// save_field_EEPROM(98,DEFAULT_ADMIN_USER,8);
-			// save_field_EEPROM(106,DEFAULT_ADMIN_PASSWORD,8);
-
-			//2017.07.18
-			if (USER_AUTH)
-				Config::get()->setMQTT_SERV_PSW("1");
-			if (!USER_AUTH)
-				Config::get()->setMQTT_SERV_PSW("0");
-
-			//generate device serial
-			{
-				byte mac[6];
-				char deviceserial[32];
-				WiFi.macAddress(mac);
-				sprintf(deviceserial, "%02x:%02x:%02x:%02x:%02x:%02x", mac[5], mac[4], mac[3], mac[2], mac[1], mac[0]);
-
-				Config::get()->setMQTT_SERV_SERIAL(deviceserial);
-				// save_field_EEPROM(17,deviceserial,32);
-			}
-
-			Config::get()->setMQTT_SERV_CFG(1);
-			// save_field_EEPROM(0,"1",1);
-			rc = 0;
-
-			Config::get()->writeToEEPROM();
-		}
-	}
-
-	sprintf(temp,
-
-			"<html>\
-    <head>\
-      <title>ESP8266 ME-MqTT Lite</title>\
-      <style>\
-        body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
-      </style>\
-    </head>\
-    <body>\
-      <h1>Request processed with RC=%d, please reboot!</h1>\
-    </body>\
-  </html>",
-			rc);
-
-	www_server.send(200, "text/html", temp);
-}
-
-void ME::handleNotFound_internal()
-{
-	if (loadFromSPIFFS(www_server.uri()))
-		return;
-	String message = "Internal Storage Fails\n\n";
-	message += "URI: ";
-	message += www_server.uri();
-	message += "\nMethod: ";
-	message += (www_server.method() == HTTP_GET) ? "GET" : "POST";
-	message += "\nArguments: ";
-	message += www_server.args();
-	message += "\n";
-	for (uint8_t i = 0; i < www_server.args(); i++)
-	{
-		message += " NAME:" + www_server.argName(i) + "\n VALUE:" + www_server.arg(i) + "\n";
-	}
-	www_server.send(404, "text/plain", message);
-	log(TRACE, message);
-}
-
-bool ME::loadFromSPIFFS(String path)
-{
-	if (!path.startsWith("/"))
-		prefix += "/";
-
-	if (index_page == "")
-		index_page = "index.htm";
-
-	String dataType = "text/plain";
-	if (path.endsWith("/"))
-		path += index_page;
-
-	//check secured page
-	if (path.endsWith("admin.htm"))
-	{
-
-		if (!is_authentified())
-		{
-
-			www_server.sendHeader("Location", "/login");
-			www_server.sendHeader("Cache-Control", "no-cache");
-			www_server.send(301);
-			return true;
-		}
-	}
-
-	if (path.endsWith(".src"))
-		path = path.substring(0, path.lastIndexOf("."));
-	else if (path.endsWith(".htm"))
-		dataType = "text/html";
-	else if (path.endsWith(".css"))
-		dataType = "text/css";
-	else if (path.endsWith(".js"))
-		dataType = "application/javascript";
-	else if (path.endsWith(".png"))
-		dataType = "image/png";
-	else if (path.endsWith(".gif"))
-		dataType = "image/gif";
-	else if (path.endsWith(".jpg"))
-		dataType = "image/jpeg";
-	else if (path.endsWith(".ico"))
-		dataType = "image/x-icon";
-	else if (path.endsWith(".xml"))
-		dataType = "text/xml";
-	else if (path.endsWith(".pdf"))
-		dataType = "application/pdf";
-	else if (path.endsWith(".zip"))
-		dataType = "application/zip";
-
-	log(TRACE, "Try to serve " + prefix + path.c_str());
-	File dataFile = SPIFFS.open(prefix + path.c_str(), "r");
-
-	if (!dataFile)
-		return false;
-
-	//2017.07.18
-	ESP.wdtFeed();
-
-	if (www_server.hasArg("download"))
-		dataType = "application/octet-stream";
-
-	wdt_disable();
-
-	if (www_server.streamFile(dataFile, dataType) != dataFile.size())
-	{
-		log(TRACE, "Sent less data than expected!");
-	}
-
-	dataFile.close();
-
-	wdt_enable(8000);
-
-	return true;
+	log(TRACE, "> SERVER NAME=" + SERVER_INSTANCE_NAME + " @ " + String(MQTT_PORT));
 }
 
 //LOG
