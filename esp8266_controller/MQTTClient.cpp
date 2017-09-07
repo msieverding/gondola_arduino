@@ -6,7 +6,7 @@
 // #define wifi_password "passw0rd"
 
 // TODO add to Config class
-#define mqtt_server "192.168.4.1"
+#define mqtt_server "192.168.5.1"
 // #define mqtt_user "admin"
 // #define mqtt_password "passw0rd"
 

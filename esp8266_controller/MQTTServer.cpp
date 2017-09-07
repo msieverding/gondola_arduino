@@ -10,13 +10,13 @@ MQTTServer::MQTTServer()
   // add callback
   m_mqttServer.setCallback(std::bind(&MQTTServer::mqttCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
   m_mqttServer.subscribe("/test/temperature", false);
-  m_mqttServer.setloglevel(1);
+  // TODO set log level later
+  // m_mqttServer.setloglevel(1);
 }
 
 MQTTServer::~MQTTServer()
 {
-  WiFi.softAPdisconnect(false);
-  WiFi.disconnect(false);
+
 }
 
 void MQTTServer::loop()

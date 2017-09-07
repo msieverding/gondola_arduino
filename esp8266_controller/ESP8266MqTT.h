@@ -71,10 +71,6 @@ class ME
 	void setloglevel(uint8_t level);
 	void log(uint8_t level, String payload);
 
-	//WIFI
-	boolean WIFI_connected=false;
-	boolean WIFI_request=false;
-
 	//WWW
 	void handleNotFound_internal();
 	void handle_set_config_internal();

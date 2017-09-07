@@ -14,6 +14,7 @@ TODO:
 - website to print serial debug output
 - check spooling speed an spooledDistance.. looks not right actually
 - [AP] show IPAddresses of clients: http://www.esp8266.com/viewtopic.php?f=32&t=5669#
+- print whole configuration at startup ?!
 
 Known issues:
 - Windows can't handle a new ESP8266 with the same Network name without removing the old one

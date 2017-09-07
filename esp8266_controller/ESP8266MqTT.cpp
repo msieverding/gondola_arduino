@@ -42,36 +42,6 @@
 
 ME *_me;
 
-//callback
-void int_wifi_callback(WiFiEvent_t event)
-{
-	{
-		char tmp[32];
-		sprintf(tmp, "WiFi Event = %d", event);
-		_me->log(SUPER, tmp);
-	}
-
-	switch (event)
-	{
-	case WIFI_EVENT_STAMODE_GOT_IP:
-
-		_me->log(TRACE, "[EVENT]WiFi connected");
-		_me->WIFI_connected = true;
-		//_crumb->WIFI_request=false;
-		break;
-
-	case WIFI_EVENT_STAMODE_DISCONNECTED:
-
-		_me->log(TRACE, "[EVENT]WiFi lost connection");
-		//if(_crumb->isSTA_EN()){
-		//_crumb->WIFI_connected=false;
-		//_crumb->WIFI_request=false;
-		//_crumb->WIFI_action=false;
-		//  }
-		break;
-	}
-}
-
 void handleNotFound()
 {
 	_me->handleNotFound_internal();
@@ -189,9 +159,6 @@ void ME::begin(HardwareSerial *param_serial)
 
 	sprintf(temp, "Server Instance=%s", MqTT_Server_InstanceID.c_str());
 	log(TRACE, temp);
-
-	log(TRACE, "Set WIFI off");
-	WIFI_connected = false;
 
 	//USE SPIFFS
 	boolean spiffs = SPIFFS.begin();

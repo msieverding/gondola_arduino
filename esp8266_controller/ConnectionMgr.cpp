@@ -29,7 +29,7 @@ ConnectionMgr::ConnectionMgr()
  , m_ChangeServerType(SERV_NORMAL)
  , m_ChangeServerRequest(false)
  // TODO save in config
- , m_MqTTType(MQTT_SERVER)
+ , m_MqTTType(MQTT_CLIENT)
  , m_changeMqTTType(MQTT_NONE)
  , m_ChangeMqTTRequest(false)
  , m_Connection(NULL)

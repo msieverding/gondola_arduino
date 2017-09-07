@@ -20,7 +20,7 @@ APConnection::APConnection(std::string ssid, std::string passphrase, IPAddress i
  , m_DnsServer()
  , m_URL(url)
 {
-  WiFi.mode(WIFI_AP_STA);
+  WiFi.mode(WIFI_AP);
   WiFi.setOutputPower(20.5);            // set highest WiFi power
   WiFi.setPhyMode(WIFI_PHY_MODE_11N);   // activate mixed WiFi
 
