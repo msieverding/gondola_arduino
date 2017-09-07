@@ -2,8 +2,6 @@
 #include "Coordinate.hpp"
 #include "ConnectionMgr.hpp"
 #include "Log.hpp"
-#include "IAnchor.hpp"
-#include "WebAnchor.hpp"
 #include <string>
 #include <functional>
 

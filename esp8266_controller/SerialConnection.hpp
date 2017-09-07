@@ -1,7 +1,7 @@
 #ifndef _SERIAL_CONNECTION_HPP_
 #define _SERIAL_CONNECTION_HPP_
 
-#include "Gondola.hpp"
+#include "IGondola.hpp"
 #include "IConnection.hpp"
 #include "CommandInterpreter.hpp"
 

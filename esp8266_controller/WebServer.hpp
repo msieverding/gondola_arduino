@@ -2,7 +2,7 @@
 #define _WEB_SERVER_HPP_
 
 #include <ESP8266WebServer.h>
-#include "Gondola.hpp"
+#include "IGondola.hpp"
 
 /**
  * Webserver provides HTTP server with a website to access all functions

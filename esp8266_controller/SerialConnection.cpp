@@ -87,11 +87,12 @@ void SerialConnection::moveCommand(std::string &s)
   CI->getArgument(s, arg, 3);
   speed = atof(arg.c_str());
 
-  Gondola * gondola = Gondola::get();
-  if (gondola)
-    gondola->setTargetPosition(newPosition, speed);
-  else
-    Log::logWarning("Gondola was not created\n");
+  // TODO find a solution for this problem
+  // Gondola * gondola = Gondola::get();
+  // if (gondola)
+  //   gondola->setTargetPosition(newPosition, speed);
+  // else
+  //   Log::logWarning("Gondola was not created\n");
 }
 
 void SerialConnection::loglevelCommand(std::string &s)

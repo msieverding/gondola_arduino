@@ -1,8 +1,8 @@
 // Configuration
 #include "Config.hpp"
 // Own classes and libraries
-#include "Gondola.hpp"
-#include "HardwareAnchor.hpp"
+#include "IGondola.hpp"
+#include "Anchor.hpp"
 #include "WiFiConnection.hpp"
 #include "SerialConnection.hpp"
 #include "APConnection.hpp"
@@ -16,9 +16,6 @@
 
 IConnection *serial;
 ConnectionMgr *conMgr;
-HardwareAnchor *anchor;
-
-WiFiClient wifiClient;
 
 
 void setup()
@@ -27,11 +24,8 @@ void setup()
   delay(1000);
   serial = SerialConnection::create(115200);
 
-
   Config* config = Config::get();
   config->readFromEEPROM();
-
-  anchor = HardwareAnchor::create({0, 5, 4}, {0.0f, 0.0f, 0.0f}, 0.0f);
 
   conMgr = ConnectionMgr::get();
 

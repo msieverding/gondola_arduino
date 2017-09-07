@@ -1,41 +1,16 @@
 #include "MQTTClient.hpp"
 #include "Arduino.h"
+#include "Log.hpp"
 #include <functional>
-
-// #define wifi_ssid "MqTT"
-// #define wifi_password "passw0rd"
 
 // TODO add to Config class
 #define mqtt_server "192.168.5.1"
-// #define mqtt_user "admin"
-// #define mqtt_password "passw0rd"
-
-
-// TODO use Log instead of serial
 
 
 MQTTClient::MQTTClient()
  : m_espClient()
  , m_mqttClient(m_espClient)
 {
-  // // We start by connecting to a WiFi network
-  // Serial.println();
-  // Serial.print("Connecting to ");
-  // Serial.println(wifi_ssid);
-  //
-  // WiFi.begin(wifi_ssid, wifi_password);
-  //
-  // while (WiFi.status() != WL_CONNECTED)
-  // {
-  //   delay(500);
-  //   Serial.print(".");
-  // }
-  //
-  // Serial.println("");
-  // Serial.println("WiFi connected");
-  // Serial.println("IP address: ");
-  // Serial.println(WiFi.localIP());
-
   m_mqttClient.setServer(mqtt_server, 1883);
   m_mqttClient.setCallback(std::bind(&MQTTClient::callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
@@ -55,17 +30,6 @@ void MQTTClient::loop()
   }
   m_mqttClient.loop();
 
-  long now = millis();
-  if (now - lastMsg > 1000)
-  {
-    lastMsg = now;
-
-    float temp = 0.0f;
-
-    Serial.print("New temperature:");
-    Serial.println(String(temp).c_str());
-    m_mqttClient.publish("/test/temperature", String(temp).c_str(), true);
-  }
 }
 
 void MQTTClient::reconnect()
@@ -77,20 +41,19 @@ void MQTTClient::reconnect()
     return;
   }
 
-  Serial.print("Attempting MQTT connection...");
+  Log::logDebug("Attempting MQTT connection...");
   // Attempt to connect
-  // If you do not want to use a username and password, change next line to
-  // if (m_mqttClient.connect("ESP8266Client")) {
+
   if (m_mqttClient.connect("ESP8266Client"))
   {
     m_mqttClient.subscribe("test/temperature");
-    Serial.println("connected");
+    Log::logDebug("connected\n");
   }
   else
   {
-    Serial.print("failed, rc=");
-    Serial.print(m_mqttClient.state());
-    Serial.println(" try again in 5 seconds");
+    Log::logDebug("failed, rc=");
+    Log::logDebug(m_mqttClient.state());
+    Log::logDebug(" try again in 5 seconds\n");
     // Wait 5 seconds before retrying
     nextTry = millis() + 5000;
   }
@@ -98,12 +61,12 @@ void MQTTClient::reconnect()
 
 void MQTTClient::callback(char* topic, byte* payload, unsigned int length)
 {
-  Serial.print("***************Message arrived [");
-  Serial.print(topic);
-  Serial.print("] ");
+  Log::logDebug("***************Message arrived [");
+  Log::logDebug(topic);
+  Log::logDebug("] ");
   for (unsigned int i = 0; i < length; i++)
   {
-    Serial.print((char)payload[i]);
+    Log::logDebug((char)payload[i]);
   }
-  Serial.println();
+  Log::logDebug("\n");
 }

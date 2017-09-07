@@ -1,18 +1,12 @@
 TODO:
-- Scan for wifi networks and show them on html page (user can enter PW for a given network to connect)
 - find issue for curious serial output at startup
-- save spooled distance of HardwareAnchor in Config/EEPROM
+- save spooled distance of Anchor in Config/EEPROM
 - use speed for movement :-D
 
 - shorter timeout while registering at master
 
-- check, wether ip is already registered (no doubled anchor)
-- maybe, if possible, check when a slave disconnects
-- mabye, if possible, call AddWebAnchor webpage when a slave got a new connection
-- maybe? Don't store connection and server type in config AND in class -> can cause logical errros in programmers brain
-
 - website to print serial debug output
-- check spooling speed an spooledDistance.. looks not right actually
+- check spooling speed and spooledDistance.. looks not right actually
 - [AP] show IPAddresses of clients: http://www.esp8266.com/viewtopic.php?f=32&t=5669#
 - print whole configuration at startup ?!
 
@@ -31,7 +25,7 @@ Out of code documentation:
 - Setup ATOM build environment
 - Add libraries (https://www.youtube.com/watch?v=EBlHNBNHESQ)
 - Fetcher checksum in EEPROM
-- Using std::bind with placeholders from #include <functional> with std::placeholder::_1, _N
+- Using std::bind with placeholders from #include <functional> with std::placeholder::_1 ..  _N
 
 Sources:
 - MqTT Server for ESP8266: https://github.com/FrancescoBaroneItaly/ME-MqTT-Server-for-ESP8266
