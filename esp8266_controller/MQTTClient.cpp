@@ -5,12 +5,12 @@
 
 
 MQTTClient::MQTTClient()
- : m_espClient()
- , m_mqttClient(m_espClient)
+ : m_WiFiClient()
+ , m_MqTTClient(m_WiFiClient)
  , m_Anchor(Anchor::get())
 {
-  m_mqttClient.setServer(Config::get()->getMQTT_CLIENT_SERVER().c_str(), 1883);
-  m_mqttClient.setCallback(std::bind(&MQTTClient::callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+  m_MqTTClient.setServer(Config::get()->getMQTT_CLIENT_SERVER().c_str(), 1883);
+  m_MqTTClient.setCallback(std::bind(&MQTTClient::callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
 MQTTClient::~MQTTClient()
@@ -20,11 +20,11 @@ MQTTClient::~MQTTClient()
 
 void MQTTClient::loop()
 {
-  if (!m_mqttClient.connected())
+  if (!m_MqTTClient.connected())
   {
     reconnect();
   }
-  m_mqttClient.loop();
+  m_MqTTClient.loop();
 
 }
 
@@ -40,14 +40,14 @@ void MQTTClient::reconnect()
   logDebug("Attempting MQTT connection...");
   // Attempt to connect
 
-  if (m_mqttClient.connect("ESP8266Client"))
+  if (m_MqTTClient.connect("ESP8266Client"))
   {
-    m_mqttClient.subscribe("gondola/move");
+    m_MqTTClient.subscribe("gondola/move");
     logDebug("connected\n");
   }
   else
   {
-    logDebug("failed, rc=%d. Try again in 5 seconds\n", m_mqttClient.state());
+    logDebug("failed, rc=%d. Try again in 5 seconds\n", m_MqTTClient.state());
     // Wait 5 seconds before retrying
     nextTry = millis() + 5000;
   }

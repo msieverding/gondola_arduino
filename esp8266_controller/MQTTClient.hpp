@@ -18,8 +18,8 @@ private:
   void callback(char* topic, byte* payload, unsigned int length);
   void callbackGondolaMove(byte *payload);
 
-  WiFiClient    m_espClient;
-  PubSubClient  m_mqttClient;
+  WiFiClient    m_WiFiClient;
+  PubSubClient  m_MqTTClient;
   Anchor       *m_Anchor;
 };
 
