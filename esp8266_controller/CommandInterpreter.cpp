@@ -170,12 +170,11 @@ uint8_t CommandInterpreter::getNumArgument(std::string &s)
 void CommandInterpreter::printAllCommands(void)
 {
   commandList_t *ptr = m_CommandList;
-  Log::logWarning("Registered commands:\n");
+  logWarning("Registered commands:\n");
 
   while(ptr != NULL)
   {
-    Log::logWarning(ptr->command);
-    Log::logWarning("\n");
+    logWarning("%s\n", ptr->command.c_str());
     ptr = ptr->next;
   }
 }

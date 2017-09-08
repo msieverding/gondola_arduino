@@ -1,15 +1,7 @@
 #include "WiFiConnection.hpp"
 #include "ConnectionMgr.hpp"
 #include "Log.hpp"
-
-WiFiConnection *WiFiConnection::s_Instance = NULL;
-
-WiFiConnection *WiFiConnection::create(std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm)
-{
-  if (!s_Instance)
-    s_Instance = new WiFiConnection(ssid, passphrase, hostname, ip, gw, nm);
-  return s_Instance;
-}
+#include <functional>
 
 WiFiConnection::WiFiConnection(std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm)
  : m_SSID(ssid)
@@ -19,6 +11,10 @@ WiFiConnection::WiFiConnection(std::string ssid, std::string passphrase, std::st
  , m_Gateway(gw)
  , m_Netmask(nm)
 {
+  WiFi.mode(WIFI_STA);
+  WiFi.setOutputPower(20.5);            // set highest WiFi power
+  WiFi.setPhyMode(WIFI_PHY_MODE_11N);   // activate mixed WiFi
+
   // Set hostname for Client
   // https://github.com/esp8266/Arduino/blob/master/doc/esp8266wifi/station-class.rst#disconnect
   WiFi.hostname(m_Hostname.c_str());
@@ -28,34 +24,18 @@ WiFiConnection::WiFiConnection(std::string ssid, std::string passphrase, std::st
   // Connect to Network
   WiFi.begin(m_SSID.c_str(), m_Passphrase.c_str());
   // Set stationary mode
-  WiFi.mode(WIFI_STA);
 
-  Log::logInfo("Connect to WiFi: ");
-  Log::logInfo(m_SSID.c_str());
+  logInfo("Wait for connect to WiFi: ");
+  logInfo(m_SSID.c_str());
 
-  while(WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Log::logInfo(".");
-  }
-  Log::logInfo(" Ready\n");
-
-  m_IPAddress = WiFi.localIP();
-  // Print the IP address
-  Log::logInfo("Local IP address: ");
-  Log::logInfo(m_IPAddress.toString().c_str());
-  Log::logInfo("\n");
-
-  // Setup
-  setupMDNS();
+  // Event for connection changes
+  m_StationGotIPHandler = WiFi.onStationModeGotIP(std::bind(&WiFiConnection::onEventGotIP, this, std::placeholders::_1));
 }
 
 WiFiConnection::~WiFiConnection()
 {
   WiFi.disconnect(false);
-  s_Instance = NULL;
 }
-
 
 void WiFiConnection::setupMDNS()
 {
@@ -66,13 +46,22 @@ void WiFiConnection::setupMDNS()
   //   we send our IP address on the WiFi network
   if (!MDNS.begin(m_Hostname.c_str()))
   {
-    Log::logWarning("Error setting up mDNS responder!\n");
+    logWarning("Error setting up mDNS responder!\n");
     return;
   }
-  Log::logInfo("Use this URL to connect (mDNS): http://");
-  Log::logInfo(m_Hostname.c_str());
-  Log::logInfo(".local/\n");
+  logInfo("Use this URL to connect (mDNS): http://%s.local/\n", m_Hostname.c_str());
 
   // Add service to MDNS-SD
   MDNS.addService("http", "tcp", Config::get()->getWS_PORT());
+}
+
+void WiFiConnection::onEventGotIP(const WiFiEventStationModeGotIP &event)
+{
+  logInfo("WiFi connection established\n");
+  m_IPAddress = WiFi.localIP();
+  // Print the IP address
+  logInfo("Local IP address: %s\n", m_IPAddress.toString().c_str());
+
+  // MDNS
+  setupMDNS();
 }

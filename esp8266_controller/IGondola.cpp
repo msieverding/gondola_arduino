@@ -9,9 +9,7 @@ IGondola::IGondola(Coordinate startPos)
  , m_TargetPosition(startPos)
  , m_Speed(1.0)
 {
-  Log::logDebug("Creating gondola at: \n");
-  Log::logDebug(m_CurrentPosition.toString().c_str());
-  Log::logDebug("\n");
+  logDebug("Creating gondola at: %s \n", m_CurrentPosition.toString().c_str());
 }
 
 IGondola::~IGondola()

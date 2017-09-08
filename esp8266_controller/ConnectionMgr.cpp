@@ -29,7 +29,7 @@ ConnectionMgr::ConnectionMgr()
  , m_changeMqTTType(MQTT_NONE)
  , m_ChangeMqTTRequest(false)
  , m_Connection(NULL)
- , m_WebServer(new WebServer(Config::get()->getWS_PORT()))
+ , m_WebServer(Config::get()->getWS_PORT())
  , m_MqTTService(NULL)
 {
   CommandInterpreter::get()->addCommand(std::string("contype"), contypeCommand);
@@ -41,7 +41,6 @@ ConnectionMgr::ConnectionMgr()
 ConnectionMgr::~ConnectionMgr()
 {
   CommandInterpreter::get()->deleteCommand(std::string("contype"), contypeCommand);
-  delete(m_WebServer);
   s_Instance = NULL;
 }
 
@@ -63,15 +62,15 @@ void ConnectionMgr::changeConnection(connectionType_t connectionType)
   switch(m_ConnectionType)
   {
     case CON_ACCESS_POINT:
-      m_Connection = APConnection::create(config->getAP_SSID(), config->getAP_PASSPHRASE(), config->getAP_IPADDRESS(), config->getAP_GATEWAY(), config->getAP_NETMASK(), config->getAP_URL());
+      m_Connection = new APConnection(config->getAP_SSID(), config->getAP_PASSPHRASE(), config->getAP_IPADDRESS(), config->getAP_GATEWAY(), config->getAP_NETMASK(), config->getAP_URL());
       break;
 
     case CON_WIFI_CONNECTION:
-      m_Connection = WiFiConnection::create(config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME(), config->getWC_IPADDRESS(), config->getWC_GATEWAY(), config->getWC_NETMASK());
+      m_Connection = new WiFiConnection(config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME(), config->getWC_IPADDRESS(), config->getWC_GATEWAY(), config->getWC_NETMASK());
       break;
 
     case CON_DUAL_CONNECTION:
-      m_Connection = DualConnection::create(config->getAP_SSID(), config->getAP_PASSPHRASE(), config->getAP_IPADDRESS(), config->getAP_GATEWAY(), config->getAP_NETMASK(), config->getAP_URL(),
+      m_Connection = new DualConnection(config->getAP_SSID(), config->getAP_PASSPHRASE(), config->getAP_IPADDRESS(), config->getAP_GATEWAY(), config->getAP_NETMASK(), config->getAP_URL(),
                                             config->getWC_SSID(), config->getWC_PASSPHRASE(), config->getWC_HOSTNAME(), config->getWC_IPADDRESS(), config->getWC_GATEWAY(), config->getWC_NETMASK());
       break;
 
@@ -79,7 +78,7 @@ void ConnectionMgr::changeConnection(connectionType_t connectionType)
       break;
 
     default:
-      Log::logWarning("Requested wrong Connection type!\n");
+      logWarning("Requested wrong Connection type!\n");
       break;
   }
 }
@@ -104,17 +103,19 @@ void ConnectionMgr::changeMqTTType(mqttType_t mqttType)
   {
     case MQTT_CLIENT:
       m_MqTTService = new MQTTClient();
+      m_WebServer.setGondolaMQTTServer(NULL);
       break;
 
     case MQTT_SERVER:
       m_MqTTService = new MQTTServer();
+      m_WebServer.setGondolaMQTTServer(m_MqTTService);
       break;
 
     case MQTT_NONE:
       break;
 
     default:
-      Log::logWarning("Requested wrong MqTT service!\n");
+      logWarning("Requested wrong MqTT service!\n");
       break;
   }
 }
@@ -130,8 +131,7 @@ void ConnectionMgr::loop()
   if (m_Connection)
     m_Connection->loop();
 
-  if (m_WebServer)
-    m_WebServer->loop();
+  m_WebServer.loop();
 
   if (m_MqTTService)
     m_MqTTService->loop();
@@ -161,11 +161,11 @@ void ConnectionMgr::contypeCommand(std::string &s)
   switch(args)
   {
     case 0:
-      Log::logWarning("Unsupported!\n");
-      Log::logWarning("Usage: contype type\n");
-      Log::logWarning("type - type of new connection\n");
-      Log::logWarning("\tAP\t- Access Point\n");
-      Log::logWarning("\tWIFI\t- Connect to a WiFi network\n");
+      logWarning("Unsupported!\n");
+      logWarning("Usage: contype type\n");
+      logWarning("type - type of new connection\n");
+      logWarning("\tAP\t- Access Point\n");
+      logWarning("\tWIFI\t- Connect to a WiFi network\n");
       break;
 
     case 1:
@@ -184,11 +184,11 @@ void ConnectionMgr::contypeCommand(std::string &s)
       }
       else
       {
-        Log::logWarning("Unsupported!\n");
-        Log::logWarning("Types are:\n");
-        Log::logWarning("\tAP\t- Access Point\n");
-        Log::logWarning("\tWIFI\t- Connect to a WiFi network\n");
-        Log::logWarning("\tDUAL\t- Connect to a WiFi network and open access point\n");
+        logWarning("Unsupported!\n");
+        logWarning("Types are:\n");
+        logWarning("\tAP\t- Access Point\n");
+        logWarning("\tWIFI\t- Connect to a WiFi network\n");
+        logWarning("\tDUAL\t- Connect to a WiFi network and open access point\n");
       }
       break;
   }

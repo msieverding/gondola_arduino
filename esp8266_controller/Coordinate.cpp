@@ -62,8 +62,12 @@ bool Coordinate::operator==(Coordinate const& c)
   return true;
 }
 
+#include "Log.hpp"
 bool Coordinate::operator!=(Coordinate const& c)
 {
+  logDebug("%d %d %d", c.x, c.y, c.z);
+  logDebug("%d %d %d", this->x, this->y, this->z);
+
   if (this->x != c.x)
     return true;
   if (this->y != c.y)

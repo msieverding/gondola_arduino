@@ -2,7 +2,7 @@
 #define _WEB_SERVER_HPP_
 
 #include <ESP8266WebServer.h>
-#include "IGondola.hpp"
+#include "MQTTServer.hpp"
 
 /**
  * Webserver provides HTTP server with a website to access all functions
@@ -28,6 +28,12 @@ public:
    */
   virtual void loop();
 
+  /**
+   * Set a MqTT Server, wich acts as gondola
+   * @param gondola pointer to gondola
+   */
+  virtual void setGondolaMQTTServer(MQTTServer * gondolaMQTTServer);
+
 protected:
   // HTTP Handler
   virtual void handleRoot();
@@ -39,8 +45,10 @@ protected:
   virtual void prepareHeader(std::string &s);
   void prepareSetupWiFiPage(std::string &s);
   void prepareSetupSystemPage(std::string &s);
+  void prepareGondolaMovePage(std::string &s);
 
   // Membervariables
   ESP8266WebServer          m_Server;
+  MQTTServer               *m_GondolaMQTTServer;
 };
 #endif /* _WEB_SERVER_HPP_ */

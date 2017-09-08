@@ -2,15 +2,6 @@
 #include "config.hpp"
 #include "Log.hpp"
 
-APConnection *APConnection::s_Instance = NULL;
-
-APConnection *APConnection::create(std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url)
-{
-  if (!s_Instance)
-    s_Instance = new APConnection(ssid, passphrase, ip, gateway, netmask, url);
-  return s_Instance;
-}
-
 APConnection::APConnection(std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url)
  : m_SSID(ssid)
  , m_Passphrase(passphrase)
@@ -24,32 +15,26 @@ APConnection::APConnection(std::string ssid, std::string passphrase, IPAddress i
   WiFi.setOutputPower(20.5);            // set highest WiFi power
   WiFi.setPhyMode(WIFI_PHY_MODE_11N);   // activate mixed WiFi
 
-  Log::logInfo("Setting soft-AP configuration... ");
-  Log::logInfo(WiFi.softAPConfig(m_IPAddress, m_Gateway, m_Netmask) ? "Ready\n" : "Failed!\n");
+  logInfo("Setting soft-AP configuration... ");
+  logInfo(WiFi.softAPConfig(m_IPAddress, m_Gateway, m_Netmask) ? "Ready\n" : "Failed!\n");
 
-  Log::logInfo("Setting soft-AP... ");
+  logInfo("Setting soft-AP... ");
   if (m_Passphrase.length() >= 8 && m_Passphrase.length() <= 63)
-    Log::logInfo(WiFi.softAP(m_SSID.c_str(), m_Passphrase.c_str()) ? "Ready\n" : "Failed!\n");
+    logInfo(WiFi.softAP(m_SSID.c_str(), m_Passphrase.c_str()) ? "Ready\n" : "Failed!\n");
   else
-    Log::logInfo(WiFi.softAP(m_SSID.c_str()) ? "Ready\n" : "Failed!\n");
+    logInfo(WiFi.softAP(m_SSID.c_str()) ? "Ready\n" : "Failed!\n");
 
-  Log::logInfo("Soft-AP IP address: ");
-  Log::logInfo(WiFi.softAPIP().toString().c_str());
-  Log::logInfo("\n");
+  logInfo("Soft-AP IP address: %s \n", WiFi.softAPIP().toString().c_str());
 
-  Log::logInfo("WiFi AP SSID: ");
-  Log::logInfo(m_SSID.c_str());
-  Log::logInfo("\n");
+  logInfo("WiFi AP SSID: %s \n", m_SSID.c_str());
 
   if (m_Passphrase.length() > 8 && m_Passphrase.length() < 32)
   {
-    Log::logInfo("Connect with passphrase: ");
-    Log::logInfo(m_Passphrase.c_str());
-    Log::logInfo("\n");
+    logInfo("Connect with passphrase: %s \n", m_Passphrase.c_str());
   }
   else
   {
-    Log::logInfo("No passphrase used\n");
+    logInfo("No passphrase used\n");
   }
 
   setupDNS();
@@ -82,7 +67,5 @@ void APConnection::setupDNS()
   // start DNS server for a specific domain name
   m_DnsServer.start(53, m_URL.c_str(), m_IPAddress);
 
-  Log::logInfo("You can access gondola's main page with: http://");
-  Log::logInfo(m_URL.c_str());
-  Log::logInfo("/\n");
+  logInfo("You can access gondola's main page with: http://\%s/\n", m_URL.c_str());
 }

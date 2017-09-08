@@ -15,7 +15,7 @@ WebServer::WebServer(uint16_t port, bool configureServer)
     m_Server.on("/SetupSystem", std::bind(&WebServer::handleSetupSystem, this));
     m_Server.onNotFound(std::bind(&WebServer::handleNotFound, this));
     m_Server.begin();
-    Log::logInfo("HTTP Server configured and started\n");
+    logInfo("HTTP Server configured and started\n");
   }
 }
 
@@ -29,10 +29,37 @@ void WebServer::loop()
   m_Server.handleClient();
 }
 
+void WebServer::setGondolaMQTTServer(MQTTServer * gondolaMQTTServer)
+{
+  m_GondolaMQTTServer = gondolaMQTTServer;
+}
+
 void WebServer::handleRoot()
 {
   std::string answer;
   prepareHeader(answer);
+
+  if (m_Gondola != NULL)
+  {
+    if (m_Server.args() > 0)
+    {
+      Coordinate newCoordinate;
+      float speed = 1.0f;
+
+      if(m_Server.arg("x").length())
+        newCoordinate.x = m_Server.arg("x").toFloat();
+      if(m_Server.arg("y").length())
+        newCoordinate.y = m_Server.arg("y").toFloat();
+      if(m_Server.arg("z").length())
+        newCoordinate.z = m_Server.arg("z").toFloat();
+      if(m_Server.arg("speed").length())
+        speed = m_Server.arg("speed").toFloat();
+
+      m_GondolaMQTTServer->setTargetPosition(newCoordinate, speed);
+    }
+
+    prepareGondolaMovePage(answer);
+  }
 
   m_Server.send(200, "text/html", answer.c_str());
 }
@@ -266,6 +293,47 @@ void WebServer::prepareSetupSystemPage(std::string &s)
   s.append("<br><button type=\"submit\">Go!</button>");
   s.append("<br>(A new servive will be started!)");
 
+  s.append("</form>");
+  s.append("</html>");
+}
+
+void WebServer::prepareGondolaMovePage(std::string &s)
+{
+
+  if (!m_GondolaMQTTServer)
+  {
+    return;
+  }
+  s.append("<html>");
+  Coordinate Coord = m_GondolaMQTTServer->getCurrentPosition();
+
+  if (m_GondolaMQTTServer->getCurrentPosition() != m_GondolaMQTTServer->getTargetPosition())
+  {
+    s.append("<h1>Gondola is moving</h1>");
+    s.append("Move from: "+ m_GondolaMQTTServer->getCurrentPosition().toString());
+    s.append(" to: "+ m_GondolaMQTTServer->getTargetPosition().toString());
+  }
+  else
+  {
+    s.append("<br><br>");
+    s.append("New position:");
+    s.append("<form>");
+    s.append("<label for=\"x\">X:");
+    s.append("<input type=\"text\" id=\"x\" name=\"x\" value=\"" + Coord.compToString('x') + "\">");
+    s.append("</label>");
+    s.append("<label for=\"y\">Y:");
+    s.append("<input type=\"text\" id=\"y\" name=\"y\" value=\"" + Coord.compToString('y') + "\">");
+    s.append("</label>");
+    s.append("<label for=\"z\">Z:");
+    s.append("<input type=\"text\" id=\"z\" name=\"z\" value=\"" + Coord.compToString('z') + "\">");
+    s.append("</label>");
+    s.append("<br><br>");
+    s.append("<label for=\"speed\">Speed:");
+    s.append("<input type=\"text\" id=\"speed\" name=\"speed\" value=\"1.0\">");
+    s.append("</label>");
+    s.append("<br><br>");
+    s.append("<button type=\"submit\">Move!</button>");
+  }
   s.append("</form>");
   s.append("</html>");
 }

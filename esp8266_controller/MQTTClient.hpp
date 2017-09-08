@@ -1,9 +1,10 @@
 #ifndef _MQTT_CLIENT_HPP_
 #define _MQTT_CLIENT_HPP_
 
-#include "IMQTTService.hpp"
 #include <ESP8266WiFi.h>
+#include "IMQTTService.hpp"
 #include <PubSubClient.h>
+#include "Anchor.hpp"
 
 class MQTTClient : public IMQTTService
 {
@@ -15,9 +16,11 @@ public:
 private:
   void reconnect();
   void callback(char* topic, byte* payload, unsigned int length);
+  void callbackGondolaMove(byte *payload);
 
   WiFiClient    m_espClient;
   PubSubClient  m_mqttClient;
+  Anchor        m_Anchor;
 };
 
 #endif /* _MQTT_CLIENT_HPP_ */

@@ -12,13 +12,13 @@ Anchor::Anchor(pins_t pinSetup, Coordinate anchorPos, Coordinate gondolaPos)
  , m_StepsTodo(0)
  , m_Direction(1)
 {
-  Log::logDebug("Creating anchor\n");
+  logDebug("Creating anchor\n");
   configurePins();
 }
 
 Anchor::~Anchor()
 {
-  Log::logDebug("Deleting Anchor\n");
+  logDebug("Deleting Anchor\n");
 }
 
 void Anchor::setTargetPosition(Coordinate gondolaTargetPos, float speed)
@@ -35,10 +35,7 @@ void Anchor::setTargetPosition(Coordinate gondolaTargetPos, float speed)
   if (distanceTodo == 0)
     return;
 
-  Log::logDebug("Spooled: ");
-  Log::logDebug(m_CurrentSpooledDistance);
-  Log::logDebug("cm, Delta ");
-  Log::logDebug(distanceTodo);
+  logDebug("Spooled: %fcm, Delta: %f\n", m_CurrentSpooledDistance, distanceTodo);
 
   if (distanceTodo < 0)
   {
@@ -59,15 +56,7 @@ void Anchor::setTargetPosition(Coordinate gondolaTargetPos, float speed)
   // calculate number of steps todo
   m_StepsTodo = distanceTodo * STEP_CM;
 
-  Log::logDebug("cm, rounded to (");
-  Log::logDebug(MIN_PRECISION);
-  Log::logDebug("): ");
-  Log::logDebug(distanceTodo);
-  Log::logDebug("cm, steps: ");
-  Log::logDebug(m_StepsTodo); // 200 steps per cm
-  Log::logDebug(", microsteps: ");
-  Log::logDebug(m_StepsTodo * MICROSTEPS);
-  Log::logDebug("\n");
+  logDebug("cm, rounded to (%f): %fcm, steps: %ld, microsteps: %ld\n", MIN_PRECISION, distanceTodo, m_StepsTodo, m_StepsTodo * MICROSTEPS);
 
   m_StepsTodo *= MICROSTEPS; // we need to account for all microsteps
 }
@@ -102,7 +91,7 @@ void Anchor::move()
   // TODO find possibility to decrease speed
   if (m_StepsTodo == 0)
   {
-    // Log::logDebug("No steps todo\n");
+    // logDebug("No steps todo\n");
     return;
   }
   startStep();

@@ -38,11 +38,12 @@
 #define EEPROM_CM_MQTTTYPE_START        301
 
 #define EEPROM_GO_POSITION_START        302
+#define EEPROM_GO_ANCHORPOS_START       305
 
 // Checksum
 #define EEPROM_CHECKSUM_DATA_BEGIN      0
-#define EEPROM_CHECKSUM_DATA_END        304
-#define EEPROM_CHECKSUM_START           305
+#define EEPROM_CHECKSUM_DATA_END        307
+#define EEPROM_CHECKSUM_START           308
 
 
 
@@ -109,12 +110,29 @@ void Config::resetConfig()
 
 void Config::configResetCommand(std::string &s)
 {
-  Log::logDebug("CI: configResetCommand: ");
-  Log::logDebug(s);
+  logDebug("CI: configResetCommand(%s)\n", s.c_str());
   resetConfig();
 }
 
 bool Config::writeToEEPROM()
+{
+  // WiFi Connection Setup
+  writeWCToEEPROM(false);
+
+  // Access Point Setup
+  writeAPToEEPROM(false);
+
+  EEPROM.write(EEPROM_CM_CONNECTIONTYPE_START, static_cast<uint8_t>(CM_CONNECTIONTYPE));
+  EEPROM.write(EEPROM_CM_MQTTTYPE_START, static_cast<uint8_t>(CM_MQTTTYPE));
+
+  writeGOToEEPROM(false);
+
+  writeChecksum(EEPROM_CHECKSUM_START);
+
+  return EEPROM.commit();
+}
+
+bool Config::writeWCToEEPROM(bool persist)
 {
   // WiFi Connection Setup
   persistString(    WC_SSID,        EEPROM_WC_SSID_START,           EEPROM_WC_SSID_LENGTH);
@@ -124,6 +142,19 @@ bool Config::writeToEEPROM()
   persistIPAddress( WC_NETMASK,     EEPROM_WC_NETMASK_START);
   persistString(    WC_HOSTNAME,    EEPROM_WC_HOSTNAME_START,       EEPROM_WC_HOSTNAME_LENGTH);
 
+  if (persist)
+  {
+    writeChecksum(EEPROM_CHECKSUM_START);
+    return EEPROM.commit();
+  }
+  else
+  {
+    return true;
+  }
+}
+
+bool Config::writeAPToEEPROM(bool persist)
+{
   // Access Point Setup
   persistString(    AP_SSID,        EEPROM_AP_SSID_START,           EEPROM_AP_SSID_LENGTH);
   persistString(    AP_PASSPHRASE,  EEPROM_AP_PASSPHRASAE_START,    EEPROM_AP_PASSPHRASE_LENGTH);
@@ -132,15 +163,32 @@ bool Config::writeToEEPROM()
   persistIPAddress( AP_NETMASK,     EEPROM_AP_NETMASK_START);
   persistString(    AP_URL,         EEPROM_AP_URL_START,            EEPROM_AP_URL_LENGTH);
 
-  EEPROM.write(EEPROM_CM_CONNECTIONTYPE_START, static_cast<uint8_t>(CM_CONNECTIONTYPE));
-  EEPROM.write(EEPROM_CM_MQTTTYPE_START, static_cast<uint8_t>(CM_MQTTTYPE));
+  if (persist)
+  {
+    writeChecksum(EEPROM_CHECKSUM_START);
+    return EEPROM.commit();
+  }
+  else
+  {
+    return true;
+  }
+}
 
+bool Config::writeGOToEEPROM(bool persist)
+{
+  // Gondola setup
   persistCoordinate(GO_POSITION,    EEPROM_GO_POSITION_START);
+  persistCoordinate(GO_ANCHORPOS,   EEPROM_GO_ANCHORPOS_START);
 
-
-  writeChecksum(EEPROM_CHECKSUM_START);
-
-  return EEPROM.commit();
+  if (persist)
+  {
+    writeChecksum(EEPROM_CHECKSUM_START);
+    return EEPROM.commit();
+  }
+  else
+  {
+    return true;
+  }
 }
 
 void Config::readFromEEPROM()
@@ -148,12 +196,12 @@ void Config::readFromEEPROM()
   // Check validity of data
   if (checkChecksum(EEPROM_CHECKSUM_START) == false)
   {
-    Log::logWarning("Checksum not valid! Use default values!\n");
+    logWarning("Checksum not valid! Use default values!\n");
     return;
   }
   else
   {
-    Log::logInfo("Checksum valid! Load Data from EEPROM!\n");
+    logInfo("Checksum valid! Load Data from EEPROM!\n");
   }
   // WiFI Connection Setup
   readString(    WC_SSID,        EEPROM_WC_SSID_START,           EEPROM_WC_SSID_LENGTH);
@@ -175,6 +223,7 @@ void Config::readFromEEPROM()
   CM_MQTTTYPE = static_cast<mqttType_t>(EEPROM.read(EEPROM_CM_MQTTTYPE_START));
 
   readCoordinate(GO_POSITION,    EEPROM_GO_POSITION_START);
+  readCoordinate(GO_ANCHORPOS,   EEPROM_GO_ANCHORPOS_START);
 }
 
 void Config::persistString(std::string &s, uint16_t start, uint8_t maxLength)
@@ -393,6 +442,11 @@ void Config::setCM_MQTTTYPE(mqttType_t mqttType)
 void Config::setGO_POSITION(Coordinate position)
 {
   GO_POSITION = position;
+}
+
+void Config::setGO_ANCHORPOS(Coordinate position)
+{
+  GO_ANCHORPOS = position;
 }
 
 

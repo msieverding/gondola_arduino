@@ -98,7 +98,7 @@ private:
   mqttType_t                    m_changeMqTTType;           //!< type of mqtt service to change to
   bool                          m_ChangeMqTTRequest;        //!< indicates a request to change the mqtt service
   IConnection                  *m_Connection;               //!< Pointer to current connection
-  WebServer                    *m_WebServer;                //!< Pointer to current WebServer
+  WebServer                     m_WebServer;                //!< Pointer to current WebServer
   IMQTTService                 *m_MqTTService;              //!< Pointer to current MqTT Service
 };
 

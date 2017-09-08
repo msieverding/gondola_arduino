@@ -1,9 +1,6 @@
 TODO:
 - find issue for curious serial output at startup
-- save spooled distance of Anchor in Config/EEPROM
 - use speed for movement :-D
-
-- shorter timeout while registering at master
 
 - website to print serial debug output
 - check spooling speed and spooledDistance.. looks not right actually

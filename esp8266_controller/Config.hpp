@@ -36,6 +36,21 @@ public:
   bool writeToEEPROM();
 
   /**
+   * write the WC section to eeprom
+   */
+  bool writeWCToEEPROM(bool persist = true);
+
+  /**
+   * write the AP section to eeprom
+   */
+  bool writeAPToEEPROM(bool persist = true);
+
+  /**
+   * write the GO section to eeprom
+   */
+  bool writeGOToEEPROM(bool persist = true);
+
+  /**
    * read the setup from the internal EEPROM
    */
   void readFromEEPROM();
@@ -106,6 +121,8 @@ public:
   // Gondola
   Coordinate getGO_POSITION(void) { return GO_POSITION; }
   void setGO_POSITION(Coordinate position);
+  Coordinate getGO_ANCHORPOS(void) { return GO_ANCHORPOS; }
+  void setGO_ANCHORPOS(Coordinate position);
 
   // MQTT Server
   uint8_t getMQTT_SERV_CFG() { return MQTT_SERV_CFG; }
@@ -202,6 +219,7 @@ private:
 
   // Gondola
   Coordinate GO_POSITION;
+  Coordinate GO_ANCHORPOS;
 
   // MQTT Server
   uint8_t MQTT_SERV_CFG;

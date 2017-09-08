@@ -35,14 +35,13 @@ boolean MQTTServer::mqttCallback(char* queue, byte* payload, unsigned int length
 void MQTTServer::setTargetPosition(Coordinate &targetPos, float &speed)
 {
   m_Anchor.setTargetPosition(targetPos, speed);
-  std::string message;
-  message.append("targetPos:");
-  message.append(targetPos.toString());
-  message.append("speed:");
+  float messageBuf[4];
+  messageBuf[0] = targetPos.x;
+  messageBuf[1] = targetPos.y;
+  messageBuf[2] = targetPos.z;
+  messageBuf[3] = speed;
 
-  char buf[20];
-  message.append(dtostrf(speed, 4, 2, buf));
+  uint8_t *pMessageBuf = reinterpret_cast<uint8_t *>(messageBuf);
 
-  m_mqttServer.publish("gondola/position", message.c_str());
-  // TODO implement counterpart in client
+  m_mqttServer.publish("gondola/move", pMessageBuf, 4 * sizeof(float));
 }

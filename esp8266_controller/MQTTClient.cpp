@@ -10,6 +10,7 @@
 MQTTClient::MQTTClient()
  : m_espClient()
  , m_mqttClient(m_espClient)
+ , m_Anchor({0, 5, 4}, {0.0f, 0.0f, 0.0f}, Config::get()->getGO_POSITION())
 {
   m_mqttClient.setServer(mqtt_server, 1883);
   m_mqttClient.setCallback(std::bind(&MQTTClient::callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
@@ -22,8 +23,6 @@ MQTTClient::~MQTTClient()
 
 void MQTTClient::loop()
 {
-  static long lastMsg = 0;
-
   if (!m_mqttClient.connected())
   {
     reconnect();
@@ -41,19 +40,17 @@ void MQTTClient::reconnect()
     return;
   }
 
-  Log::logDebug("Attempting MQTT connection...");
+  logDebug("Attempting MQTT connection...");
   // Attempt to connect
 
   if (m_mqttClient.connect("ESP8266Client"))
   {
     m_mqttClient.subscribe("test/temperature");
-    Log::logDebug("connected\n");
+    logDebug("connected\n");
   }
   else
   {
-    Log::logDebug("failed, rc=");
-    Log::logDebug(m_mqttClient.state());
-    Log::logDebug(" try again in 5 seconds\n");
+    logDebug("failed, rc=%d. Try again in 5 seconds\n", m_mqttClient.state());
     // Wait 5 seconds before retrying
     nextTry = millis() + 5000;
   }
@@ -61,12 +58,31 @@ void MQTTClient::reconnect()
 
 void MQTTClient::callback(char* topic, byte* payload, unsigned int length)
 {
-  Log::logDebug("***************Message arrived [");
-  Log::logDebug(topic);
-  Log::logDebug("] ");
+  std::string topicS(topic);
+  logDebug("***************Message arrived [%s] ", topicS.c_str());
+
   for (unsigned int i = 0; i < length; i++)
   {
-    Log::logDebug((char)payload[i]);
+    logDebug("%hhu", payload[i]);
   }
-  Log::logDebug("\n");
+  logDebug("\n");
+
+  if (topicS.compare("gondola/move") == 0 && length == 4 * sizeof(float))
+  {
+    callbackGondolaMove(payload);
+  }
+}
+
+void MQTTClient::callbackGondolaMove(byte *payload)
+{
+  Coordinate newPos;
+  float speed;
+
+  float *pPayload = reinterpret_cast<float *>(payload);
+  newPos.x = pPayload[0];
+  newPos.y = pPayload[1];
+  newPos.z = pPayload[2];
+  speed = pPayload[3];
+
+  m_Anchor.setTargetPosition(newPos, speed);
 }

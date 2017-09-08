@@ -12,7 +12,7 @@ class APConnection : public IConnection
 {
 public:
   /**
-   * Create an access point
+   * Constructor
    * @param  ssid       SSID of the access point
    * @param  passphrase passphrase of the access point
    * @param  ip         IP Address of the chip
@@ -21,7 +21,7 @@ public:
    * @param  url        URL to provide
    * @return            pointer to instance of access point
    */
-  static APConnection *create(std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url);
+  APConnection(std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url);
 
   /**
    * virtual destructor
@@ -35,24 +35,10 @@ public:
 
 private:
   /**
-   * Constructor
-   * @param  ssid       SSID of the access point
-   * @param  passphrase passphrase of the access point
-   * @param  ip         IP Address of the chip
-   * @param  gateway    Gateway to use
-   * @param  netmask    Netmask of the network
-   * @param  url        URL to provide
-   * @return            pointer to instance of access point
-   */
-  APConnection(std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url);
-
-  /**
    * Setup the DNS Server
    */
   void setupDNS();
 
-  // Instance
-  static APConnection     *s_Instance;          //!< Instance of singleton
 
   // Membervariables
   std::string              m_SSID;              //!< SSID of the provided network

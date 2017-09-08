@@ -16,7 +16,7 @@ SerialConnection::SerialConnection(uint32_t baudrate)
  , m_CommandInterpreter()
 {
   Serial.begin(m_Baudrate);
-  Log::logInfo("\n\nStarting Serial Connection\n");
+  logInfo("\n\nStarting Serial Connection\n");
 
   m_CommandInterpreter = CommandInterpreter::get();
   m_CommandInterpreter->addCommand("move", moveCommand);
@@ -69,12 +69,12 @@ void SerialConnection::moveCommand(std::string &s)
 
   if(args != 4)
   {
-    Log::logWarning("Unsupported!\n");
-    Log::logWarning("Usage: move x y z s\n");
-    Log::logWarning("\tx - float for x coordinate (e.g. 1.0)\n");
-    Log::logWarning("\ty - float for y coordinate (e.g. 1.0)\n");
-    Log::logWarning("\tz - float for z coordinate (e.g. 1.0)\n");
-    Log::logWarning("\ts - float for speed (e.g. 1.0)\n");
+    logWarning("Unsupported!\n");
+    logWarning("Usage: move x y z s\n");
+    logWarning("\tx - float for x coordinate (e.g. 1.0)\n");
+    logWarning("\ty - float for y coordinate (e.g. 1.0)\n");
+    logWarning("\tz - float for z coordinate (e.g. 1.0)\n");
+    logWarning("\ts - float for speed (e.g. 1.0)\n");
     return;
   }
   std::string arg;
@@ -92,7 +92,7 @@ void SerialConnection::moveCommand(std::string &s)
   // if (gondola)
   //   gondola->setTargetPosition(newPosition, speed);
   // else
-  //   Log::logWarning("Gondola was not created\n");
+  //   logWarning("Gondola was not created\n");
 }
 
 void SerialConnection::loglevelCommand(std::string &s)
@@ -102,20 +102,20 @@ void SerialConnection::loglevelCommand(std::string &s)
   CI->getArgument(s, arg0, 0);
   if (arg0.compare("info") == 0)
   {
-    Log::setLogLevel(Log::LOG_INFO);
+    setLogLevel(LOG_INFO);
   }
   else if (arg0.compare("debug") == 0)
   {
-    Log::setLogLevel(Log::LOG_DEBUG);
+    setLogLevel(LOG_DEBUG);
   }
   else if (arg0.compare("warning") == 0)
   {
-    Log::setLogLevel(Log::LOG_WARNING);
+    setLogLevel(LOG_WARNING);
   }
   else
   {
-    Log::logWarning("Unsupported!\n");
-    Log::logWarning("Usage: loglevel level\nLevels:\n\twarning\t only warnings are displayed\n\tinfo\t additional information is displayed\n\tdebug\t addtitional debug output is provided\n");
+    logWarning("Unsupported!\n");
+    logWarning("Usage: loglevel level\nLevels:\n\twarning\t only warnings are displayed\n\tinfo\t additional information is displayed\n\tdebug\t addtitional debug output is provided\n");
   }
 }
 
