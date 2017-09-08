@@ -59,13 +59,18 @@ public:
   /**
    * load the default config. Use writeToEEPROM to store it into the EEPROM after loading it
    */
-  void resetConfig();
+  static void resetConfig();
 
   /**
    * Command to reset the config with serial input
    * @param s line to interprete
    */
-  void configResetCommand(std::string &s);
+  static void configResetCommand(std::string &s);
+
+  /**
+   * Print the configuration if log level is LOG_DEBUG
+   */
+  void printConfig(void);
 
 private:
   /**

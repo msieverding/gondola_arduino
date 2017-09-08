@@ -101,7 +101,7 @@ Config::Config()
  , DEBUG_LOG(LOG_INFO)
  , DEBUG_MQTT(1)
 {
-  CommandInterpreter::get()->addCommand("configReset", std::bind(&Config::configResetCommand, this, std::placeholders::_1));
+  CommandInterpreter::get()->addCommand("configReset", std::bind(&Config::configResetCommand, std::placeholders::_1));
   EEPROM.begin(EEPROM_LENGTH);
 }
 
@@ -117,6 +117,7 @@ void Config::resetConfig()
   delete(s_Instance);
   s_Instance = new Config();
   s_Instance->writeToEEPROM();
+  s_Instance->printConfig();
   // TODO Chip will crash here since the destructor will change list wich is
   // used to call this function
 }
@@ -215,6 +216,7 @@ void Config::readFromEEPROM()
   if (checkChecksum(EEPROM_CHECKSUM_START) == false)
   {
     logWarning("Checksum not valid! Use default values!\n");
+    printConfig();
     return;
   }
   else
@@ -247,6 +249,7 @@ void Config::readFromEEPROM()
   DEBUG_MQTT = EEPROM.read(EEPROM_DEBUG_MQTT_START);
 
   readString(MQTT_CLIENT_SERVER, EEPROM_MQTT_CLIENT_SERVER_START, EEPROM_MQTT_CLIENT_SERVER_LENGTH);
+  printConfig();
 }
 
 void Config::persistString(std::string &s, uint16_t start, uint8_t maxLength)
@@ -343,6 +346,39 @@ bool Config::checkChecksum(uint16_t start)
     return true;
   else
     return false;
+}
+
+void Config::printConfig(void)
+{
+  logDebug("Loaded configuration:\n");
+  // WiFi Connection
+  logDebug("WC_IPADDRESS:       %s\n", WC_IPADDRESS.toString().c_str());
+  logDebug("WC_GATEWAY:         %s\n", WC_GATEWAY.toString().c_str());
+  logDebug("WC_NETMASK:         %s\n", WC_NETMASK.toString().c_str());
+  logDebug("WC_SSID:            %s\n", WC_SSID.c_str());
+  logDebug("WC_PASSPHRASE:      %s\n", WC_PASSPHRASE.c_str());
+  logDebug("WC_HOSTNAME:        %s\n", WC_HOSTNAME.c_str());
+  // Access point
+  logDebug("AP_IPADDRESS:       %s\n", AP_IPADDRESS.toString().c_str());
+  logDebug("AP_GATEWAY:         %s\n", AP_GATEWAY.toString().c_str());
+  logDebug("AP_NETMASK:         %s\n", AP_NETMASK.toString().c_str());
+  logDebug("AP_SSID:            %s\n", AP_SSID.c_str());
+  logDebug("AP_PASSPHRASE:      %s\n", AP_PASSPHRASE.c_str());
+  logDebug("AP_URL:             %s\n", AP_URL.c_str());
+  logDebug("WC_HOSTNAME:        %s\n", WC_HOSTNAME.c_str());
+  // ConnectionMgr Setup
+  logDebug("CM_CONNECTIONTYPE:  %u\n", static_cast<uint8_t>(CM_CONNECTIONTYPE));
+  logDebug("CM_MQTTTYPE:        %u\n", CM_MQTTTYPE);
+  // WebServer
+  logDebug("WS_PORT:            %u\n", WS_PORT);
+  // Gondola
+  logDebug("GO_POSITION:        %s\n", GO_POSITION.toString().c_str());
+  logDebug("GO_ANCHORPOS:       %s\n", GO_ANCHORPOS.toString().c_str());
+  // MQTT Server (not changeable and not relevant)
+  // MQTT Client
+  logDebug("MQTT_CLIENT_SERVER: %s\n", MQTT_CLIENT_SERVER.c_str());
+  logDebug("DEBUG_LOG:          %u\n", DEBUG_LOG);
+  logDebug("DEBUG_MQTT:         %u\n", DEBUG_MQTT);
 }
 
 // WiFi Connection
