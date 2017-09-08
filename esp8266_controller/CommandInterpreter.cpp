@@ -1,5 +1,6 @@
 #include "CommandInterpreter.hpp"
 #include "Log.hpp"
+#include "Config.hpp"
 #include <Arduino.h>
 #include <string.h>
 
@@ -18,11 +19,13 @@ CommandInterpreter::CommandInterpreter()
  : m_CommandList()
 {
   addCommand("help", std::bind(&CommandInterpreter::helpCommand, this, std::placeholders::_1));
+  addCommand("configReset", std::bind(&CommandInterpreter::configResetCommand, this, std::placeholders::_1));
 }
 
 CommandInterpreter::~CommandInterpreter()
 {
   deleteCommand("help");
+  deleteCommand("configReset");
   s_Instance = NULL;
 }
 
@@ -127,4 +130,11 @@ void CommandInterpreter::helpCommand(std::string &s)
   {
     logInfo("%s\n", it->command.c_str());
   }
+}
+
+void CommandInterpreter::configResetCommand(std::string &s)
+{
+  logDebug("CI: configResetCommand\n");
+  Config::resetConfig();
+  logWarning("Some changes need a manual reboot!\n");
 }

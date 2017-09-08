@@ -62,12 +62,6 @@ public:
   static void resetConfig();
 
   /**
-   * Command to reset the config with serial input
-   * @param s line to interprete
-   */
-  static void configResetCommand(std::string &s);
-
-  /**
    * Print the configuration if log level is LOG_DEBUG
    */
   void printConfig(void);

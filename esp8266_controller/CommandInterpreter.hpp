@@ -91,6 +91,12 @@ private:
    */
   void helpCommand(std::string &s);
 
+  /**
+   * Command to reset the config with serial input
+   * @param s line to interprete
+   */
+  void configResetCommand(std::string &s);
+
   // instance
   static CommandInterpreter  *s_Instance;         //!< Instance of singleton
 

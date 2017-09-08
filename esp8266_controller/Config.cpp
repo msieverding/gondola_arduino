@@ -101,31 +101,24 @@ Config::Config()
  , DEBUG_LOG(LOG_INFO)
  , DEBUG_MQTT(1)
 {
-  CommandInterpreter::get()->addCommand("configReset", std::bind(&Config::configResetCommand, std::placeholders::_1));
   EEPROM.begin(EEPROM_LENGTH);
 }
 
 Config::~Config()
 {
-  CommandInterpreter::get()->deleteCommand("configReset");
   EEPROM.end();
   s_Instance = NULL;
 }
 
 void Config::resetConfig()
 {
-  delete(s_Instance);
-  s_Instance = new Config();
-  s_Instance->writeToEEPROM();
-  s_Instance->printConfig();
-  // TODO Chip will crash here since the destructor will change list wich is
-  // used to call this function
-}
-
-void Config::configResetCommand(std::string &s)
-{
-  logDebug("CI: configResetCommand(%s)\n", s.c_str());
-  resetConfig();
+  if (s_Instance)
+  {
+    delete(s_Instance);
+    s_Instance = new Config();
+    s_Instance->writeToEEPROM();
+    s_Instance->printConfig();
+  }
 }
 
 bool Config::writeToEEPROM()
