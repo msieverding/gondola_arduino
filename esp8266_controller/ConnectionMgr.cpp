@@ -32,7 +32,7 @@ ConnectionMgr::ConnectionMgr()
  , m_WebServer(Config::get()->getWS_PORT())
  , m_MqTTService(NULL)
 {
-  CommandInterpreter::get()->addCommand(std::string("contype"), contypeCommand);
+  CommandInterpreter::get()->addCommand(std::string("contype"), std::bind(&ConnectionMgr::contypeCommand, this, std::placeholders::_1));
 
   changeConnection(m_ConnectionType);
   changeMqTTType(m_MqTTType);
@@ -40,7 +40,7 @@ ConnectionMgr::ConnectionMgr()
 
 ConnectionMgr::~ConnectionMgr()
 {
-  CommandInterpreter::get()->deleteCommand(std::string("contype"), contypeCommand);
+  CommandInterpreter::get()->deleteCommand(std::string("contype"));
   s_Instance = NULL;
 }
 
@@ -87,6 +87,11 @@ void ConnectionMgr::requestChangeConnection(connectionType_t connectionType)
 {
   m_ChangeConnectionRequest = true;
   m_ChangeConnectionType = connectionType;
+}
+
+connectionType_t ConnectionMgr::getConnectionType()
+{
+  return m_ConnectionType;
 }
 
 void ConnectionMgr::changeMqTTType(mqttType_t mqttType)
@@ -155,7 +160,6 @@ void ConnectionMgr::loop()
 void ConnectionMgr::contypeCommand(std::string &s)
 {
   CommandInterpreter *CI = CommandInterpreter::get();
-  ConnectionMgr *CM = ConnectionMgr::get();
   String arduinoS(s.c_str());
   std::string arg;
 
@@ -175,15 +179,15 @@ void ConnectionMgr::contypeCommand(std::string &s)
       CI->getArgument(s, arg, 0);
       if (arg.compare("WIFI") == 0)
       {
-        CM->changeConnection(CON_WIFI_CONNECTION);
+        changeConnection(CON_WIFI_CONNECTION);
       }
       else if (arg.compare("AP") == 0)
       {
-        CM->changeConnection(CON_ACCESS_POINT);
+        changeConnection(CON_ACCESS_POINT);
       }
       else if (arg.compare("DUAL") == 0)
       {
-        CM->changeConnection(CON_DUAL_CONNECTION);
+        changeConnection(CON_DUAL_CONNECTION);
       }
       else
       {

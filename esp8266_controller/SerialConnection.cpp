@@ -21,16 +21,13 @@ SerialConnection::SerialConnection(uint32_t baudrate)
   logDebug("Starting Serial Connection\n");
 
   m_CommandInterpreter = CommandInterpreter::get();
-  m_CommandInterpreter->addCommand("move", moveCommand);
-  m_CommandInterpreter->addCommand("loglevel", loglevelCommand);
-  m_CommandInterpreter->addCommand("help", helpCommand);
+  m_CommandInterpreter->addCommand("loglevel", std::bind(&SerialConnection::loglevelCommand, this, std::placeholders::_1));
+
 }
 
 SerialConnection::~SerialConnection()
 {
-  m_CommandInterpreter->deleteCommand("move", moveCommand);
-  m_CommandInterpreter->deleteCommand("loglevel", loglevelCommand);
-  m_CommandInterpreter->deleteCommand("help", helpCommand);
+  m_CommandInterpreter->deleteCommand("loglevel");
   delete(m_CommandInterpreter);
   s_Instance = NULL;
 }
@@ -62,39 +59,6 @@ void SerialConnection::loop()
   }
 }
 
-void SerialConnection::moveCommand(std::string &s)
-{
-  CommandInterpreter *CI = CommandInterpreter::get();
-  uint8_t args = CI->getNumArgument(s);
-  Coordinate newPosition;
-  float speed;
-
-  if(args != 4)
-  {
-    logWarning("Unsupported!\n");
-    logWarning("Usage: move x y z s\n");
-    logWarning("\tx - float for x coordinate (e.g. 1.0)\n");
-    logWarning("\ty - float for y coordinate (e.g. 1.0)\n");
-    logWarning("\tz - float for z coordinate (e.g. 1.0)\n");
-    logWarning("\ts - float for speed (e.g. 1.0)\n");
-    return;
-  }
-  std::string arg;
-  CI->getArgument(s, arg, 0);
-  newPosition.x = atof(arg.c_str());
-  CI->getArgument(s, arg, 1);
-  newPosition.y = atof(arg.c_str());
-  CI->getArgument(s, arg, 2);
-  newPosition.z = atof(arg.c_str());
-  CI->getArgument(s, arg, 3);
-  speed = atof(arg.c_str());
-
-  if (ConnectionMgr::get()->getMqTTType() == MQTT_SERVER)
-  {
-    Gondola::get()->setTargetPosition(newPosition, speed);
-  }
-}
-
 void SerialConnection::loglevelCommand(std::string &s)
 {
   CommandInterpreter *CI = CommandInterpreter::get();
@@ -117,9 +81,4 @@ void SerialConnection::loglevelCommand(std::string &s)
     logWarning("Unsupported!\n");
     logWarning("Usage: loglevel level\nLevels:\n\twarning\t only warnings are displayed\n\tinfo\t additional information is displayed\n\tdebug\t addtitional debug output is provided\n");
   }
-}
-
-void SerialConnection::helpCommand(std::string &s)
-{
-  s_Instance->m_CommandInterpreter->printAllCommands();
 }

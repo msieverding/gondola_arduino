@@ -5,6 +5,10 @@
 #include <string>
 #include <functional>
 
+extern "C"{
+  #include "user_interface.h"
+}
+
 WebServer::WebServer(uint16_t port, bool configureServer)
  : m_Server(port)
 {
@@ -13,6 +17,7 @@ WebServer::WebServer(uint16_t port, bool configureServer)
     m_Server.on("/", std::bind(&WebServer::handleRoot, this));
     m_Server.on("/SetupWiFi", std::bind(&WebServer::handleSetupWiFi, this));
     m_Server.on("/SetupSystem", std::bind(&WebServer::handleSetupSystem, this));
+    m_Server.on("/ShowAPClients", std::bind(&WebServer::handleShowAPClients, this));
     m_Server.onNotFound(std::bind(&WebServer::handleNotFound, this));
     m_Server.begin();
     logInfo("HTTP Server configured and started\n");
@@ -113,7 +118,7 @@ void WebServer::handleSetupWiFi()
   }
   else if (m_Server.arg("WiFiType").equals("CON_RESTORE_DEFAULT"))
   {
-    Config::resetConfig();
+    Config::get()->resetConfig();
     config = Config::get();
     conMgr->requestChangeConnection(config->getCM_CONNECTIONTYPE());
   }
@@ -156,6 +161,15 @@ void WebServer::handleSetupSystem()
   m_Server.send(200, "text/html", answer.c_str());
 }
 
+void WebServer::handleShowAPClients()
+{
+  std::string answer;
+  prepareHeader(answer);
+  prepareShowAPClients(answer);
+
+  m_Server.send(200, "text/html", answer.c_str());
+}
+
 void WebServer::handleNotFound()
 {
   std::string header;
@@ -183,6 +197,10 @@ void WebServer::prepareHeader(std::string &s)
   s.append("<a href=\"/\">Root</a> ");
   s.append("<a href=\"/SetupWiFi\">SetupWiFi</a> ");
   s.append("<a href=\"/SetupSystem\">SetupSystem</a> ");
+  if (ConnectionMgr::get()->getConnectionType() == CON_ACCESS_POINT || ConnectionMgr::get()->getConnectionType() == CON_DUAL_CONNECTION)
+  {
+    s.append("<a href=\"/ShowAPClients\">ShowAPClients</a> ");
+  }
   s.append("<hr>");
   s.append("</html>");
 }
@@ -327,4 +345,34 @@ void WebServer::prepareGondolaMovePage(std::string &s)
   }
   s.append("</form>");
   s.append("</html>");
+}
+
+void WebServer::prepareShowAPClients(std::string &s)
+{
+  s.append("<html>");
+  s.append("<h4>Connected devices:</h4>");
+  struct station_info *info;
+  struct ip_addr *ip;
+  uint32 uintAddress;
+
+  info = wifi_softap_get_station_info();
+
+  uint8_t i = 0;
+  while (info != NULL)
+  {
+    ip = &info->ip;
+    uintAddress = ip->addr;
+    String ipStr(String((uint8_t)uintAddress) + "." + String((uint8_t)(uintAddress >> 8)) + "." + String((uint8_t)(uintAddress >> 16)) + "." + String((uint8_t)(uintAddress >> 24)));
+
+    s.append("Client: ");
+    s.append(String(i).c_str());
+    s.append("\t<a href=http://");
+    s.append(ipStr.c_str());
+    s.append("/>");
+    s.append(ipStr.c_str());
+    s.append("</a><br>");
+
+    info = STAILQ_NEXT(info, next);
+    i++;
+  }
 }

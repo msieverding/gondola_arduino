@@ -34,22 +34,10 @@ private:
   SerialConnection(uint32_t baudrate);
 
   /**
-   * CI Command to move gondola
-   * @param s command
-   */
-  static void moveCommand(std::string &s);
-
-  /**
    * CI Command to change log level
    * @param s command
    */
-  static void loglevelCommand(std::string &s);
-
-  /**
-   * CI Command to get help
-   * @param s command
-   */
-  static void helpCommand(std::string &s);
+  void loglevelCommand(std::string &s);
 
   // instance
   static SerialConnection    *s_Instance;           //!< instance of singleton

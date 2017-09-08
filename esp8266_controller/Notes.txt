@@ -1,28 +1,22 @@
 TODO:
 - find issue for curious serial output at startup
 - use speed for movement :-D
+- check spooling speed and spooledDistance.. looks not right actually
 
 - website to print serial debug output
-- check spooling speed and spooledDistance.. looks not right actually
-- [AP] show IPAddresses of clients: http://www.esp8266.com/viewtopic.php?f=32&t=5669#
 - print whole configuration at startup ?!
 
 - Change AnchorPos through web interface
 - Set Gondola position through web interface
-- find issue with why %s doesn't work
-- possible to implement lists as a std::vector?
 
--client connects take a long time...
-
-Known issues:
-- Windows can't handle a new ESP8266 with the same Network name without removing the old one
+- client connects take a long time... -> maybe use async client from library (https://github.com/me-no-dev/ESPAsyncTCP/blob/master/src/ESPAsyncTCP.h)
+- Take a look on this async MQTT client (https://github.com/marvinroger/async-mqtt-client)
 
 Hardware Ideas:
 - Reset (SW-)button to use default configuration (open AP...)
 - LCD to show Configuration or LEDs to show state
 - 8 LEDs to show LSB of IP address instead of LCD
-- 1 LED for erstablished connection
-- 1 or 2 LEDs for mode
+- 1 LED for established connection
 
 
 Out of code documentation:

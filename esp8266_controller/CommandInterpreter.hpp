@@ -2,6 +2,8 @@
 #define _COMMAND_INTERPRETER_HPP_
 
 #include <string>
+#include <functional>
+#include <list>
 
 /**
  * An interpreter for commands from the serial input
@@ -12,22 +14,15 @@ public:
   /**
    * Type of a command function
    */
-  typedef void (*commandFunc)(std::string&);
+  typedef std::function<void(std::string&)> commandFunc;
 
   /**
    * Structure for a single ended list of all registered commands
    */
-  typedef struct commandList_s {
-    /**
-     * Constructor for struct element
-     * @param s  command to use
-     * @param cf function which belongs to this command
-     */
-    commandList_s(std::string &s, commandFunc cf) : command(s), func(cf), next(NULL) {}
+  typedef struct command_s {
     std::string command;    //!< Command to react on
     commandFunc func;       //!< function to call when command appears
-    commandList_s *next;    //!< next element in list
-  } commandList_t;
+  } command_t;
 
   /**
    * Get instance of CommandInterpreter
@@ -51,7 +46,7 @@ public:
    * @param commandWord     command to react on
    * @param commandFunction function to call when commandWord was found
    */
-  void deleteCommand(std::string commandWord, commandFunc commandFunction);
+  void deleteCommand(std::string commandWord);
 
   /**
    * interprete a string s
@@ -84,11 +79,6 @@ public:
    */
   static uint8_t getNumArgument(std::string &s);
 
-  /**
-   * Print all registered commands to the serial
-   */
-  void printAllCommands(void);
-
 private:
   /**
    * private constructor
@@ -96,15 +86,16 @@ private:
   CommandInterpreter();
 
   /**
-  * delete the whole command list
-  */
-  void deleteCommandList();
+   * CI Command to get help
+   * @param s command
+   */
+  void helpCommand(std::string &s);
 
   // instance
   static CommandInterpreter  *s_Instance;         //!< Instance of singleton
 
   // membervariables
-  commandList_t              *m_CommandList;      //!< List of all registered Commands
+  std::list<command_t>        m_CommandList;      //!< List of all registered Commands
 };
 
 #endif /* _COMMAND_INTERPRETER_HPP_ */

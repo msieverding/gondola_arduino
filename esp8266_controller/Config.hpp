@@ -4,6 +4,7 @@
 #include <string>
 #include "Coordinate.hpp"
 #include <IPAddress.h>
+#include "CommandInterpreter.hpp"
 
 // Forward declaration of connectionType_t from ConnectionMgr
 enum connectionType_s : byte;
@@ -58,19 +59,21 @@ public:
   /**
    * load the default config. Use writeToEEPROM to store it into the EEPROM after loading it
    */
-  static void resetConfig();
+  void resetConfig();
 
   /**
    * Command to reset the config with serial input
    * @param s line to interprete
    */
-  static void configResetCommand(std::string &s);
+  void configResetCommand(std::string &s);
 
 private:
   /**
    * private constrcutor
    */
   Config();
+
+  CommandInterpreter::commandFunc   m_Command;
 
 public:
   // WiFi Connection
@@ -134,6 +137,12 @@ public:
   // MQTT Client
   std::string getMQTT_CLIENT_SERVER() { return MQTT_CLIENT_SERVER; }
   void setMQTT_CLIENT_SERVER(std::string serv);
+
+  // Debug
+  uint8_t getDEBUG_LOG() { return DEBUG_LOG; }
+  void setDEBUG_LOG(uint8_t level);
+  uint8_t getDEBUG_MQTT() { return DEBUG_MQTT; }
+  void setDEBUG_MQTT(uint8_t level);
 
 private:
   /**
@@ -233,6 +242,10 @@ private:
 
   // MQTT Client
   std::string MQTT_CLIENT_SERVER;
+
+  // DEBUG
+  uint8_t DEBUG_LOG;
+  uint8_t DEBUG_MQTT;
 };
 
 // STEPPER SETTINGS

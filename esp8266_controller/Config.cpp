@@ -46,12 +46,14 @@
 #define EEPROM_MQTT_CLIENT_SERVER_START 308
 #define EEPROM_MQTT_CLIENT_SERVER_LENGTH 20
 
+//Debug
+#define EEPROM_DEBUG_LOG_START          328
+#define EEPROM_DEBUG_MQTT_START         329
+
 // Checksum
 #define EEPROM_CHECKSUM_DATA_BEGIN      0
-#define EEPROM_CHECKSUM_DATA_END        307
-#define EEPROM_CHECKSUM_START           308
-
-
+#define EEPROM_CHECKSUM_DATA_END        329
+#define EEPROM_CHECKSUM_START           330
 
 Config *Config::s_Instance = NULL;
 
@@ -96,14 +98,16 @@ Config::Config()
  , MQTT_SERV_USER_AUTH(0)   // User authorization is not implemented in MQTTSlave, so it's fixed off
  // MQTT Client
  , MQTT_CLIENT_SERVER("www.gondola.com")
+ , DEBUG_LOG(LOG_INFO)
+ , DEBUG_MQTT(1)
 {
-  CommandInterpreter::get()->addCommand("configReset", configResetCommand);
+  CommandInterpreter::get()->addCommand("configReset", std::bind(&Config::configResetCommand, this, std::placeholders::_1));
   EEPROM.begin(EEPROM_LENGTH);
 }
 
 Config::~Config()
 {
-  CommandInterpreter::get()->deleteCommand("configReset", configResetCommand);
+  CommandInterpreter::get()->deleteCommand("configReset");
   EEPROM.end();
   s_Instance = NULL;
 }
@@ -137,6 +141,9 @@ bool Config::writeToEEPROM()
   writeGOToEEPROM(false);
 
   persistString(MQTT_CLIENT_SERVER, EEPROM_MQTT_CLIENT_SERVER_START, EEPROM_MQTT_CLIENT_SERVER_LENGTH);
+
+  EEPROM.write(EEPROM_DEBUG_LOG_START, DEBUG_LOG);
+  EEPROM.write(EEPROM_DEBUG_MQTT_START, DEBUG_MQTT);
 
   writeChecksum(EEPROM_CHECKSUM_START);
 
@@ -235,6 +242,9 @@ void Config::readFromEEPROM()
 
   readCoordinate(GO_POSITION,    EEPROM_GO_POSITION_START);
   readCoordinate(GO_ANCHORPOS,   EEPROM_GO_ANCHORPOS_START);
+
+  DEBUG_LOG = EEPROM.read(EEPROM_DEBUG_LOG_START);
+  DEBUG_MQTT = EEPROM.read(EEPROM_DEBUG_MQTT_START);
 
   readString(MQTT_CLIENT_SERVER, EEPROM_MQTT_CLIENT_SERVER_START, EEPROM_MQTT_CLIENT_SERVER_LENGTH);
 }
@@ -466,4 +476,15 @@ void Config::setGO_ANCHORPOS(Coordinate position)
 void Config::setMQTT_CLIENT_SERVER(std::string serv)
 {
   MQTT_CLIENT_SERVER = serv;
+}
+
+// Debug
+void Config::setDEBUG_LOG(uint8_t level)
+{
+  DEBUG_LOG = level;
+}
+
+void Config::setDEBUG_MQTT(uint8_t level)
+{
+  DEBUG_MQTT = level;
 }

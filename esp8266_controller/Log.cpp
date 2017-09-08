@@ -13,10 +13,10 @@ void logDebug(const char *format, ...)
 {
   if (s_LogLevel >= LOG_DEBUG)
   {
-    char buf[128]; // resulting string limited to 128 chars
+    char buf[256]; // resulting string limited to 128 chars
     va_list args;
     va_start (args, format );
-    vsnprintf(buf, 128, format, args);
+    vsnprintf(buf, 256, format, args);
     va_end (args);
     Serial.print("[DBG] ");
     Serial.print(buf);

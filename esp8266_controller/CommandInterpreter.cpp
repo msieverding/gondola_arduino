@@ -15,99 +15,52 @@ CommandInterpreter *CommandInterpreter::get()
 }
 
 CommandInterpreter::CommandInterpreter()
- : m_CommandList(NULL)
+ : m_CommandList()
 {
-
+  addCommand("help", std::bind(&CommandInterpreter::helpCommand, this, std::placeholders::_1));
 }
 
 CommandInterpreter::~CommandInterpreter()
 {
-  deleteCommandList();
+  deleteCommand("help");
   s_Instance = NULL;
 }
 
 void CommandInterpreter::addCommand(std::string commandWord, commandFunc commandFunction)
 {
-  commandList_t *ptr;
-  commandList_t *entry = new commandList_t(commandWord, commandFunction);
-
-  if (m_CommandList == NULL)
-  {
-    m_CommandList = entry;
-  }
-  else
-  {
-    ptr = m_CommandList;
-    while(ptr->next != NULL)
-      ptr = ptr->next;
-
-    ptr->next = entry;
-  }
+  m_CommandList.push_back({commandWord, commandFunction});
 }
 
-void CommandInterpreter::deleteCommand(std::string commandWord, commandFunc commandFunction)
+void CommandInterpreter::deleteCommand(std::string commandWord)
 {
-  commandList_t *ptr;
-
-  if (m_CommandList == NULL)
+  for (std::list<command_t>::iterator it = m_CommandList.begin(); it != m_CommandList.end(); it++)
   {
-    return;
-  }
-  else
-  {
-    ptr = m_CommandList;
-    // First handle the beginning elements of the list
-    while (ptr->command.compare(commandWord) == 0 && ptr->func == commandFunction)
+    if (it->command.compare(commandWord) == 0)
     {
-      m_CommandList = ptr->next;
-      delete(ptr);
-      ptr = m_CommandList;
-      if (m_CommandList == NULL)
-        return;
+      m_CommandList.erase(it);
     }
-    // Then all others
-    while(ptr->next != NULL)
-    {
-      if (ptr->next->command.compare(commandWord) == 0 && ptr->next->func == commandFunction)
-      {
-        commandList_t *tmp = ptr->next->next;
-        delete(ptr->next);
-        ptr->next = tmp;
-        // Will happen when removing end of list
-        if (ptr->next == NULL)
-          return;
-      }
-      ptr = ptr->next;
-    }
-  }
-}
-
-void CommandInterpreter::deleteCommandList()
-{
-  commandList_t *ptr = m_CommandList;
-  commandList_t *next;
-
-  while(ptr != NULL)
-  {
-    next = ptr->next;
-    delete(ptr);
-    ptr = next;
   }
 }
 
 void CommandInterpreter::interprete(std::string &s)
 {
-
+  bool done = false;
   std::string commandWord = getCommandWord(s);
-  commandList_t *ptr = m_CommandList;
 
-  while(ptr != NULL)
+  for (std::list<command_t>::iterator it = m_CommandList.begin(); it != m_CommandList.end(); it++)
   {
-    if (commandWord.compare(ptr->command) == 0)
+    if (it->command.compare(commandWord) == 0)
     {
-      ptr->func(s);
+      if (it->func)
+      {
+        it->func(s);
+        done = true;
+      }
     }
-    ptr = ptr->next;
+  }
+  if (!done)
+  {
+    logWarning("Command '%s' not registered. Try help for a list of registered commands\n", s.c_str());
   }
 }
 
@@ -167,14 +120,11 @@ uint8_t CommandInterpreter::getNumArgument(std::string &s)
   }
 }
 
-void CommandInterpreter::printAllCommands(void)
+void CommandInterpreter::helpCommand(std::string &s)
 {
-  commandList_t *ptr = m_CommandList;
-  logWarning("Registered commands:\n");
-
-  while(ptr != NULL)
+  logInfo("Registered commands:\n");
+  for (std::list<command_t>::iterator it = m_CommandList.begin(); it != m_CommandList.end(); it++)
   {
-    logWarning("%s\n", ptr->command.c_str());
-    ptr = ptr->next;
+    logInfo("%s\n", it->command.c_str());
   }
 }

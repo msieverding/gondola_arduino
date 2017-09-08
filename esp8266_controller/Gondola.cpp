@@ -21,10 +21,12 @@ Gondola::Gondola()
  , m_MoveCommand(NULL)
 {
   logDebug("Creating gondola at: %s\n", m_CurrentPosition.toString().c_str());
+  CommandInterpreter::get()->addCommand("move", std::bind(&Gondola::moveCommand, this, std::placeholders::_1));
 }
 
 Gondola::~Gondola()
 {
+  CommandInterpreter::get()->deleteCommand("move");
   s_Instance = NULL;
 }
 
@@ -58,7 +60,37 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
   m_Anchor->setTargetPosition(m_TargetPosition, m_Speed);
 }
 
-void Gondola::registerMoveCommand(moveFunc func)
+void Gondola::registerMoveFunction(moveFunc func)
 {
   m_MoveCommand = func;
+}
+
+void Gondola::moveCommand(std::string &s)
+{
+  CommandInterpreter *CI = CommandInterpreter::get();
+  uint8_t args = CI->getNumArgument(s);
+  Coordinate newPosition;
+  float speed;
+
+  if(args != 4)
+  {
+    logWarning("Unsupported!\n");
+    logWarning("Usage: move x y z s\n");
+    logWarning("\tx - float for x coordinate (e.g. 1.0)\n");
+    logWarning("\ty - float for y coordinate (e.g. 1.0)\n");
+    logWarning("\tz - float for z coordinate (e.g. 1.0)\n");
+    logWarning("\ts - float for speed (e.g. 1.0)\n");
+    return;
+  }
+  std::string arg;
+  CI->getArgument(s, arg, 0);
+  newPosition.x = atof(arg.c_str());
+  CI->getArgument(s, arg, 1);
+  newPosition.y = atof(arg.c_str());
+  CI->getArgument(s, arg, 2);
+  newPosition.z = atof(arg.c_str());
+  CI->getArgument(s, arg, 3);
+  speed = atof(arg.c_str());
+
+  setTargetPosition(newPosition, speed);
 }

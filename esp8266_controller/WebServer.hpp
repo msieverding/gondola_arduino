@@ -33,6 +33,7 @@ protected:
   virtual void handleRoot();
   virtual void handleSetupWiFi();
   virtual void handleSetupSystem();
+  virtual void handleShowAPClients();
   virtual void handleNotFound();
 
   // Helper functions to build web pages
@@ -40,6 +41,7 @@ protected:
   void prepareSetupWiFiPage(std::string &s);
   void prepareSetupSystemPage(std::string &s);
   void prepareGondolaMovePage(std::string &s);
+  void prepareShowAPClients(std::string &s);
 
   // Membervariables
   ESP8266WebServer          m_Server;

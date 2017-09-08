@@ -57,7 +57,7 @@ public:
   virtual void setTargetPosition(Coordinate &targetPos, float &speed);
 
   // TODO Docu
-  void registerMoveCommand(moveFunc func);
+  void registerMoveFunction(moveFunc func);
 
 private:
 
@@ -66,6 +66,12 @@ private:
   */
   Gondola();
 
+  /**
+   * CI Command to move gondola
+   * @param s command
+   */
+  void moveCommand(std::string &s);
+  
   // instance
   static Gondola         *s_Instance;
 

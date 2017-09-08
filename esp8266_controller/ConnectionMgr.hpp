@@ -56,6 +56,9 @@ public:
   */
   void requestChangeConnection(connectionType_t connectionType);
 
+  // TODO docu
+  connectionType_t getConnectionType();
+
   /**
    * Change the type of the provided mqtt service
    * @param mqttType mqtt service to provide
@@ -89,7 +92,7 @@ private:
    * Serial command to change the connection
    * @param s serial input with all commandword and all arguments
    */
-  static void contypeCommand(std::string &s);
+  void contypeCommand(std::string &s);
 
   // instance
   static ConnectionMgr         *s_Instance;                 //!< instance of singleton
