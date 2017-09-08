@@ -25,8 +25,7 @@ WiFiConnection::WiFiConnection(std::string ssid, std::string passphrase, std::st
   WiFi.begin(m_SSID.c_str(), m_Passphrase.c_str());
   // Set stationary mode
 
-  logInfo("Wait for connect to WiFi: ");
-  logInfo(m_SSID.c_str());
+  logInfo("Wait for connect to WiFi: %s\n", m_SSID.c_str());
 
   // Event for connection changes
   m_StationGotIPHandler = WiFi.onStationModeGotIP(std::bind(&WiFiConnection::onEventGotIP, this, std::placeholders::_1));

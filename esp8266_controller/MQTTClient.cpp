@@ -3,16 +3,13 @@
 #include "Log.hpp"
 #include <functional>
 
-// TODO add to Config class
-#define mqtt_server "192.168.5.1"
-
 
 MQTTClient::MQTTClient()
  : m_espClient()
  , m_mqttClient(m_espClient)
- , m_Anchor({0, 5, 4}, {0.0f, 0.0f, 0.0f}, Config::get()->getGO_POSITION())
+ , m_Anchor(Anchor::get())
 {
-  m_mqttClient.setServer(mqtt_server, 1883);
+  m_mqttClient.setServer(Config::get()->getMQTT_CLIENT_SERVER().c_str(), 1883);
   m_mqttClient.setCallback(std::bind(&MQTTClient::callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
@@ -45,7 +42,7 @@ void MQTTClient::reconnect()
 
   if (m_mqttClient.connect("ESP8266Client"))
   {
-    m_mqttClient.subscribe("test/temperature");
+    m_mqttClient.subscribe("gondola/move");
     logDebug("connected\n");
   }
   else
@@ -63,7 +60,7 @@ void MQTTClient::callback(char* topic, byte* payload, unsigned int length)
 
   for (unsigned int i = 0; i < length; i++)
   {
-    logDebug("%hhu", payload[i]);
+    logDebug("%u", payload[i]);
   }
   logDebug("\n");
 
@@ -84,5 +81,5 @@ void MQTTClient::callbackGondolaMove(byte *payload)
   newPos.z = pPayload[2];
   speed = pPayload[3];
 
-  m_Anchor.setTargetPosition(newPos, speed);
+  m_Anchor->setTargetPosition(newPos, speed);
 }

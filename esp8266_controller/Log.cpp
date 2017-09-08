@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <stdarg.h>
 #include "Log.hpp"
 
 static logLevel_t s_LogLevel = LOG_DEBUG;
@@ -12,11 +13,13 @@ void logDebug(const char *format, ...)
 {
   if (s_LogLevel >= LOG_DEBUG)
   {
-    va_list arg;
-
-    va_start(arg, format);
-    Serial.printf(format, arg);
-    va_end(arg);
+    char buf[128]; // resulting string limited to 128 chars
+    va_list args;
+    va_start (args, format );
+    vsnprintf(buf, 128, format, args);
+    va_end (args);
+    Serial.print("[DBG] ");
+    Serial.print(buf);
   }
 }
 
@@ -24,11 +27,13 @@ void logWarning(const char *format, ...)
 {
   if (s_LogLevel >= LOG_WARNING)
   {
-    va_list arg;
-
-    va_start(arg, format);
-    Serial.printf(format, arg);
-    va_end(arg);
+    char buf[128]; // resulting string limited to 128 chars
+    va_list args;
+    va_start (args, format );
+    vsnprintf(buf, 128, format, args);
+    va_end (args);
+    Serial.print("[WRN] ");
+    Serial.print(buf);
   }
 }
 
@@ -36,10 +41,18 @@ void logInfo(const char *format, ...)
 {
   if (s_LogLevel >= LOG_INFO)
   {
-    va_list arg;
-
-    va_start(arg, format);
-    Serial.printf(format, arg);
-    va_end(arg);
+    char buf[128]; // resulting string limited to 128 chars
+    va_list args;
+    va_start (args, format );
+    vsnprintf(buf, 128, format, args);
+    va_end (args);
+    Serial.print("[INF] ");
+    Serial.print(buf);
   }
+}
+
+std::string FloatToString(float f)
+{
+  char buf[20];
+  return std::string(dtostrf(f, 4, 2, buf));
 }

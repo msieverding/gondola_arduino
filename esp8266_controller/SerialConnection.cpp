@@ -1,5 +1,6 @@
 #include "SerialConnection.hpp"
 #include "Log.hpp"
+#include "ConnectionMgr.hpp"
 #include <string>
 
 SerialConnection *SerialConnection::s_Instance = NULL;
@@ -16,7 +17,8 @@ SerialConnection::SerialConnection(uint32_t baudrate)
  , m_CommandInterpreter()
 {
   Serial.begin(m_Baudrate);
-  logInfo("\n\nStarting Serial Connection\n");
+  Serial.println("\n\n");
+  logDebug("Starting Serial Connection\n");
 
   m_CommandInterpreter = CommandInterpreter::get();
   m_CommandInterpreter->addCommand("move", moveCommand);
@@ -87,12 +89,10 @@ void SerialConnection::moveCommand(std::string &s)
   CI->getArgument(s, arg, 3);
   speed = atof(arg.c_str());
 
-  // TODO find a solution for this problem
-  // Gondola * gondola = Gondola::get();
-  // if (gondola)
-  //   gondola->setTargetPosition(newPosition, speed);
-  // else
-  //   logWarning("Gondola was not created\n");
+  if (ConnectionMgr::get()->getMqTTType() == MQTT_SERVER)
+  {
+    Gondola::get()->setTargetPosition(newPosition, speed);
+  }
 }
 
 void SerialConnection::loglevelCommand(std::string &s)

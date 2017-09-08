@@ -1,21 +1,25 @@
 #include "MQTTServer.hpp"
 #include <functional>
 #include <string>
+#include "Log.hpp"
 
 MQTTServer::MQTTServer()
- : IGondola(Config::get()->getGO_POSITION())
- , m_mqttServer("MqTT")
+ : m_mqttServer("MqTT")
+ , m_Gondola(Gondola::get())
 {
   // start
   m_mqttServer.begin(&Serial);
 
   // add callback
   m_mqttServer.setCallback(std::bind(&MQTTServer::mqttCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-  // m_mqttServer.setloglevel(1);
+  m_mqttServer.setloglevel(1);
+
+  m_Gondola->registerMoveCommand(std::bind(&MQTTServer::gondolaMove, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 MQTTServer::~MQTTServer()
 {
+  m_Gondola->registerMoveCommand(NULL);
 }
 
 void MQTTServer::loop()
@@ -32,9 +36,10 @@ boolean MQTTServer::mqttCallback(char* queue, byte* payload, unsigned int length
   return true;
 }
 
-void MQTTServer::setTargetPosition(Coordinate &targetPos, float &speed)
+void MQTTServer::gondolaMove(Coordinate &targetPos, float &speed)
 {
-  m_Anchor.setTargetPosition(targetPos, speed);
+  logDebug("gondolaMove\n");
+  
   float messageBuf[4];
   messageBuf[0] = targetPos.x;
   messageBuf[1] = targetPos.y;

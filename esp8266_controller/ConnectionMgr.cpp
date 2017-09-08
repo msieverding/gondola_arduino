@@ -103,12 +103,10 @@ void ConnectionMgr::changeMqTTType(mqttType_t mqttType)
   {
     case MQTT_CLIENT:
       m_MqTTService = new MQTTClient();
-      m_WebServer.setGondolaMQTTServer(NULL);
       break;
 
     case MQTT_SERVER:
       m_MqTTService = new MQTTServer();
-      m_WebServer.setGondolaMQTTServer(m_MqTTService);
       break;
 
     case MQTT_NONE:
@@ -124,6 +122,11 @@ void ConnectionMgr::requestChangeMqTTType(mqttType_t mqttType)
 {
   m_changeMqTTType = mqttType;
   m_ChangeMqTTRequest = true;
+}
+
+mqttType_t ConnectionMgr::getMqTTType()
+{
+  return m_MqTTType;
 }
 
 void ConnectionMgr::loop()

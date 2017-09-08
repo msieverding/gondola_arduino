@@ -20,7 +20,7 @@ private:
 
   WiFiClient    m_espClient;
   PubSubClient  m_mqttClient;
-  Anchor        m_Anchor;
+  Anchor       *m_Anchor;
 };
 
 #endif /* _MQTT_CLIENT_HPP_ */

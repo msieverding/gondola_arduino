@@ -1,7 +1,7 @@
 // Configuration
 #include "Config.hpp"
 // Own classes and libraries
-#include "IGondola.hpp"
+#include "Gondola.hpp"
 #include "Anchor.hpp"
 #include "WiFiConnection.hpp"
 #include "SerialConnection.hpp"
@@ -13,9 +13,9 @@
 #include "ConnectionMgr.hpp"
 #include "Log.hpp"
 
-
 IConnection *serial;
 ConnectionMgr *conMgr;
+Anchor *anchor;
 
 
 void setup()
@@ -26,6 +26,8 @@ void setup()
 
   Config* config = Config::get();
   config->readFromEEPROM();
+
+  anchor = Anchor::get();
 
   conMgr = ConnectionMgr::get();
 
@@ -42,6 +44,6 @@ void loop()
     serial->loop();
   if (conMgr)
     conMgr->loop();
-  // if (anchor)
-  //   anchor->move();
+  if (anchor)
+    anchor->move();
 }

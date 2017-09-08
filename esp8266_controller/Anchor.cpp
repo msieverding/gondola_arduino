@@ -2,11 +2,20 @@
 #include "Anchor.hpp"
 #include "Log.hpp"
 
+Anchor *Anchor::s_Instance = NULL;
 
-Anchor::Anchor(pins_t pinSetup, Coordinate anchorPos, Coordinate gondolaPos)
- : m_AnchorPosition(anchorPos)
- , m_Pins(pinSetup)
- , m_CurrentSpooledDistance(Coordinate::euclideanDistance(m_AnchorPosition, gondolaPos))
+Anchor *Anchor::get()
+{
+  if (!s_Instance)
+    s_Instance = new Anchor();
+
+  return s_Instance;
+}
+
+Anchor::Anchor()
+ : m_AnchorPosition(Config::get()->getGO_ANCHORPOS())
+ , m_Pins({0, 5, 4})
+ , m_CurrentSpooledDistance(Coordinate::euclideanDistance(m_AnchorPosition, Config::get()->getGO_POSITION()))
  , m_TargetSpooledDistance(m_CurrentSpooledDistance)
  , m_Speed(1.0f)
  , m_StepsTodo(0)
@@ -19,6 +28,7 @@ Anchor::Anchor(pins_t pinSetup, Coordinate anchorPos, Coordinate gondolaPos)
 Anchor::~Anchor()
 {
   logDebug("Deleting Anchor\n");
+  s_Instance = NULL;
 }
 
 void Anchor::setTargetPosition(Coordinate gondolaTargetPos, float speed)
@@ -35,7 +45,7 @@ void Anchor::setTargetPosition(Coordinate gondolaTargetPos, float speed)
   if (distanceTodo == 0)
     return;
 
-  logDebug("Spooled: %fcm, Delta: %f\n", m_CurrentSpooledDistance, distanceTodo);
+  logDebug("Spooled: %scm, Delta: %scm\n", FloatToString(m_CurrentSpooledDistance).c_str(), FloatToString(distanceTodo).c_str());
 
   if (distanceTodo < 0)
   {
@@ -56,7 +66,7 @@ void Anchor::setTargetPosition(Coordinate gondolaTargetPos, float speed)
   // calculate number of steps todo
   m_StepsTodo = distanceTodo * STEP_CM;
 
-  logDebug("cm, rounded to (%f): %fcm, steps: %ld, microsteps: %ld\n", MIN_PRECISION, distanceTodo, m_StepsTodo, m_StepsTodo * MICROSTEPS);
+  logDebug("Rounded to (%scm): %scm, steps: %ld, microsteps: %ld\n", FloatToString(MIN_PRECISION).c_str(), FloatToString(distanceTodo).c_str(), m_StepsTodo, m_StepsTodo * MICROSTEPS);
 
   m_StepsTodo *= MICROSTEPS; // we need to account for all microsteps
 }

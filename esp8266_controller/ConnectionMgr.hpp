@@ -2,6 +2,7 @@
 #define _CONNECTION_MGR_HPP_
 
 #include "IConnection.hpp"
+#include "SerialConnection.hpp"
 #include "WebServer.hpp"
 #include "IMQTTService.hpp"
 
@@ -67,6 +68,9 @@ public:
    * @param mqttType Type of WebServer to provide
    */
   void requestChangeMqTTType(mqttType_t mqttType);
+
+  // TODO DOKU
+  mqttType_t getMqTTType();
 
   /**
    * Call loop() frequently to handle change requests

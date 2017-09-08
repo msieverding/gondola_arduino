@@ -7,6 +7,13 @@ TODO:
 - [AP] show IPAddresses of clients: http://www.esp8266.com/viewtopic.php?f=32&t=5669#
 - print whole configuration at startup ?!
 
+- Change AnchorPos through web interface
+- Set Gondola position through web interface
+- find issue with why %s doesn't work
+- possible to implement lists as a std::vector?
+
+-client connects take a long time...
+
 Known issues:
 - Windows can't handle a new ESP8266 with the same Network name without removing the old one
 

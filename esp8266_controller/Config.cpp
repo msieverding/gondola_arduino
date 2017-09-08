@@ -40,6 +40,12 @@
 #define EEPROM_GO_POSITION_START        302
 #define EEPROM_GO_ANCHORPOS_START       305
 
+// MQTT Server
+
+// MQTT Client
+#define EEPROM_MQTT_CLIENT_SERVER_START 308
+#define EEPROM_MQTT_CLIENT_SERVER_LENGTH 20
+
 // Checksum
 #define EEPROM_CHECKSUM_DATA_BEGIN      0
 #define EEPROM_CHECKSUM_DATA_END        307
@@ -83,10 +89,13 @@ Config::Config()
  , WS_PORT(80)
  // Gondola
  , GO_POSITION(0.0, 0.0, 0.0)
+ , GO_ANCHORPOS(0.0, 0.0, 0.0)
  // MQTT Server
  , MQTT_SERV_DEVICE_NAME("MqTT")
  , MQTT_SERV_PORT(1883)     // Fixed port
  , MQTT_SERV_USER_AUTH(0)   // User authorization is not implemented in MQTTSlave, so it's fixed off
+ // MQTT Client
+ , MQTT_CLIENT_SERVER("www.gondola.com")
 {
   CommandInterpreter::get()->addCommand("configReset", configResetCommand);
   EEPROM.begin(EEPROM_LENGTH);
@@ -126,6 +135,8 @@ bool Config::writeToEEPROM()
   EEPROM.write(EEPROM_CM_MQTTTYPE_START, static_cast<uint8_t>(CM_MQTTTYPE));
 
   writeGOToEEPROM(false);
+
+  persistString(MQTT_CLIENT_SERVER, EEPROM_MQTT_CLIENT_SERVER_START, EEPROM_MQTT_CLIENT_SERVER_LENGTH);
 
   writeChecksum(EEPROM_CHECKSUM_START);
 
@@ -224,6 +235,8 @@ void Config::readFromEEPROM()
 
   readCoordinate(GO_POSITION,    EEPROM_GO_POSITION_START);
   readCoordinate(GO_ANCHORPOS,   EEPROM_GO_ANCHORPOS_START);
+
+  readString(MQTT_CLIENT_SERVER, EEPROM_MQTT_CLIENT_SERVER_START, EEPROM_MQTT_CLIENT_SERVER_LENGTH);
 }
 
 void Config::persistString(std::string &s, uint16_t start, uint8_t maxLength)
@@ -449,5 +462,8 @@ void Config::setGO_ANCHORPOS(Coordinate position)
   GO_ANCHORPOS = position;
 }
 
-
 // MQTT Server
+void Config::setMQTT_CLIENT_SERVER(std::string serv)
+{
+  MQTT_CLIENT_SERVER = serv;
+}

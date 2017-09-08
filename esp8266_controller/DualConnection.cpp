@@ -78,13 +78,13 @@ void DualConnection::setupAccessPoint()
   else
     logInfo(WiFi.softAP(m_AP_SSID.c_str()) ? "Ready\n" : "Failed!\n");
 
-  logInfo("Soft-AP IP address: %s \n", WiFi.softAPIP().toString().c_str());
+  logInfo("Soft-AP IP address: %s\n", WiFi.softAPIP().toString().c_str());
 
-  logInfo("WiFi AP SSID: %s \n", m_AP_SSID.c_str());
+  logInfo("WiFi AP SSID: %s\n", m_AP_SSID.c_str());
 
   if (m_AP_Passphrase.length() > 8 && m_AP_Passphrase.length() < 32)
   {
-    logInfo("Connect with passphrase: %s \n", m_AP_Passphrase.c_str());
+    logInfo("Connect with passphrase: %s\n", m_AP_Passphrase.c_str());
   }
   else
   {

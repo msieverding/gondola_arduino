@@ -2,7 +2,7 @@
 #define _WIFI_CONNECTION_HPP_
 
 #include <ESP8266WiFi.h>
-#include "IGondola.hpp"
+#include "Gondola.hpp"
 #include "WebServer.hpp"
 #include "IConnection.hpp"
 #include <ESP8266mDNS.h>

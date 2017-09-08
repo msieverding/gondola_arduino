@@ -17,13 +17,11 @@ typedef struct {
 class Anchor
 {
 public:
+
   /**
-   * constructor
-   * @param pinSetup        pinsetup for stepper driver
-   * @param anchorPos       coordinate of anchor
-   * @param spooledDistance currently spooled distance
+   * get the instance
    */
-  Anchor(pins_t pinSetup, Coordinate anchorPos, Coordinate gondolaPos);
+  static Anchor *get();
 
   /**
    * vitual Destructor
@@ -61,6 +59,11 @@ public:
 private:
 
   /**
+   * constructor
+   */
+  Anchor();
+
+  /**
    * Configure the hardware pins
    */
   void configurePins();
@@ -77,6 +80,9 @@ private:
    * calculate all details for movement
    */
   void calculate(void);
+
+  // instance
+  static Anchor    *s_Instance;
 
   // membervariables
   Coordinate        m_AnchorPosition;             //!< Mounting position of anchor

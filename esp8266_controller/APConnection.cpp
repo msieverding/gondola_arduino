@@ -24,13 +24,13 @@ APConnection::APConnection(std::string ssid, std::string passphrase, IPAddress i
   else
     logInfo(WiFi.softAP(m_SSID.c_str()) ? "Ready\n" : "Failed!\n");
 
-  logInfo("Soft-AP IP address: %s \n", WiFi.softAPIP().toString().c_str());
+  logInfo("Soft-AP IP address: %s\n", WiFi.softAPIP().toString().c_str());
 
-  logInfo("WiFi AP SSID: %s \n", m_SSID.c_str());
+  logInfo("WiFi AP SSID: %s\n", m_SSID.c_str());
 
   if (m_Passphrase.length() > 8 && m_Passphrase.length() < 32)
   {
-    logInfo("Connect with passphrase: %s \n", m_Passphrase.c_str());
+    logInfo("Connect with passphrase: %s\n", m_Passphrase.c_str());
   }
   else
   {

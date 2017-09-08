@@ -131,6 +131,10 @@ public:
   uint16_t getMQTT_SERV_PORT() { return MQTT_SERV_PORT; }
   uint8_t getMQTT_SERV_USER_AUTH() { return MQTT_SERV_USER_AUTH; }
 
+  // MQTT Client
+  std::string getMQTT_CLIENT_SERVER() { return MQTT_CLIENT_SERVER; }
+  void setMQTT_CLIENT_SERVER(std::string serv);
+
 private:
   /**
    * persist a string to the EEPROM
@@ -228,6 +232,7 @@ private:
   uint8_t MQTT_SERV_USER_AUTH;
 
   // MQTT Client
+  std::string MQTT_CLIENT_SERVER;
 };
 
 // STEPPER SETTINGS
