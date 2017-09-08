@@ -5,11 +5,10 @@
 #include "DualConnection.hpp"
 #include "CommandInterpreter.hpp"
 #include "Log.hpp"
-
-
 #include "IMQTTService.hpp"
 #include "MQTTServer.hpp"
 #include "MQTTClient.hpp"
+#include "MQTTClientAsync.hpp"
 
 ConnectionMgr *ConnectionMgr::s_Instance = NULL;
 
@@ -106,12 +105,16 @@ void ConnectionMgr::changeMqTTType(mqttType_t mqttType)
 
   switch (m_MqTTType)
   {
+    case MQTT_SERVER:
+      m_MqTTService = new MQTTServer();
+      break;
+
     case MQTT_CLIENT:
       m_MqTTService = new MQTTClient();
       break;
 
-    case MQTT_SERVER:
-      m_MqTTService = new MQTTServer();
+    case MQTT_CLIENT_ASYNC:
+      m_MqTTService = new MQTTClientAsync();
       break;
 
     case MQTT_NONE:

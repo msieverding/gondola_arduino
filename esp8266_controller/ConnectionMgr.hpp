@@ -21,7 +21,8 @@ typedef enum connectionType_s : byte {
  */
 typedef enum mqttType_s : byte {
   MQTT_SERVER,                          //!< Act as a MQTT Server
-  MQTT_CLIENT,                          //!< Act a a MQTT Client
+  MQTT_CLIENT,                          //!< Act as a MQTT Client
+  MQTT_CLIENT_ASYNC,                    //!< Act as an asynchronous MQTT Client
   MQTT_NONE                             //!< Don't provide a MqTT service
 } mqttType_t;
 

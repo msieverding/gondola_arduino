@@ -147,6 +147,11 @@ void WebServer::handleSetupSystem()
     conMgr->requestChangeMqTTType(MQTT_CLIENT);
     Config::get()->setCM_MQTTTYPE(MQTT_CLIENT);
   }
+  else if (m_Server.arg("CM_MQTTTYPE").equals("MQTT_CLIENT_ASYNC"))
+  {
+    conMgr->requestChangeMqTTType(MQTT_CLIENT_ASYNC);
+    Config::get()->setCM_MQTTTYPE(MQTT_CLIENT_ASYNC);
+  }
   else if (m_Server.arg("CM_MQTTTYPE").equals("MQTT_NONE"))
   {
     conMgr->requestChangeMqTTType(MQTT_NONE);
@@ -298,6 +303,8 @@ void WebServer::prepareSetupSystemPage(std::string &s)
   s.append("<label for=\"S\">Server</label><br>");
   s.append("<input type=\"radio\" id=\"C\" name=\"CM_MQTTTYPE\" value=\"MQTT_CLIENT\" " + std::string(config->getCM_MQTTTYPE() == MQTT_CLIENT ? "checked" : "") + ">");
   s.append("<label for=\"C\">Client</label><br>");
+  s.append("<input type=\"radio\" id=\"CA\" name=\"CM_MQTTTYPE\" value=\"MQTT_CLIENT_ASYNC\" " + std::string(config->getCM_MQTTTYPE() == MQTT_CLIENT_ASYNC ? "checked" : "") + ">");
+  s.append("<label for=\"CA\">Asynchronous Client</label><br>");
   s.append("<input type=\"radio\" id=\"N\" name=\"CM_MQTTTYPE\" value=\"MQTT_NONE\" " + std::string(config->getCM_MQTTTYPE() == MQTT_NONE ? "checked" : "") + ">");
   s.append("<label for=\"N\">None</label><br>");
 

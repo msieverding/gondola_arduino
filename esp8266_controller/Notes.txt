@@ -4,13 +4,11 @@ TODO:
 - check spooling speed and spooledDistance.. looks not right actually
 
 - website to print serial debug output
-- print whole configuration at startup ?!
 
 - Change AnchorPos through web interface
 - Set Gondola position through web interface
 
 - client connects take a long time... -> maybe use async client from library (https://github.com/me-no-dev/ESPAsyncTCP/blob/master/src/ESPAsyncTCP.h)
-- Take a look on this async MQTT client (https://github.com/marvinroger/async-mqtt-client)
 
 Hardware Ideas:
 - Reset (SW-)button to use default configuration (open AP...)
@@ -29,4 +27,4 @@ Sources:
 - MqTT Server for ESP8266: https://github.com/FrancescoBaroneItaly/ME-MqTT-Server-for-ESP8266
   - Necessary to install certain libraries. They will show up as errors while building :D
   - Tutorial: http://bartech.mybluemix.net/2017/07/19/me-project-setup-mqtt-server-instance-on-esp8266/#more-828
-  - SPIFF layout change (untested) http://docs.platformio.org/en/latest/platforms/espressif8266.html#custom-flash-size
+- async MqTT Client used in MQTTClientAsync: (https://github.com/marvinroger/async-mqtt-client)
