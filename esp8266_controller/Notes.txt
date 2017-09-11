@@ -1,15 +1,8 @@
 TODO:
-- find issue for curious serial output at startup
-- use speed for movement :-D
-- check spooling speed and spooledDistance.. looks not right actually
-
-- website to print serial debug output
+- write code for spooling speed
 
 - Change AnchorPos through web interface
 - Set Gondola position through web interface
-
-- client connects take a long time... -> maybe use async client from library (https://github.com/me-no-dev/ESPAsyncTCP/blob/master/src/ESPAsyncTCP.h)
-- connectionMgr.reset() after configReset
 
 - State machine? Init->Wait4WiFi->Wait4MqTT
 - use json? - JSON writer (https://github.com/maxpowel/ArduinoJsonWriter/blob/master/JsonWriter.cpp)
@@ -36,3 +29,4 @@ Sources:
 Actual libraries:
 - PubSubClient
 - AsyncMqttClient (https://github.com/marvinroger/async-mqtt-client)
+ - 11.09.2017: Client recieves multiple messages and crashes.

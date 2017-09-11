@@ -83,6 +83,11 @@ public:
    */
   void loop();
 
+  /**
+   * Reset all connections
+   */
+  static void reset();
+
 private:
   /**
    * Constructor

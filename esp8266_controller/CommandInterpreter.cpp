@@ -3,6 +3,7 @@
 #include "Config.hpp"
 #include <Arduino.h>
 #include <string.h>
+#include "ConnectionMgr.hpp"
 
 CommandInterpreter *CommandInterpreter::s_Instance = NULL;
 
@@ -136,5 +137,7 @@ void CommandInterpreter::configResetCommand(std::string &s)
 {
   logDebug("CI: configResetCommand\n");
   Config::resetConfig();
-  logWarning("Some changes need a manual reboot!\n");
+  logWarning("ConnectionMgr will reset now!\n");
+  ConnectionMgr::reset();
+  logWarning("Done.\n");
 }

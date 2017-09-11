@@ -40,6 +40,8 @@ ConnectionMgr::ConnectionMgr()
 ConnectionMgr::~ConnectionMgr()
 {
   CommandInterpreter::get()->deleteCommand(std::string("contype"));
+  delete(m_Connection);
+  delete(m_MqTTService);
   s_Instance = NULL;
 }
 
@@ -202,4 +204,11 @@ void ConnectionMgr::contypeCommand(std::string &s)
       }
       break;
   }
+}
+
+void ConnectionMgr::reset()
+{
+  delete(s_Instance);
+  s_Instance = NULL;
+  ConnectionMgr::get();
 }

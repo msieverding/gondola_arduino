@@ -98,18 +98,34 @@ void Anchor::endStep()
 
 void Anchor::move()
 {
+  static bool init = false;
+  static uint32_t time = 0;
   // TODO find possibility to decrease speed
   if (m_StepsTodo == 0)
   {
+    init = false;
     // logDebug("No steps todo\n");
     return;
   }
+  if (!init)
+  {
+    init = true;
+    time = millis();
+  }
+
   startStep();
-  delay(STEP_DELAY / 1000);
+  delayMicroseconds(STEP_DELAY);
   endStep();
-  delay(STEP_DELAY / 1000);
+  // TODO second delay necessary?
+  // TODO check speed
   m_StepsTodo--;
   m_CurrentSpooledDistance += m_Direction * ( 1 / STEP_CM / MICROSTEPS);
+
+  if (millis() >= time)
+  {
+    time += 1000;
+    logDebug("Time %d - CurrentSpooledDistance:'%s'\n", millis(), floatToString(m_CurrentSpooledDistance).c_str());
+  }
 }
 
 float Anchor::roundPrecision(float f, float precision)
