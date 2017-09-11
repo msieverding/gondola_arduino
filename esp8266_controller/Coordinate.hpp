@@ -28,13 +28,6 @@ public:
   Coordinate(float _x, float _y, float _z);
 
   /**
-   * Get component of coordinate as string
-   * @param  comp 'x', 'y' or 'z' to get a component of the coordinate
-   * @return      'comp' as string
-   */
-  std::string compToString(char comp);
-
-  /**
    * Get whole coordinate as string
    * @return String with coordinate
    */

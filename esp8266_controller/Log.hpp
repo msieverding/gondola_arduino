@@ -15,6 +15,7 @@ void logWarning(const char *format, ...);
 void logDebug(const char *format, ...);
 void logInfo(const char *format, ...);
 
-std::string FloatToString(float f);
+std::string floatToString(float f);
+float stringtoFloat(std::string s);
 
 #endif /* _LOG_HPP_ */

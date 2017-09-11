@@ -3,7 +3,6 @@
 #include "Log.hpp"
 #include <functional>
 
-
 MQTTClient::MQTTClient()
  : m_WiFiClient()
  , m_MqTTClient(m_WiFiClient)
@@ -47,7 +46,8 @@ void MQTTClient::reconnect()
   }
   else
   {
-    logDebug("failed, rc=%d. Try again in 5 seconds\n", m_MqTTClient.state());
+    int response = m_MqTTClient.state();
+    logDebug("failed, '%s' (=%d). Try again in 5 seconds\n", responseToString(response).c_str(), response);
     // Wait 5 seconds before retrying
     nextTry = millis() + 5000;
   }
@@ -56,30 +56,87 @@ void MQTTClient::reconnect()
 void MQTTClient::callback(char* topic, byte* payload, unsigned int length)
 {
   std::string topicS(topic);
-  logDebug("***************Message arrived [%s] ", topicS.c_str());
+  std::string message;
 
-  for (unsigned int i = 0; i < length; i++)
+  for (uint16_t i = 0; i < length; i++)
   {
-    logDebug("%u", payload[i]);
+    message.push_back(static_cast<char>(payload[i]));
   }
-  logDebug("\n");
 
-  if (topicS.compare("gondola/move") == 0 && length == 4 * sizeof(float))
+  logDebug("***************Message arrived! Topic='%s', length=%u, content:'%s'\n", topicS.c_str(), length, message.c_str());
+
+  // TODO length is only valid for strings... due to implementation of server...
+  if (topicS.compare("gondola/move") == 0)
   {
-    callbackGondolaMove(payload);
+    callbackGondolaMove(message);
   }
 }
 
-void MQTTClient::callbackGondolaMove(byte *payload)
+void MQTTClient::callbackGondolaMove(std::string &msg)
 {
   Coordinate newPos;
   float speed;
 
-  float *pPayload = reinterpret_cast<float *>(payload);
-  newPos.x = pPayload[0];
-  newPos.y = pPayload[1];
-  newPos.z = pPayload[2];
-  speed = pPayload[3];
+  uint16_t posx = msg.find("x");
+  uint16_t posy = msg.find("y");
+  uint16_t posz = msg.find("z");
+  uint16_t poss = msg.find("s");
 
+  if (posx == std::string::npos || posy == std::string::npos || posz == std::string::npos || poss == std::string::npos)
+    return;
+
+  std::string s = msg.substr(posx + 2, posy);
+  newPos.x = stringtoFloat(s);
+  logDebug("str = '%s'\n", s.c_str());
+  s = msg.substr(posy + 2, posz);
+  newPos.y = stringtoFloat(s);
+  logDebug("str = '%s'\n", s.c_str());
+  s = msg.substr(posz + 2, poss);
+  newPos.z = stringtoFloat(s);
+  logDebug("str = '%s'\n", s.c_str());
+  s = msg.substr(poss + 2);
+  speed = stringtoFloat(s);
+  logDebug("str = '%s'\n", s.c_str());
+
+  logDebug("Set new Target position: %s with speed %s", newPos.toString().c_str(), floatToString(speed).c_str());
   m_Anchor->setTargetPosition(newPos, speed);
+}
+
+std::string MQTTClient::responseToString(int response)
+{
+  switch(response)
+  {
+    case MQTT_CONNECTION_TIMEOUT:
+      return std::string("Connection timeout");
+      break;
+    case MQTT_CONNECTION_LOST:
+      return std::string("Connection lost");
+      break;
+    case MQTT_CONNECT_FAILED:
+      return std::string("Connect failed");
+      break;
+    case MQTT_DISCONNECTED:
+      return std::string("MqTT disconnected");
+      break;
+    case MQTT_CONNECTED:
+      return std::string("MqTT connected");
+      break;
+    case MQTT_CONNECT_BAD_PROTOCOL:
+      return std::string("Connected bad protocoll");
+      break;
+    case MQTT_CONNECT_BAD_CLIENT_ID:
+      return std::string("Connected bad client id");
+      break;
+    case MQTT_CONNECT_UNAVAILABLE:
+      return std::string("Connect unavailable");
+      break;
+    case MQTT_CONNECT_BAD_CREDENTIALS:
+      return std::string("Connect bad credentials");
+      break;
+    case MQTT_CONNECT_UNAUTHORIZED:
+      return std::string("Connect unauthorized");
+      break;
+    default:
+      return std::string("");
+  }
 }

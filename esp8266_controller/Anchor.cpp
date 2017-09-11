@@ -45,7 +45,7 @@ void Anchor::setTargetPosition(Coordinate gondolaTargetPos, float speed)
   if (distanceTodo == 0)
     return;
 
-  logDebug("Spooled: %scm, Delta: %scm\n", FloatToString(m_CurrentSpooledDistance).c_str(), FloatToString(distanceTodo).c_str());
+  logDebug("Spooled: %scm, Delta: %scm\n", floatToString(m_CurrentSpooledDistance).c_str(), floatToString(distanceTodo).c_str());
 
   if (distanceTodo < 0)
   {
@@ -66,7 +66,7 @@ void Anchor::setTargetPosition(Coordinate gondolaTargetPos, float speed)
   // calculate number of steps todo
   m_StepsTodo = distanceTodo * STEP_CM;
 
-  logDebug("Rounded to (%scm): %scm, steps: %ld, microsteps: %ld\n", FloatToString(MIN_PRECISION).c_str(), FloatToString(distanceTodo).c_str(), m_StepsTodo, m_StepsTodo * MICROSTEPS);
+  logDebug("Rounded to (%scm): %scm, steps: %ld, microsteps: %ld\n", floatToString(MIN_PRECISION).c_str(), floatToString(distanceTodo).c_str(), m_StepsTodo, m_StepsTodo * MICROSTEPS);
 
   m_StepsTodo *= MICROSTEPS; // we need to account for all microsteps
 }

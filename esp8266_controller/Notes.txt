@@ -9,6 +9,10 @@ TODO:
 - Set Gondola position through web interface
 
 - client connects take a long time... -> maybe use async client from library (https://github.com/me-no-dev/ESPAsyncTCP/blob/master/src/ESPAsyncTCP.h)
+- connectionMgr.reset() after configReset
+
+- State machine? Init->Wait4WiFi->Wait4MqTT
+- use json? - JSON writer (https://github.com/maxpowel/ArduinoJsonWriter/blob/master/JsonWriter.cpp)
 
 Hardware Ideas:
 - Reset (SW-)button to use default configuration (open AP...)
@@ -28,3 +32,7 @@ Sources:
   - Necessary to install certain libraries. They will show up as errors while building :D
   - Tutorial: http://bartech.mybluemix.net/2017/07/19/me-project-setup-mqtt-server-instance-on-esp8266/#more-828
 - async MqTT Client used in MQTTClientAsync: (https://github.com/marvinroger/async-mqtt-client)
+
+Actual libraries:
+- PubSubClient
+- AsyncMqttClient (https://github.com/marvinroger/async-mqtt-client)

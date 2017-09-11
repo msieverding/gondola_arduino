@@ -16,7 +16,8 @@ public:
 private:
   void reconnect();
   void callback(char* topic, byte* payload, unsigned int length);
-  void callbackGondolaMove(byte *payload);
+  void callbackGondolaMove(std::string &msg);
+  std::string responseToString(int response);
 
   WiFiClient    m_WiFiClient;
   PubSubClient  m_MqTTClient;

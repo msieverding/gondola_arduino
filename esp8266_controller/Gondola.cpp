@@ -51,7 +51,7 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
   // TODO implement protocoll for moving/ready state of the anchors
   m_CurrentPosition = m_TargetPosition = targetPos;
   m_Speed = speed;
-  logDebug("setTargetPosition\n");
+  logDebug("check m_MoveCommand\n");
   if (m_MoveCommand)
   {
     logDebug("exec m_MoveCommand\n");

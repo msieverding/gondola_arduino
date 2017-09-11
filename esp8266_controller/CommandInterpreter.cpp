@@ -63,7 +63,7 @@ void CommandInterpreter::interprete(std::string &s)
   }
   if (!done)
   {
-    logWarning("Command '%s' not registered. Try help for a list of registered commands\n", s.c_str());
+    logInfo("Command '%s' not registered. Try help for a list of registered commands\n", s.c_str());
   }
 }
 

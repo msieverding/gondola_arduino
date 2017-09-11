@@ -335,13 +335,13 @@ void WebServer::prepareGondolaMovePage(std::string &s)
     s.append("New position:");
     s.append("<form>");
     s.append("<label for=\"x\">X:");
-    s.append("<input type=\"text\" id=\"x\" name=\"x\" value=\"" + coord.compToString('x') + "\">");
+    s.append("<input type=\"text\" id=\"x\" name=\"x\" value=\"" + floatToString(coord.x) + "\">");
     s.append("</label>");
     s.append("<label for=\"y\">Y:");
-    s.append("<input type=\"text\" id=\"y\" name=\"y\" value=\"" + coord.compToString('y') + "\">");
+    s.append("<input type=\"text\" id=\"y\" name=\"y\" value=\"" + floatToString(coord.y) + "\">");
     s.append("</label>");
     s.append("<label for=\"z\">Z:");
-    s.append("<input type=\"text\" id=\"z\" name=\"z\" value=\"" + coord.compToString('z') + "\">");
+    s.append("<input type=\"text\" id=\"z\" name=\"z\" value=\"" + floatToString(coord.z) + "\">");
     s.append("</label>");
     s.append("<br><br>");
     s.append("<label for=\"speed\">Speed:");

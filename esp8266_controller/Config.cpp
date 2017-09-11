@@ -97,7 +97,7 @@ Config::Config()
  , MQTT_SERV_PORT(1883)     // Fixed port
  , MQTT_SERV_USER_AUTH(0)   // User authorization is not implemented in MQTTSlave, so it's fixed off
  // MQTT Client
- , MQTT_CLIENT_SERVER("www.gondola.com")
+ , MQTT_CLIENT_SERVER("192.168.5.1")
  , DEBUG_LOG(LOG_INFO)
  , DEBUG_MQTT(1)
 {

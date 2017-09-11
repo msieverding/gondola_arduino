@@ -30,7 +30,6 @@ void MQTTServer::loop()
   m_mqttServer.loop();
 }
 
-
 boolean MQTTServer::mqttCallback(char* queue, byte* payload, unsigned int length)
 {
   // TODO
@@ -41,17 +40,21 @@ boolean MQTTServer::mqttCallback(char* queue, byte* payload, unsigned int length
 
 void MQTTServer::gondolaMove(Coordinate &targetPos, float &speed)
 {
-  logDebug("gondolaMove\n");
+  logDebug("MQTTServer::gondolaMove\n");
 
-  float messageBuf[4];
-  messageBuf[0] = targetPos.x;
-  messageBuf[1] = targetPos.y;
-  messageBuf[2] = targetPos.z;
-  messageBuf[3] = speed;
+  std::string msg;
+  msg.append("x:");
+  msg.append(floatToString(targetPos.x).c_str());
+  msg.append("y:");
+  msg.append(floatToString(targetPos.y).c_str());
+  msg.append("z:");
+  msg.append(floatToString(targetPos.z).c_str());
+  msg.append("s:");
+  msg.append(floatToString(speed).c_str());
 
-  uint8_t *pMessageBuf = reinterpret_cast<uint8_t *>(messageBuf);
+  logDebug("Prepared string:'%s'\n", msg.c_str());
 
-  m_mqttServer.publish("gondola/move", pMessageBuf, 4 * sizeof(float));
+  m_mqttServer.publish("gondola/move", msg.c_str());
 }
 
 void MQTTServer::mqttloglevelCommand(std::string &s)
@@ -70,4 +73,5 @@ void MQTTServer::mqttloglevelCommand(std::string &s)
 
   Config::get()->setDEBUG_MQTT(level);
   m_mqttServer.setloglevel(level);
+  logInfo("OK.");
 }

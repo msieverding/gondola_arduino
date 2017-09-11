@@ -51,8 +51,13 @@ void logInfo(const char *format, ...)
   }
 }
 
-std::string FloatToString(float f)
+std::string floatToString(float f)
 {
   char buf[20];
   return std::string(dtostrf(f, 4, 2, buf));
+}
+
+float stringtoFloat(std::string s)
+{
+  return (float)atof(s.c_str());
 }
