@@ -56,6 +56,15 @@ public:
    */
    void move();
 
+   // TODO docu
+   float getCurrentSpooledDistance();
+
+   // TODO Docu
+   float getTargetSpooledDistance();
+
+   // TODO Docu
+   int getStepsTodo();
+
 private:
 
   /**

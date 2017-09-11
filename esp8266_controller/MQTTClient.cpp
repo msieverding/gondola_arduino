@@ -2,11 +2,15 @@
 #include "Arduino.h"
 #include "Log.hpp"
 #include <functional>
+#include "ConnectionMgr.hpp"
+
+#define STATUS_TIME   5000      // 5 seconds between to status messages
 
 MQTTClient::MQTTClient()
  : m_WiFiClient()
  , m_MqTTClient(m_WiFiClient)
  , m_Anchor(Anchor::get())
+ , m_NextStatus(millis())
 {
   m_MqTTClient.setServer(Config::get()->getMQTT_CLIENT_SERVER().c_str(), 1883);
   m_MqTTClient.setCallback(std::bind(&MQTTClient::callback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
@@ -25,6 +29,11 @@ void MQTTClient::loop()
   }
   m_MqTTClient.loop();
 
+  if (millis() >= m_NextStatus)
+  {
+    m_NextStatus += STATUS_TIME;
+    sendAnchorStatus();
+  }
 }
 
 void MQTTClient::reconnect()
@@ -100,6 +109,26 @@ void MQTTClient::callbackGondolaMove(std::string &msg)
 
   logDebug("Set new Target position: %s with speed %s", newPos.toString().c_str(), floatToString(speed).c_str());
   m_Anchor->setTargetPosition(newPos, speed);
+}
+
+void MQTTClient::sendAnchorStatus(void)
+{
+  std::string message;
+
+  message.append("ip:");
+
+  // TODO what about ip of dual connection?
+  if (ConnectionMgr::get()->getConnectionType() == CON_ACCESS_POINT)
+    message.append(WiFi.softAPIP().toString().c_str());
+  else
+    message.append(WiFi.localIP().toString().c_str());
+
+  message.append("spooledDistance:");
+  message.append(floatToString(m_Anchor->getCurrentSpooledDistance()).c_str());
+  message.append("stepsToDo:");
+  message.append(floatToString(m_Anchor->getStepsTodo()).c_str());
+
+  m_MqTTClient.publish("anchor/status", message.c_str());
 }
 
 std::string MQTTClient::responseToString(int response)

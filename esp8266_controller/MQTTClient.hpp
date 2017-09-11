@@ -17,11 +17,13 @@ private:
   void reconnect();
   void callback(char* topic, byte* payload, unsigned int length);
   void callbackGondolaMove(std::string &msg);
+  void sendAnchorStatus(void);
   std::string responseToString(int response);
 
   WiFiClient    m_WiFiClient;
   PubSubClient  m_MqTTClient;
   Anchor       *m_Anchor;
+  uint32_t      m_NextStatus;
 };
 
 #endif /* _MQTT_CLIENT_HPP_ */

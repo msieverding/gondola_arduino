@@ -13,6 +13,7 @@ MQTTServer::MQTTServer()
   // add callback
   m_mqttServer.setCallback(std::bind(&MQTTServer::mqttCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
   m_mqttServer.setloglevel(Config::get()->getDEBUG_MQTT());
+  m_mqttServer.subscribe("anchor/status", true);
 
   m_Gondola->registerMoveFunction(std::bind(&MQTTServer::gondolaMove, this, std::placeholders::_1, std::placeholders::_2));
 

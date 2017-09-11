@@ -132,3 +132,18 @@ float Anchor::roundPrecision(float f, float precision)
 {
   return round(f * (1.0f / precision)) / (1.0f / precision);
 }
+
+float Anchor::getCurrentSpooledDistance()
+{
+  return m_CurrentSpooledDistance;
+}
+
+float Anchor::getTargetSpooledDistance()
+{
+  return m_TargetSpooledDistance;
+}
+
+int Anchor::getStepsTodo()
+{
+  return m_StepsTodo;
+}
