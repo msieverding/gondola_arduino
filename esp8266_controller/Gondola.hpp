@@ -70,8 +70,8 @@ private:
    * CI Command to move gondola
    * @param s command
    */
-  void moveCommand(std::string &s);
-  
+  bool moveCommand(std::string &s);
+
   // instance
   static Gondola         *s_Instance;
 

@@ -26,7 +26,7 @@ private:
 
   boolean mqttCallback(char* queue, byte* payload, unsigned int length);
 
-  void mqttloglevelCommand(std::string &s);
+  bool mqttloglevelCommand(std::string &s);
 
   ME          m_mqttServer;
   Gondola    *m_Gondola;

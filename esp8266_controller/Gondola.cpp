@@ -2,6 +2,7 @@
 #include "config.hpp"
 #include "Log.hpp"
 #include "Gondola.hpp"
+#include "CommandInterpreter.hpp"
 
 Gondola *Gondola::s_Instance = NULL;
 
@@ -65,7 +66,7 @@ void Gondola::registerMoveFunction(moveFunc func)
   m_MoveCommand = func;
 }
 
-void Gondola::moveCommand(std::string &s)
+bool Gondola::moveCommand(std::string &s)
 {
   CommandInterpreter *CI = CommandInterpreter::get();
   uint8_t args = CI->getNumArgument(s);
@@ -80,7 +81,7 @@ void Gondola::moveCommand(std::string &s)
     logWarning("\ty - float for y coordinate (e.g. 1.0)\n");
     logWarning("\tz - float for z coordinate (e.g. 1.0)\n");
     logWarning("\ts - float for speed (e.g. 1.0)\n");
-    return;
+    return false;
   }
   std::string arg;
   CI->getArgument(s, arg, 0);
@@ -93,4 +94,5 @@ void Gondola::moveCommand(std::string &s)
   speed = atof(arg.c_str());
 
   setTargetPosition(newPosition, speed);
+  return true;
 }

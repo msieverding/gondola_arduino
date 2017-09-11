@@ -2,6 +2,7 @@
 #include <functional>
 #include <string>
 #include "Log.hpp"
+#include "CommandInterpreter.hpp"
 
 MQTTServer::MQTTServer()
  : m_mqttServer("MqTT")
@@ -58,7 +59,7 @@ void MQTTServer::gondolaMove(Coordinate &targetPos, float &speed)
   m_mqttServer.publish("gondola/move", msg.c_str());
 }
 
-void MQTTServer::mqttloglevelCommand(std::string &s)
+bool MQTTServer::mqttloglevelCommand(std::string &s)
 {
   CommandInterpreter *CI = CommandInterpreter::get();
   std::string arg0;
@@ -69,10 +70,10 @@ void MQTTServer::mqttloglevelCommand(std::string &s)
   if (level > 3)
   {
     logWarning("Only log levels 0 - 3 are allowed!\n");
-    return;
+    return false;
   }
 
   Config::get()->setDEBUG_MQTT(level);
   m_mqttServer.setloglevel(level);
-  logInfo("OK.");
+  return true;
 }

@@ -162,48 +162,37 @@ void ConnectionMgr::loop()
   }
 }
 
-void ConnectionMgr::contypeCommand(std::string &s)
+bool ConnectionMgr::contypeCommand(std::string &s)
 {
   CommandInterpreter *CI = CommandInterpreter::get();
-  String arduinoS(s.c_str());
-  std::string arg;
-
   uint8_t args = CI->getNumArgument(s);
 
-  switch(args)
+  if (args == 1)
   {
-    case 0:
-      logWarning("Unsupported!\n");
-      logWarning("Usage: contype type\n");
-      logWarning("type - type of new connection\n");
-      logWarning("\tAP\t- Access Point\n");
-      logWarning("\tWIFI\t- Connect to a WiFi network\n");
-      break;
-
-    case 1:
-      CI->getArgument(s, arg, 0);
-      if (arg.compare("WIFI") == 0)
-      {
-        changeConnection(CON_WIFI_CONNECTION);
-      }
-      else if (arg.compare("AP") == 0)
-      {
-        changeConnection(CON_ACCESS_POINT);
-      }
-      else if (arg.compare("DUAL") == 0)
-      {
-        changeConnection(CON_DUAL_CONNECTION);
-      }
-      else
-      {
-        logWarning("Unsupported!\n");
-        logWarning("Types are:\n");
-        logWarning("\tAP\t- Access Point\n");
-        logWarning("\tWIFI\t- Connect to a WiFi network\n");
-        logWarning("\tDUAL\t- Connect to a WiFi network and open access point\n");
-      }
-      break;
+    std::string arg;
+    CI->getArgument(s, arg, 0);
+    if (arg.compare("WIFI") == 0)
+    {
+      changeConnection(CON_WIFI_CONNECTION);
+      return true;
+    }
+    else if (arg.compare("AP") == 0)
+    {
+      changeConnection(CON_ACCESS_POINT);
+      return true;
+    }
+    else if (arg.compare("DUAL") == 0)
+    {
+      changeConnection(CON_DUAL_CONNECTION);
+      return true;
+    }
   }
+  logWarning("Unsupported!\n");
+  logWarning("Types are:\n");
+  logWarning("\tAP\t- Access Point\n");
+  logWarning("\tWIFI\t- Connect to a WiFi network\n");
+  logWarning("\tDUAL\t- Connect to a WiFi network and open access point\n");
+  return false;
 }
 
 void ConnectionMgr::reset()

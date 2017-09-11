@@ -4,7 +4,6 @@
 #include <string>
 #include "Coordinate.hpp"
 #include <IPAddress.h>
-#include "CommandInterpreter.hpp"
 
 // Forward declaration of connectionType_t from ConnectionMgr
 enum connectionType_s : byte;
@@ -71,8 +70,6 @@ private:
    * private constrcutor
    */
   Config();
-
-  CommandInterpreter::commandFunc   m_Command;
 
 public:
   // WiFi Connection

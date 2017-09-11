@@ -14,7 +14,7 @@ public:
   /**
    * Type of a command function
    */
-  typedef std::function<void(std::string&)> commandFunc;
+  typedef std::function<bool(std::string&)> commandFunc;
 
   /**
    * Structure for a single ended list of all registered commands
@@ -89,13 +89,13 @@ private:
    * CI Command to get help
    * @param s command
    */
-  void helpCommand(std::string &s);
+  bool helpCommand(std::string &s);
 
   /**
    * Command to reset the config with serial input
    * @param s line to interprete
    */
-  void configResetCommand(std::string &s);
+  bool configResetCommand(std::string &s);
 
   // instance
   static CommandInterpreter  *s_Instance;         //!< Instance of singleton

@@ -37,7 +37,7 @@ private:
    * CI Command to change log level
    * @param s command
    */
-  void loglevelCommand(std::string &s);
+  bool loglevelCommand(std::string &s);
 
   // instance
   static SerialConnection    *s_Instance;           //!< instance of singleton

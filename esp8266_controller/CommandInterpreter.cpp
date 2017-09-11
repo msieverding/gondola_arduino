@@ -57,8 +57,15 @@ void CommandInterpreter::interprete(std::string &s)
     {
       if (it->func)
       {
-        it->func(s);
+        bool ret;
+        ret = it->func(s);
+        if (ret == false)
+          logWarning("Fail.\n");
+        else
+          logInfo("Success.\n");
         done = true;
+        // Don't brake here
+        // Maybe there is more than one function inside the list!
       }
     }
   }
@@ -124,20 +131,22 @@ uint8_t CommandInterpreter::getNumArgument(std::string &s)
   }
 }
 
-void CommandInterpreter::helpCommand(std::string &s)
+bool CommandInterpreter::helpCommand(std::string &s)
 {
   logInfo("Registered commands:\n");
   for (std::list<command_t>::iterator it = m_CommandList.begin(); it != m_CommandList.end(); it++)
   {
     logInfo("%s\n", it->command.c_str());
   }
+  return true;
 }
 
-void CommandInterpreter::configResetCommand(std::string &s)
+bool CommandInterpreter::configResetCommand(std::string &s)
 {
   logDebug("CI: configResetCommand\n");
   Config::resetConfig();
   logWarning("ConnectionMgr will reset now!\n");
   ConnectionMgr::reset();
   logWarning("Done.\n");
+  return true;
 }

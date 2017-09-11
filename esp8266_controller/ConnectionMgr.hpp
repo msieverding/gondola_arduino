@@ -98,7 +98,7 @@ private:
    * Serial command to change the connection
    * @param s serial input with all commandword and all arguments
    */
-  void contypeCommand(std::string &s);
+  bool contypeCommand(std::string &s);
 
   // instance
   static ConnectionMgr         *s_Instance;                 //!< instance of singleton

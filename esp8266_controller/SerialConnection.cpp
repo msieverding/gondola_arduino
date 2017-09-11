@@ -59,26 +59,31 @@ void SerialConnection::loop()
   }
 }
 
-void SerialConnection::loglevelCommand(std::string &s)
+bool SerialConnection::loglevelCommand(std::string &s)
 {
   CommandInterpreter *CI = CommandInterpreter::get();
   std::string arg0;
   CI->getArgument(s, arg0, 0);
-  if (arg0.compare("info") == 0)
+  if (CI->getNumArgument(s) == 1)
   {
-    setLogLevel(LOG_INFO);
+    if (arg0.compare("info") == 0)
+    {
+      setLogLevel(LOG_INFO);
+      return true;
+    }
+    else if (arg0.compare("debug") == 0)
+    {
+      setLogLevel(LOG_DEBUG);
+      return true;
+    }
+    else if (arg0.compare("warning") == 0)
+    {
+      setLogLevel(LOG_WARNING);
+      return true;
+    }
   }
-  else if (arg0.compare("debug") == 0)
-  {
-    setLogLevel(LOG_DEBUG);
-  }
-  else if (arg0.compare("warning") == 0)
-  {
-    setLogLevel(LOG_WARNING);
-  }
-  else
-  {
-    logWarning("Unsupported!\n");
-    logWarning("Usage: loglevel level\nLevels:\n\twarning\t only warnings are displayed\n\tinfo\t additional information is displayed\n\tdebug\t addtitional debug output is provided\n");
-  }
+  
+  logWarning("Unsupported!\n");
+  logWarning("Usage: loglevel level\nLevels:\n\twarning\t only warnings are displayed\n\tinfo\t additional information is displayed\n\tdebug\t addtitional debug output is provided\n");
+  return false;
 }
