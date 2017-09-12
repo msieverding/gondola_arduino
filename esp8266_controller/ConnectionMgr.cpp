@@ -5,10 +5,12 @@
 #include "DualConnection.hpp"
 #include "CommandInterpreter.hpp"
 #include "Log.hpp"
-#include "IMQTTService.hpp"
-#include "MQTTServer.hpp"
-#include "MQTTClient.hpp"
-#include "MQTTClientAsync.hpp"
+// #include "IMQTTService.hpp"
+// #include "MQTTServer.hpp"
+// #include "MQTTClient.hpp"
+// #include "MQTTClientAsync.hpp"
+#include "WebSocketServer.hpp"
+#include "WebSocketClient.hpp"
 
 ConnectionMgr *ConnectionMgr::s_Instance = NULL;
 
@@ -21,27 +23,37 @@ ConnectionMgr *ConnectionMgr::get()
 }
 
 ConnectionMgr::ConnectionMgr()
+  // Connection
  : m_ConnectionType(Config::get()->getCM_CONNECTIONTYPE())
  , m_ChangeConnectionType(CON_NONE)
  , m_ChangeConnectionRequest(false)
- , m_MqTTType(Config::get()->getCM_MQTTTYPE())
- , m_changeMqTTType(MQTT_NONE)
- , m_ChangeMqTTRequest(false)
  , m_Connection(NULL)
+ // // MqTT
+ // , m_MqTTType(Config::get()->getCM_MQTTTYPE())
+ // , m_changeMqTTType(MQTT_NONE)
+ // , m_ChangeMqTTRequest(false)
+ // , m_MqTTService(NULL)
+ // WebSocket
+ , m_WebSocketType(Config::get()->getCM_WEBSOCKETTYPE())
+ , m_ChangeWebSocketType(WEBSOCKET_NONE)
+ , m_ChangeWebSocketRequest(false)
+ , m_WebSocket(NULL)
+ // WebServer
  , m_WebServer(Config::get()->getWS_PORT())
- , m_MqTTService(NULL)
 {
   CommandInterpreter::get()->addCommand(std::string("contype"), std::bind(&ConnectionMgr::contypeCommand, this, std::placeholders::_1));
 
   changeConnection(m_ConnectionType);
-  changeMqTTType(m_MqTTType);
+  // changeMqTTType(m_MqTTType);
+  changeWebSocket(m_WebSocketType);
 }
 
 ConnectionMgr::~ConnectionMgr()
 {
   CommandInterpreter::get()->deleteCommand(std::string("contype"));
   delete(m_Connection);
-  delete(m_MqTTService);
+  // delete(m_MqTTService);
+  delete(m_WebSocket);
   s_Instance = NULL;
 }
 
@@ -95,48 +107,77 @@ connectionType_t ConnectionMgr::getConnectionType()
   return m_ConnectionType;
 }
 
-void ConnectionMgr::changeMqTTType(mqttType_t mqttType)
-{
-  m_MqTTType = mqttType;
+// void ConnectionMgr::changeMqTTType(mqttType_t mqttType)
+// {
+//   m_MqTTType = mqttType;
+//
+//   if (m_MqTTService != NULL)
+//   {
+//     delete(m_MqTTService);
+//     m_MqTTService = NULL;
+//   }
+//
+//   switch (m_MqTTType)
+//   {
+//     case MQTT_SERVER:
+//       m_MqTTService = new MQTTServer();
+//       break;
+//
+//     case MQTT_CLIENT:
+//       m_MqTTService = new MQTTClient();
+//       break;
+//
+//     case MQTT_CLIENT_ASYNC:
+//       m_MqTTService = new MQTTClientAsync();
+//       break;
+//
+//     case MQTT_NONE:
+//       break;
+//
+//     default:
+//       logWarning("Requested wrong MqTT service!\n");
+//       break;
+//   }
+// }
+//
+// void ConnectionMgr::requestChangeMqTTType(mqttType_t mqttType)
+// {
+//   m_changeMqTTType = mqttType;
+//   m_ChangeMqTTRequest = true;
+// }
+//
+// mqttType_t ConnectionMgr::getMqTTType()
+// {
+//   return m_MqTTType;
+// }
 
-  if (m_MqTTService != NULL)
+void ConnectionMgr::changeWebSocket(webSocketType_t webSocketType)
+{
+  m_WebSocketType = webSocketType;
+
+  if (m_WebSocket != NULL)
   {
-    delete(m_MqTTService);
-    m_MqTTService = NULL;
+    delete(m_WebSocket);
+    m_WebSocket = NULL;
   }
 
-  switch (m_MqTTType)
+  switch (m_WebSocketType)
   {
-    case MQTT_SERVER:
-      m_MqTTService = new MQTTServer();
+    case WEBSOCKET_SERVER:
+      m_WebSocket = new WebSocketServer(Config::get()->getWSO_PORT());
       break;
 
-    case MQTT_CLIENT:
-      m_MqTTService = new MQTTClient();
+    case WEBSOCKET_CLIENT:
+      m_WebSocket = new WebSocketClient(Config::get()->getWSO_HOST(), Config::get()->getWSO_PORT());
       break;
 
-    case MQTT_CLIENT_ASYNC:
-      m_MqTTService = new MQTTClientAsync();
-      break;
-
-    case MQTT_NONE:
+    case WEBSOCKET_NONE:
       break;
 
     default:
-      logWarning("Requested wrong MqTT service!\n");
+      logWarning("Requested wrong WebSocket type\n");
       break;
   }
-}
-
-void ConnectionMgr::requestChangeMqTTType(mqttType_t mqttType)
-{
-  m_changeMqTTType = mqttType;
-  m_ChangeMqTTRequest = true;
-}
-
-mqttType_t ConnectionMgr::getMqTTType()
-{
-  return m_MqTTType;
 }
 
 void ConnectionMgr::loop()
@@ -146,8 +187,11 @@ void ConnectionMgr::loop()
 
   m_WebServer.loop();
 
-  if (m_MqTTService)
-    m_MqTTService->loop();
+  // if (m_MqTTService)
+  //   m_MqTTService->loop();
+
+  if (m_WebSocket)
+    m_WebSocket->loop();
 
   if (m_ChangeConnectionRequest)
   {
@@ -155,11 +199,11 @@ void ConnectionMgr::loop()
     changeConnection(m_ChangeConnectionType);
   }
 
-  if (m_ChangeMqTTRequest)
-  {
-    m_ChangeMqTTRequest = false;
-    changeMqTTType(m_changeMqTTType);
-  }
+  // if (m_ChangeMqTTRequest)
+  // {
+  //   m_ChangeMqTTRequest = false;
+  //   changeMqTTType(m_changeMqTTType);
+  // }
 }
 
 bool ConnectionMgr::contypeCommand(std::string &s)
@@ -173,17 +217,26 @@ bool ConnectionMgr::contypeCommand(std::string &s)
     CI->getArgument(s, arg, 0);
     if (arg.compare("WIFI") == 0)
     {
+      Config::get()->setCM_CONNECTIONTYPE(CON_WIFI_CONNECTION);
       changeConnection(CON_WIFI_CONNECTION);
       return true;
     }
     else if (arg.compare("AP") == 0)
     {
+      Config::get()->setCM_CONNECTIONTYPE(CON_ACCESS_POINT);
       changeConnection(CON_ACCESS_POINT);
       return true;
     }
     else if (arg.compare("DUAL") == 0)
     {
+      Config::get()->setCM_CONNECTIONTYPE(CON_DUAL_CONNECTION);
       changeConnection(CON_DUAL_CONNECTION);
+      return true;
+    }
+    else if (arg.compare("NONE") == 0)
+    {
+      Config::get()->setCM_CONNECTIONTYPE(CON_NONE);
+      changeConnection(CON_NONE);
       return true;
     }
   }
@@ -192,6 +245,7 @@ bool ConnectionMgr::contypeCommand(std::string &s)
   logWarning("\tAP\t- Access Point\n");
   logWarning("\tWIFI\t- Connect to a WiFi network\n");
   logWarning("\tDUAL\t- Connect to a WiFi network and open access point\n");
+  logWarning("\tNONE\t- No WiFi connection\n");
   return false;
 }
 

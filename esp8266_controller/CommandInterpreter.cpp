@@ -60,9 +60,9 @@ void CommandInterpreter::interprete(std::string &s)
         bool ret;
         ret = it->func(s);
         if (ret == false)
-          logWarning("Fail.\n");
+          logWarning("CI: Fail.\n");
         else
-          logInfo("Success.\n");
+          logInfo("CI: Success.\n");
         done = true;
         // Don't brake here
         // Maybe there is more than one function inside the list!

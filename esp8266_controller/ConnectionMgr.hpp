@@ -4,7 +4,8 @@
 #include "IConnection.hpp"
 #include "SerialConnection.hpp"
 #include "WebServer.hpp"
-#include "IMQTTService.hpp"
+// #include "IMQTTService.hpp"
+#include "IWebSocket.hpp"
 
 /**
  * Enumeration for all possible connections
@@ -16,15 +17,24 @@ typedef enum connectionType_s : byte {
   CON_NONE                              //!< No connection
 } connectionType_t;
 
+// /**
+//  * Enumeration for all possible mqtt types
+//  */
+// typedef enum mqttType_s : byte {
+//   MQTT_SERVER,                          //!< Act as a MQTT Server
+//   MQTT_CLIENT,                          //!< Act as a MQTT Client
+//   MQTT_CLIENT_ASYNC,                    //!< Act as an asynchronous MQTT Client
+//   MQTT_NONE                             //!< Don't provide a MqTT service
+// } mqttType_t;
+
 /**
- * Enumeration for all possible server types
+ * Enumeration for all possible WebSocket types
  */
-typedef enum mqttType_s : byte {
-  MQTT_SERVER,                          //!< Act as a MQTT Server
-  MQTT_CLIENT,                          //!< Act as a MQTT Client
-  MQTT_CLIENT_ASYNC,                    //!< Act as an asynchronous MQTT Client
-  MQTT_NONE                             //!< Don't provide a MqTT service
-} mqttType_t;
+typedef enum webSocketType_s : byte {
+  WEBSOCKET_SERVER,                          //!< Open a WebSocketServer
+  WEBSOCKET_CLIENT,                          //!< Connect to a given WebSocketServer
+  WEBSOCKET_NONE                             //!< Don't provide a WebSocket
+} webSocketType_t;
 
 /**
  * Class to manage the connection of the chip
@@ -60,21 +70,28 @@ public:
   // TODO docu
   connectionType_t getConnectionType();
 
-  /**
-   * Change the type of the provided mqtt service
-   * @param mqttType mqtt service to provide
-   */
-  void changeMqTTType(mqttType_t mqttType);
+  // /**
+  //  * Change the type of the provided mqtt service
+  //  * @param mqttType mqtt service to provide
+  //  */
+  // void changeMqTTType(mqttType_t mqttType);
+  //
+  // /**
+  //  * Request a change of the provided mqtt ervice
+  //  * Change will be handled dring next loop() execution
+  //  * @param mqttType Type of WebServer to provide
+  //  */
+  // void requestChangeMqTTType(mqttType_t mqttType);
+  //
+  // // TODO DOKU
+  // mqttType_t getMqTTType();
 
   /**
-   * Request a change of the provided mqtt ervice
-   * Change will be handled dring next loop() execution
-   * @param mqttType Type of WebServer to provide
+   * Change the type of the WebSocket
+   * @param  webSocketType type of new WebSocket
    */
-  void requestChangeMqTTType(mqttType_t mqttType);
+  void changeWebSocket(webSocketType_t webSocketType);
 
-  // TODO DOKU
-  mqttType_t getMqTTType();
 
   /**
    * Call loop() frequently to handle change requests
@@ -104,15 +121,23 @@ private:
   static ConnectionMgr         *s_Instance;                 //!< instance of singleton
 
   // memvervariables
+  // Connection
   connectionType_t              m_ConnectionType;           //!< type of connection to provide
   connectionType_t              m_ChangeConnectionType;     //!< type of connection to change to
   bool                          m_ChangeConnectionRequest;  //!< indicates a request to change the connection
-  mqttType_t                    m_MqTTType;                 //!< type of mqtt service
-  mqttType_t                    m_changeMqTTType;           //!< type of mqtt service to change to
-  bool                          m_ChangeMqTTRequest;        //!< indicates a request to change the mqtt service
   IConnection                  *m_Connection;               //!< Pointer to current connection
+ // // MqTT
+  // mqttType_t                    m_MqTTType;                 //!< type of mqtt service
+  // mqttType_t                    m_changeMqTTType;           //!< type of mqtt service to change to
+  // bool                          m_ChangeMqTTRequest;        //!< indicates a request to change the mqtt service
+  // IMQTTService                 *m_MqTTService;              //!< Pointer to current MqTT Service
+ // WebSocket
+  webSocketType_t               m_WebSocketType;            // TODO
+  webSocketType_t               m_ChangeWebSocketType;      // TODO
+  bool                          m_ChangeWebSocketRequest;   // TODO
+  IWebSocket                   *m_WebSocket;                //!< WebSocket to provide
+ // WebServer
   WebServer                     m_WebServer;                //!< Pointer to current WebServer
-  IMQTTService                 *m_MqTTService;              //!< Pointer to current MqTT Service
 };
 
 #endif /* _CONNECTION_MGR_HPP_ */

@@ -8,9 +8,12 @@
 // Forward declaration of connectionType_t from ConnectionMgr
 enum connectionType_s : byte;
 typedef enum connectionType_s connectionType_t;
-// Forward declaration of mqttType from ConnectionMgr
-enum mqttType_s : byte;
-typedef enum mqttType_s mqttType_t;
+// // Forward declaration of mqttType from ConnectionMgr
+// enum mqttType_s : byte;
+// typedef enum mqttType_s mqttType_t;
+// Forward declaration of webSocketType_t from ConnectionMgr
+enum webSocketType_s : byte;
+typedef enum webSocketType_s webSocketType_t;
 
 /**
  * Singleton class to store the setup of the application
@@ -111,8 +114,10 @@ public:
   // ConnectionMgr
   void setCM_CONNECTIONTYPE(connectionType_t connectionType);
   connectionType_t getCM_CONNECTIONTYPE() { return CM_CONNECTIONTYPE; }
-  void setCM_MQTTTYPE(mqttType_t mqttType);
-  mqttType_t getCM_MQTTTYPE() { return CM_MQTTTYPE; }
+  // void setCM_MQTTTYPE(mqttType_t mqttType);
+  // mqttType_t getCM_MQTTTYPE() { return CM_MQTTTYPE; }
+  void setCM_WEBSOCKETTYPE(webSocketType_t webSocketType);
+  webSocketType_t getCM_WEBSOCKETTYPE() { return CM_WEBSOCKETTYPE; }
 
   // WebServer
   uint16_t getWS_PORT() { return WS_PORT; }
@@ -133,6 +138,16 @@ public:
   // MQTT Client
   std::string getMQTT_CLIENT_SERVER() { return MQTT_CLIENT_SERVER; }
   void setMQTT_CLIENT_SERVER(std::string serv);
+
+  // WebSocket
+  uint16_t getWSO_PORT() { return WSO_PORT; }
+  void setWSO_PORT(uint16_t port);
+
+  // WebSocketServer
+
+  // WebSocketClient
+  std::string getWSO_HOST() { return WSO_HOST; }
+  void setWSO_HOST(std::string host);
 
   // Debug
   uint8_t getDEBUG_LOG() { return DEBUG_LOG; }
@@ -221,7 +236,8 @@ private:
 
   // ConnectionMgr
   connectionType_t CM_CONNECTIONTYPE;
-  mqttType_t CM_MQTTTYPE;
+  // mqttType_t CM_MQTTTYPE;
+  webSocketType_t CM_WEBSOCKETTYPE;
 
   // WebServer
   uint16_t WS_PORT;
@@ -238,6 +254,14 @@ private:
 
   // MQTT Client
   std::string MQTT_CLIENT_SERVER;
+
+  // WebSocket
+  uint16_t WSO_PORT;
+
+  // WebSocketServer
+
+  // WebSocketClient
+  std::string WSO_HOST;
 
   // DEBUG
   uint8_t DEBUG_LOG;
