@@ -37,11 +37,18 @@ void CommandInterpreter::addCommand(std::string commandWord, commandFunc command
 
 void CommandInterpreter::deleteCommand(std::string commandWord)
 {
-  for (std::list<command_t>::iterator it = m_CommandList.begin(); it != m_CommandList.end(); it++)
+  std::list<command_t>::iterator it = m_CommandList.begin();
+  while (it != m_CommandList.end())
   {
     if (it->command.compare(commandWord) == 0)
     {
-      m_CommandList.erase(it);
+      // Increment first and than delete old one:
+      // https://stackoverflow.com/questions/596162/can-you-remove-elements-from-a-stdlist-while-iterating-through-it
+      m_CommandList.erase(it++);
+    }
+    else
+    {
+      it++;
     }
   }
 }
