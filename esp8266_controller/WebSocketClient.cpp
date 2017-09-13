@@ -8,8 +8,20 @@ WebSocketClient::WebSocketClient(std::string host, uint16_t port)
  , m_WebSocketClient()
  , m_Anchor(Anchor::get())
 {
+  // Start when WiFi is connected
+  // Event for connection changes
+  m_StationGotIPHandler = WiFi.onStationModeGotIP(std::bind(&WebSocketClient::onEventGotIP, this, std::placeholders::_1));
+}
+
+WebSocketClient::~WebSocketClient()
+{
+  m_WebSocketClient.disconnect();
+}
+
+void WebSocketClient::onEventGotIP(const WiFiEventStationModeGotIP &event)
+{
   logDebug("Started WebSocketClient\n");
-	// server address, port and URL
+  // server address, port and URL
 	m_WebSocketClient.begin(m_Host.c_str(), m_Port, "/");
 
 	// event handler
@@ -21,12 +33,7 @@ WebSocketClient::WebSocketClient(std::string host, uint16_t port)
 	// try ever 5000 again if connection has failed
   m_WebSocketClient.setReconnectInterval(5000);
 
-  // m_Anchor->registerReadyCallback(std::bind(&WebSocketClient::anchorReadyCallback, this));
-}
-
-WebSocketClient::~WebSocketClient()
-{
-  m_WebSocketClient.disconnect();
+  m_Anchor->registerReadyCallback(std::bind(&WebSocketClient::anchorReadyCallback, this));
 }
 
 void WebSocketClient::loop()
@@ -49,7 +56,7 @@ void WebSocketClient::webSocketEvent(WStype_t type, uint8_t * payload, size_t le
 			// send message to server when Connected
 			m_WebSocketClient.sendTXT("Connected");
 
-      byte msg[12 + 1];
+      byte msg[16 + 1];
       uint8_t i = 1;
       floatConverter_t converter;
 
@@ -68,6 +75,12 @@ void WebSocketClient::webSocketEvent(WStype_t type, uint8_t * payload, size_t le
       msg[i++] = converter.b[3];
 
       converter.f = m_Anchor->getAnchorPos().z;
+      msg[i++] = converter.b[0];
+      msg[i++] = converter.b[1];
+      msg[i++] = converter.b[2];
+      msg[i++] = converter.b[3];
+
+      converter.f = m_Anchor->getCurrentSpooledDistance();
       msg[i++] = converter.b[0];
       msg[i++] = converter.b[1];
       msg[i++] = converter.b[2];

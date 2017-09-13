@@ -12,6 +12,8 @@
 
 // TODO Doc
 
+
+
 class WebSocketServer : public IWebSocket
 {
 public:
@@ -21,12 +23,13 @@ public:
 
 private:
   void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length);
-  void remoteAnchorMoveFunction(uint8_t num, anchorInformation_t &anchorInfo);
+  void remoteAnchorMoveFunction(anchorInformation_t &anchorInfo);
 
   // membervariables
   uint16_t                        m_Port;
   WebSocketsServer                m_WebSocketServer;
   Gondola                        *m_Gondola;
+
 };
 
 #endif /* _WEB_SOCKET_SERVER_HPP_ */

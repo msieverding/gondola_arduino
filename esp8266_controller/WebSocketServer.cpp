@@ -36,8 +36,7 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
  {
   case WStype_DISCONNECTED:
     logDebug("[%u] Disconnected!\n", num);
-    // TODO delete clientInformation_t from m_ClientList
-    // TODO also delete anchorInfo_t from m_Gondola->m_AnchorList
+    m_Gondola->deleteAnchor(num);
     break;
 
   case WStype_CONNECTED:
@@ -62,7 +61,7 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
 
     if (cmd == WSO_C_REGISTER)
     {
-      anchorInformation_t anchorInfo;
+      anchorInformation_t anchorInfo(num);
       floatConverter_t converter;
       uint8_t i = 1;
       converter.b[0] = payload[i++];
@@ -90,7 +89,7 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
       anchorInfo.spooledDistance = converter.f;
       anchorInfo.targetSpooledDistance = converter.f;
 
-      anchorInfo.moveFunc = std::bind(&WebSocketServer::remoteAnchorMoveFunction, this, num, std::placeholders::_1);
+      anchorInfo.moveFunc = std::bind(&WebSocketServer::remoteAnchorMoveFunction, this, std::placeholders::_1);
       m_Gondola->addAnchor(anchorInfo);
 
       logDebug("Client registered at position(%s)\n", anchorInfo.anchorPos.toString().c_str());
@@ -98,6 +97,7 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
     else if (cmd == WSO_C_REPORT)
     {
       logDebug("Client '%u' finished moving\n", num);
+      m_Gondola->reportAnchorFinished(num);
     }
     break;
   }
@@ -107,9 +107,9 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
   }
 }
 
-void WebSocketServer::remoteAnchorMoveFunction(uint8_t num, anchorInformation_t &anchorInfo)
+void WebSocketServer::remoteAnchorMoveFunction(anchorInformation_t &anchorInfo)
 {
-  logDebug("WebSocketServer::remoteAnchorMoveFunction:: num:'%u'\n", num);
+  logDebug("WebSocketServer::remoteAnchorMoveFunction:: num:'%u'\n", anchorInfo.id);
   uint8_t i = 1;
   uint8_t payload[8 + 1];
   floatConverter_t converter;
@@ -128,5 +128,5 @@ void WebSocketServer::remoteAnchorMoveFunction(uint8_t num, anchorInformation_t 
   payload[i++] = converter.b[2];
   payload[i++] = converter.b[3];
 
-  m_WebSocketServer.sendBIN(num, payload, i);
+  m_WebSocketServer.sendBIN(anchorInfo.id, payload, i);
 }

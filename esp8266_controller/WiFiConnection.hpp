@@ -45,14 +45,22 @@ private:
    */
   void onEventGotIP(const WiFiEventStationModeGotIP &event);
 
+  // TODO Doc
+  void onEventConnected(const WiFiEventStationModeConnected &event);
+
+  // TODO Doc
+  void onEventDisconnected(const WiFiEventStationModeDisconnected &event);
+
   // Membervariables
-  std::string                m_SSID;                    //!< SSID to connect to
-  std::string                m_Passphrase;              //!< Passphrase to use for the network
-  IPAddress                  m_IPAddress;               //!< IPaddres to use / 0.0.0.0 for DHCP
-  std::string                m_Hostname;                //!< Hostname for this chip
-  IPAddress                  m_Gateway;                 //!< Gateway to use / 0.0.0.0 for DHCP
-  IPAddress                  m_Netmask;                 //!< Netmask to use / 0.0.0.0 for DHCP
-  WiFiEventHandler           m_StationGotIPHandler;     //!< Handler is called, when this station got an IP
+  std::string                m_SSID;                        //!< SSID to connect to
+  std::string                m_Passphrase;                  //!< Passphrase to use for the network
+  IPAddress                  m_IPAddress;                   //!< IPaddres to use / 0.0.0.0 for DHCP
+  std::string                m_Hostname;                    //!< Hostname for this chip
+  IPAddress                  m_Gateway;                     //!< Gateway to use / 0.0.0.0 for DHCP
+  IPAddress                  m_Netmask;                     //!< Netmask to use / 0.0.0.0 for DHCP
+  WiFiEventHandler           m_StationGotIPHandler;         //!< Handler is called, when this station got an IP
+  WiFiEventHandler           m_StationConnectedHandler;     //!< Handler is called, when this station gets connection
+  WiFiEventHandler           m_StationDisconnectedHandler;  //!< Handler is called, when this station looses connection
 };
 
 #endif /* _WIFI_CONNECTION_HPP_ */

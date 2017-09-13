@@ -19,13 +19,14 @@ public:
 private:
   void webSocketEvent(WStype_t type, uint8_t * payload, size_t length);
   void anchorReadyCallback();
-
+  void onEventGotIP(const WiFiEventStationModeGotIP &event);
 
   // membervariables
   std::string             m_Host;
   uint16_t                m_Port;
   WebSocketsClient        m_WebSocketClient;
   Anchor                 *m_Anchor;
+  WiFiEventHandler        m_StationGotIPHandler;     //!< Handler is called, when this station got an IP
 };
 
 #endif /* _WEB_SOCKET_CLIENT_HPP_ */

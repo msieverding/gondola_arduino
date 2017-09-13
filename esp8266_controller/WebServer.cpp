@@ -316,14 +316,13 @@ void WebServer::prepareGondolaMovePage(std::string &s)
   s.append("<html>");
   Coordinate coord = gondola->getCurrentPosition();
 
-  // TODO
-  // if (gondola->getCurrentPosition() != gondola->getTargetPosition())
-  // {
-  //   s.append("<h1>Gondola is moving</h1>");
-  //   s.append("Move from: "+ gondola->getCurrentPosition().toString());
-  //   s.append(" to: "+ gondola->getTargetPosition().toString());
-  // }
-  // else
+  if (gondola->getCurrentPosition() != gondola->getTargetPosition())
+  {
+    s.append("<h1>Gondola is moving</h1>");
+    s.append("Move from: "+ gondola->getCurrentPosition().toString());
+    s.append(" to: "+ gondola->getTargetPosition().toString());
+  }
+  else
   {
     s.append("<br><br>");
     s.append("New position:");

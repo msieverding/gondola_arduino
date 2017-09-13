@@ -39,7 +39,11 @@ void Anchor::setTargetSpooledDistance(float targetDistance, float speed)
   float distanceTodo = m_TargetSpooledDistance - m_CurrentSpooledDistance;
 
   if (distanceTodo == 0)
+  {
+    if (m_ReadyCallback)
+      m_ReadyCallback();
     return;
+  }
 
   logDebug("Spooled: %scm, Delta: %scm\n", floatToString(m_CurrentSpooledDistance).c_str(), floatToString(distanceTodo).c_str());
 
@@ -109,7 +113,7 @@ void Anchor::move()
   {
     return;
   }
-  
+
   if (!init)
   {
     init = true;

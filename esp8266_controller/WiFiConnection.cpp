@@ -29,6 +29,8 @@ WiFiConnection::WiFiConnection(std::string ssid, std::string passphrase, std::st
 
   // Event for connection changes
   m_StationGotIPHandler = WiFi.onStationModeGotIP(std::bind(&WiFiConnection::onEventGotIP, this, std::placeholders::_1));
+  m_StationConnectedHandler = WiFi.onStationModeConnected(std::bind(&WiFiConnection::onEventConnected, this, std::placeholders::_1));
+  m_StationDisconnectedHandler = WiFi.onStationModeDisconnected(std::bind(&WiFiConnection::onEventDisconnected, this, std::placeholders::_1));
 }
 
 WiFiConnection::~WiFiConnection()
@@ -56,11 +58,21 @@ void WiFiConnection::setupMDNS()
 
 void WiFiConnection::onEventGotIP(const WiFiEventStationModeGotIP &event)
 {
-  logInfo("WiFi connection established\n");
+  logInfo("WiFi connection got IP\n");
   m_IPAddress = WiFi.localIP();
   // Print the IP address
   logInfo("Local IP address: %s\n", m_IPAddress.toString().c_str());
 
   // MDNS
   setupMDNS();
+}
+
+void WiFiConnection::onEventConnected(const WiFiEventStationModeConnected &event)
+{
+  logDebug("WiFi connection established\n");
+}
+
+void WiFiConnection::onEventDisconnected(const WiFiEventStationModeDisconnected &event)
+{
+  logDebug("WiFi connection lost\n");
 }
