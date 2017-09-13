@@ -34,27 +34,19 @@
 #define EEPROM_AP_URL_LENGTH            40
 // Placeholder for more features until address 299
 
-#define EEPROM_CM_CONNECTIONTYPE_START  300
-#define EEPROM_CM_MQTTTYPE_START        301
+#define EEPROM_CM_CONNECIONTYPE_START   300
+#define EEPROM_CM_WEBSOCKETTYPE_START   301
 
 #define EEPROM_GO_POSITION_START        302
 #define EEPROM_GO_ANCHORPOS_START       305
 
-// MQTT Server
-
-// MQTT Client
-#define EEPROM_MQTT_CLIENT_SERVER_START 308
-
-#define EEPROM_MQTT_CLIENT_SERVER_LENGTH 20
-
 //Debug
-#define EEPROM_DEBUG_LOG_START          328
-#define EEPROM_DEBUG_MQTT_START         329
+#define EEPROM_DEBUG_LOG_START          308
 
 // Checksum
 #define EEPROM_CHECKSUM_DATA_BEGIN      0
-#define EEPROM_CHECKSUM_DATA_END        329
-#define EEPROM_CHECKSUM_START           330
+#define EEPROM_CHECKSUM_DATA_END        308
+#define EEPROM_CHECKSUM_START           309
 
 Config *Config::s_Instance = NULL;
 
@@ -87,19 +79,12 @@ Config::Config()
  , AP_URL("www.gondola.com")
  // ConnectionMgr Setup
  , CM_CONNECTIONTYPE(CON_ACCESS_POINT)
- // , CM_MQTTTYPE(MQTT_NONE)
  , CM_WEBSOCKETTYPE(WEBSOCKET_NONE)
  // WebServer
  , WS_PORT(80)
  // Gondola
  , GO_POSITION(0.0, 0.0, 0.0)
  , GO_ANCHORPOS(0.0, 0.0, 0.0)
- // MQTT Server
- , MQTT_SERV_DEVICE_NAME("MqTT")
- , MQTT_SERV_PORT(1883)     // Fixed port for simplicity
- , MQTT_SERV_USER_AUTH(0)   // User authorization is not implemented in MQTTSlave, so it's fixed off
- // MQTT Client
- , MQTT_CLIENT_SERVER("192.168.5.1")
  // WebSocket
  , WSO_PORT(443)
  // WebSocketServer
@@ -107,7 +92,6 @@ Config::Config()
  // WebSocketClient
  , WSO_HOST("192.168.5.1")
  , DEBUG_LOG(LOG_INFO)
- , DEBUG_MQTT(1)
 {
   EEPROM.begin(EEPROM_LENGTH);
 }
@@ -137,15 +121,12 @@ bool Config::writeToEEPROM()
   // Access Point Setup
   writeAPToEEPROM(false);
 
-  EEPROM.write(EEPROM_CM_CONNECTIONTYPE_START, static_cast<uint8_t>(CM_CONNECTIONTYPE));
-  // EEPROM.write(EEPROM_CM_MQTTTYPE_START, static_cast<uint8_t>(CM_MQTTTYPE));
+  EEPROM.write(EEPROM_CM_CONNECIONTYPE_START, static_cast<uint8_t>(CM_CONNECTIONTYPE));
+  EEPROM.write(EEPROM_CM_WEBSOCKETTYPE_START, static_cast<uint8_t>(CM_WEBSOCKETTYPE));
 
   writeGOToEEPROM(false);
 
-  persistString(MQTT_CLIENT_SERVER, EEPROM_MQTT_CLIENT_SERVER_START, EEPROM_MQTT_CLIENT_SERVER_LENGTH);
-
   EEPROM.write(EEPROM_DEBUG_LOG_START, DEBUG_LOG);
-  EEPROM.write(EEPROM_DEBUG_MQTT_START, DEBUG_MQTT);
 
   writeChecksum(EEPROM_CHECKSUM_START);
 
@@ -240,16 +221,14 @@ void Config::readFromEEPROM()
   readIPAddress( AP_NETMASK,     EEPROM_AP_NETMASK_START);
   readString(    AP_URL,         EEPROM_AP_URL_START,            EEPROM_AP_URL_LENGTH);
 
-  CM_CONNECTIONTYPE = static_cast<connectionType_t>(EEPROM.read(EEPROM_CM_CONNECTIONTYPE_START));
-  // CM_MQTTTYPE = static_cast<mqttType_t>(EEPROM.read(EEPROM_CM_MQTTTYPE_START));
+  CM_CONNECTIONTYPE = static_cast<connectionType_t>(EEPROM.read(EEPROM_CM_CONNECIONTYPE_START));
+  CM_WEBSOCKETTYPE = static_cast<webSocketType_t>(EEPROM.read(EEPROM_CM_WEBSOCKETTYPE_START));
 
   readCoordinate(GO_POSITION,    EEPROM_GO_POSITION_START);
   readCoordinate(GO_ANCHORPOS,   EEPROM_GO_ANCHORPOS_START);
 
   DEBUG_LOG = EEPROM.read(EEPROM_DEBUG_LOG_START);
-  DEBUG_MQTT = EEPROM.read(EEPROM_DEBUG_MQTT_START);
 
-  readString(MQTT_CLIENT_SERVER, EEPROM_MQTT_CLIENT_SERVER_START, EEPROM_MQTT_CLIENT_SERVER_LENGTH);
   printConfig();
 }
 
@@ -369,20 +348,16 @@ void Config::printConfig(void)
   logDebug("WC_HOSTNAME:        %s\n", WC_HOSTNAME.c_str());
   // ConnectionMgr Setup
   logDebug("CM_CONNECTIONTYPE:  %u\n", static_cast<uint8_t>(CM_CONNECTIONTYPE));
-  // logDebug("CM_MQTTTYPE:        %u\n", CM_MQTTTYPE);
   logDebug("CM_WEBSOCKETTYPE:   %u\n", static_cast<uint8_t>(CM_WEBSOCKETTYPE));
   // WebServer
   logDebug("WS_PORT:            %u\n", WS_PORT);
   // Gondola
   logDebug("GO_POSITION:        %s\n", GO_POSITION.toString().c_str());
   logDebug("GO_ANCHORPOS:       %s\n", GO_ANCHORPOS.toString().c_str());
-  // MQTT Server (not changeable and not relevant)
-  // MQTT Client
-  logDebug("MQTT_CLIENT_SERVER: %s\n", MQTT_CLIENT_SERVER.c_str());
+  // WebSocket
   logDebug("WSO_PORT:           %u\n", WSO_PORT);
   logDebug("WSO_HOST:           %s\n", WSO_HOST.c_str());
   logDebug("DEBUG_LOG:          %u\n", DEBUG_LOG);
-  logDebug("DEBUG_MQTT:         %u\n", DEBUG_MQTT);
 }
 
 // WiFi Connection
@@ -496,11 +471,6 @@ void Config::setCM_CONNECTIONTYPE(connectionType_t connectionType)
   CM_CONNECTIONTYPE = connectionType;
 }
 
-// void Config::setCM_MQTTTYPE(mqttType_t mqttType)
-// {
-//   CM_MQTTTYPE = mqttType;
-// }
-
 void Config::setCM_WEBSOCKETTYPE(webSocketType_t webSocketType)
 {
   CM_WEBSOCKETTYPE = webSocketType;
@@ -515,12 +485,6 @@ void Config::setGO_POSITION(Coordinate position)
 void Config::setGO_ANCHORPOS(Coordinate position)
 {
   GO_ANCHORPOS = position;
-}
-
-// MQTT Server
-void Config::setMQTT_CLIENT_SERVER(std::string serv)
-{
-  MQTT_CLIENT_SERVER = serv;
 }
 
 // WebSocket
@@ -540,9 +504,4 @@ void Config::setWSO_HOST(std::string host)
 void Config::setDEBUG_LOG(uint8_t level)
 {
   DEBUG_LOG = level;
-}
-
-void Config::setDEBUG_MQTT(uint8_t level)
-{
-  DEBUG_MQTT = level;
 }

@@ -3,7 +3,10 @@
 
 #include "Coordinate.hpp"
 #include "Config.hpp"
+#include <functional>
 
+// TODO check Doc
+//
 /** Struct for pin setup of ESP8266 */
 typedef struct {
   uint8_t en;     //!< enable pin
@@ -17,7 +20,8 @@ typedef struct {
 class Anchor
 {
 public:
-
+  // TODO Doc
+  typedef std::function<void(void)> readyCallback;
   /**
    * get the instance
    */
@@ -28,12 +32,8 @@ public:
    */
   virtual ~Anchor();
 
-  /**
-   * Set the target of the anchor spooling
-   * @param gondolaTargetPos target position of gondola
-   * @param speed            allowed movement speed
-   */
-  void setTargetPosition(Coordinate gondolaTargetPos, float speed);
+  // TODO Doc
+  void setTargetSpooledDistance(float targetDistance, float speed);
 
   /**
    * start a step with the hardware
@@ -56,14 +56,20 @@ public:
    */
    void move();
 
-   // TODO docu
+   // TODO Doc
    float getCurrentSpooledDistance();
 
-   // TODO Docu
+   // TODO Doc
    float getTargetSpooledDistance();
 
-   // TODO Docu
+   // TODO Doc
    int getStepsTodo();
+
+   // TODO Doc
+   Coordinate getAnchorPos();
+
+   // TODO Doc
+   void registerReadyCallback(readyCallback cb);
 
 private:
 
@@ -101,6 +107,7 @@ private:
   float             m_Speed;                      //!< Speed to spool the rope
   long              m_StepsTodo;                  //!< step todo to reach the targget position
   int8_t            m_Direction;                  //!< Direction of movement -1 or +1
+  readyCallback     m_ReadyCallback; // TODO Doc
 };
 
 #endif /*  */

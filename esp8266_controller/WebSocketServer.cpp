@@ -5,6 +5,7 @@
 WebSocketServer::WebSocketServer(uint16_t port)
  : m_Port(port)
  , m_WebSocketServer(m_Port)
+ , m_Gondola(Gondola::get())
 {
   logDebug("Started WebSocketServer\n");
   m_WebSocketServer.begin();
@@ -22,7 +23,6 @@ void WebSocketServer::loop()
 
   if (millis() >= nextTime)
   {
-    // TODO find out how to get the number? maybe store in callback at connect together with IP and/or some other info in a list
     m_WebSocketServer.sendTXT(0, "I'm Happy!");
     nextTime = millis() + 5000;
   }
@@ -36,13 +36,14 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
  {
   case WStype_DISCONNECTED:
     logDebug("[%u] Disconnected!\n", num);
+    // TODO delete clientInformation_t from m_ClientList
+    // TODO also delete anchorInfo_t from m_Gondola->m_AnchorList
     break;
 
   case WStype_CONNECTED:
     {
       IPAddress ip = m_WebSocketServer.remoteIP(num);
       logDebug("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-
   		// send message to client
   		m_WebSocketServer.sendTXT(num, "Connected");
     }
@@ -50,23 +51,82 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
 
   case WStype_TEXT:
     logDebug("[%u] get Text: %s\n", num, payload);
-
-    // send message to client
-    // m_WebSocketServer.sendTXT(num, "message here");
-
-    // send data to all connected clients
-    // m_WebSocketServer.broadcastTXT("message here");
     break;
 
   case WStype_BIN:
+  {
     logDebug("[%u] get binary length: %u\n", num, length);
     hexdump(payload, length);
 
-    // send message to client
-    // m_WebSocketServer.sendBIN(num, payload, length);
+    webSocketCommand_t cmd = static_cast<webSocketCommand_t>(payload[0]);
+
+    if (cmd == WSO_C_REGISTER)
+    {
+      anchorInformation_t anchorInfo;
+      floatConverter_t converter;
+      uint8_t i = 1;
+      converter.b[0] = payload[i++];
+      converter.b[1] = payload[i++];
+      converter.b[2] = payload[i++];
+      converter.b[3] = payload[i++];
+      anchorInfo.anchorPos.x = converter.f;
+
+      converter.b[0] = payload[i++];
+      converter.b[1] = payload[i++];
+      converter.b[2] = payload[i++];
+      converter.b[3] = payload[i++];
+      anchorInfo.anchorPos.y = converter.f;
+
+      converter.b[0] = payload[i++];
+      converter.b[1] = payload[i++];
+      converter.b[2] = payload[i++];
+      converter.b[3] = payload[i++];
+      anchorInfo.anchorPos.z = converter.f;
+
+      converter.b[0] = payload[i++];
+      converter.b[1] = payload[i++];
+      converter.b[2] = payload[i++];
+      converter.b[3] = payload[i++];
+      anchorInfo.spooledDistance = converter.f;
+      anchorInfo.targetSpooledDistance = converter.f;
+
+      anchorInfo.moveFunc = std::bind(&WebSocketServer::remoteAnchorMoveFunction, this, num, std::placeholders::_1);
+      m_Gondola->addAnchor(anchorInfo);
+
+      logDebug("Client registered at position(%s)\n", anchorInfo.anchorPos.toString().c_str());
+    }
+    else if (cmd == WSO_C_REPORT)
+    {
+      logDebug("Client '%u' finished moving\n", num);
+    }
     break;
+  }
 
   default:
     break;
   }
+}
+
+void WebSocketServer::remoteAnchorMoveFunction(uint8_t num, anchorInformation_t &anchorInfo)
+{
+  logDebug("WebSocketServer::remoteAnchorMoveFunction:: num:'%u'\n", num);
+  uint8_t i = 1;
+  uint8_t payload[8 + 1];
+  floatConverter_t converter;
+
+  payload[0] = WSO_S_MOVE;
+
+  converter.f = anchorInfo.targetSpooledDistance;
+  payload[i++] = converter.b[0];
+  payload[i++] = converter.b[1];
+  payload[i++] = converter.b[2];
+  payload[i++] = converter.b[3];
+
+  converter.f = anchorInfo.speed;
+  payload[i++] = converter.b[0];
+  payload[i++] = converter.b[1];
+  payload[i++] = converter.b[2];
+  payload[i++] = converter.b[3];
+
+  m_WebSocketServer.sendBIN(num, payload, i);
 }

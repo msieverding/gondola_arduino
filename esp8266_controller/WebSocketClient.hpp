@@ -2,8 +2,11 @@
 #define _WEB_SOCKET_CLIENT_HPP_
 
 #include <Arduino.h>
-#include "IWebSocket.hpp"
 #include <WebSocketsClient.h>
+#include "Anchor.hpp"
+#include "IWebSocket.hpp"
+
+// TODO Doc
 
 class WebSocketClient : public IWebSocket
 {
@@ -15,11 +18,14 @@ public:
 
 private:
   void webSocketEvent(WStype_t type, uint8_t * payload, size_t length);
+  void anchorReadyCallback();
+
 
   // membervariables
-  std::string           m_Host;
-  uint16_t              m_Port;
-  WebSocketsClient      m_WebSocketClient;
+  std::string             m_Host;
+  uint16_t                m_Port;
+  WebSocketsClient        m_WebSocketClient;
+  Anchor                 *m_Anchor;
 };
 
 #endif /* _WEB_SOCKET_CLIENT_HPP_ */

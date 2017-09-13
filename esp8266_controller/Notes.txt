@@ -10,6 +10,7 @@ Ideas:
 - Async WebServer (https://github.com/me-no-dev/ESPAsyncWebServer?utm_source=platformio&utm_medium=piohome)
 - WebSocket Server and Cient (https://github.com/Links2004/arduinoWebSockets?utm_source=platformio&utm_medium=piohome)
  - Can use AsyncTCP with :https://github.com/me-no-dev/ESPAsyncTCP
+  - manual change in file necessary
  - see in readme of https://github.com/Links2004/arduinoWebSockets?utm_source=platformio&utm_medium=piohome
 
 Hardware Ideas:
@@ -24,6 +25,7 @@ Out of code documentation:
 - Add libraries (https://www.youtube.com/watch?v=EBlHNBNHESQ)
 - Fetcher checksum in EEPROM
 - Using std::bind with placeholders from #include <functional> with std::placeholder::_1 ..  _N
+- compiler optiization -O3 for maxium speed. Size does not matter on this chip
 
 Sources:
 - MqTT Server for ESP8266: https://github.com/FrancescoBaroneItaly/ME-MqTT-Server-for-ESP8266

@@ -15,7 +15,7 @@ Anchor *Anchor::get()
 Anchor::Anchor()
  : m_AnchorPosition(Config::get()->getGO_ANCHORPOS())
  , m_Pins({0, 5, 4})
- , m_CurrentSpooledDistance(Coordinate::euclideanDistance(m_AnchorPosition, Config::get()->getGO_POSITION()))
+ , m_CurrentSpooledDistance(0 /*TODO get from EEPROM: Coordinate::euclideanDistance(m_AnchorPosition, Config::get()->getGO_POSITION())*/)
  , m_TargetSpooledDistance(m_CurrentSpooledDistance)
  , m_Speed(1.0f)
  , m_StepsTodo(0)
@@ -31,14 +31,10 @@ Anchor::~Anchor()
   s_Instance = NULL;
 }
 
-void Anchor::setTargetPosition(Coordinate gondolaTargetPos, float speed)
+void Anchor::setTargetSpooledDistance(float targetDistance, float speed)
 {
-  if (speed == 0.0f)
-    m_Speed = 1.0f;
-  else
-    m_Speed = speed;
-
-  m_TargetSpooledDistance = Coordinate::euclideanDistance(m_AnchorPosition, gondolaTargetPos);
+  m_TargetSpooledDistance = targetDistance;
+  m_Speed = speed;
 
   float distanceTodo = m_TargetSpooledDistance - m_CurrentSpooledDistance;
 
@@ -101,12 +97,19 @@ void Anchor::move()
   static bool init = false;
   static uint32_t time = 0;
   // TODO find possibility to decrease speed
-  if (m_StepsTodo == 0)
+  if (m_StepsTodo == 0 && init == true)
   {
     init = false;
-    // logDebug("No steps todo\n");
+    logDebug("No more steps todo\n");
+    if (m_ReadyCallback)
+      m_ReadyCallback();
     return;
   }
+  else if (m_StepsTodo == 0)
+  {
+    return;
+  }
+  
   if (!init)
   {
     init = true;
@@ -146,4 +149,14 @@ float Anchor::getTargetSpooledDistance()
 int Anchor::getStepsTodo()
 {
   return m_StepsTodo;
+}
+
+Coordinate Anchor::getAnchorPos()
+{
+  return m_AnchorPosition;
+}
+
+void Anchor::registerReadyCallback(readyCallback cb)
+{
+  m_ReadyCallback = cb;
 }

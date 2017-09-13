@@ -5,10 +5,6 @@
 #include "DualConnection.hpp"
 #include "CommandInterpreter.hpp"
 #include "Log.hpp"
-// #include "IMQTTService.hpp"
-// #include "MQTTServer.hpp"
-// #include "MQTTClient.hpp"
-// #include "MQTTClientAsync.hpp"
 #include "WebSocketServer.hpp"
 #include "WebSocketClient.hpp"
 
@@ -51,9 +47,12 @@ ConnectionMgr::ConnectionMgr()
 ConnectionMgr::~ConnectionMgr()
 {
   CommandInterpreter::get()->deleteCommand(std::string("contype"));
-  delete(m_Connection);
-  // delete(m_MqTTService);
-  delete(m_WebSocket);
+  if (m_Connection)
+    delete(m_Connection);
+
+  if (m_WebSocket)
+    delete(m_WebSocket);
+
   s_Instance = NULL;
 }
 
@@ -107,50 +106,6 @@ connectionType_t ConnectionMgr::getConnectionType()
   return m_ConnectionType;
 }
 
-// void ConnectionMgr::changeMqTTType(mqttType_t mqttType)
-// {
-//   m_MqTTType = mqttType;
-//
-//   if (m_MqTTService != NULL)
-//   {
-//     delete(m_MqTTService);
-//     m_MqTTService = NULL;
-//   }
-//
-//   switch (m_MqTTType)
-//   {
-//     case MQTT_SERVER:
-//       m_MqTTService = new MQTTServer();
-//       break;
-//
-//     case MQTT_CLIENT:
-//       m_MqTTService = new MQTTClient();
-//       break;
-//
-//     case MQTT_CLIENT_ASYNC:
-//       m_MqTTService = new MQTTClientAsync();
-//       break;
-//
-//     case MQTT_NONE:
-//       break;
-//
-//     default:
-//       logWarning("Requested wrong MqTT service!\n");
-//       break;
-//   }
-// }
-//
-// void ConnectionMgr::requestChangeMqTTType(mqttType_t mqttType)
-// {
-//   m_changeMqTTType = mqttType;
-//   m_ChangeMqTTRequest = true;
-// }
-//
-// mqttType_t ConnectionMgr::getMqTTType()
-// {
-//   return m_MqTTType;
-// }
-
 void ConnectionMgr::changeWebSocket(webSocketType_t webSocketType)
 {
   m_WebSocketType = webSocketType;
@@ -180,15 +135,17 @@ void ConnectionMgr::changeWebSocket(webSocketType_t webSocketType)
   }
 }
 
+webSocketType_t ConnectionMgr::getWebSocketType()
+{
+  return m_WebSocketType;
+}
+
 void ConnectionMgr::loop()
 {
   if (m_Connection)
     m_Connection->loop();
 
   m_WebServer.loop();
-
-  // if (m_MqTTService)
-  //   m_MqTTService->loop();
 
   if (m_WebSocket)
     m_WebSocket->loop();
@@ -198,12 +155,6 @@ void ConnectionMgr::loop()
     m_ChangeConnectionRequest = false;
     changeConnection(m_ChangeConnectionType);
   }
-
-  // if (m_ChangeMqTTRequest)
-  // {
-  //   m_ChangeMqTTRequest = false;
-  //   changeMqTTType(m_changeMqTTType);
-  // }
 }
 
 bool ConnectionMgr::contypeCommand(std::string &s)

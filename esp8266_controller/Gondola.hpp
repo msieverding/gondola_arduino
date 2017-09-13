@@ -6,6 +6,25 @@
 #include "Coordinate.hpp"
 #include "Anchor.hpp"
 #include <functional>
+#include <list>
+
+
+// TODO Doc
+typedef struct anchorInformation_s {
+  anchorInformation_s()
+  : anchorPos(0.0f, 0.0f, 0.0f)
+  , spooledDistance(0.0f)
+  , targetSpooledDistance(0.0f)
+  , speed(1.0f)
+  {}
+  uint8_t         num;
+  Coordinate      anchorPos;
+  float           spooledDistance;
+  float           targetSpooledDistance;
+  float           speed;
+  std::function<void (anchorInformation_s&)>  moveFunc;
+} anchorInformation_t;
+
 
 /**
  * Class to store all information and provide functions
@@ -14,11 +33,6 @@
 class Gondola
 {
 public:
-
-  /**
-   * Type of move function
-   */
-  typedef std::function<void (Coordinate&, float&)>  moveFunc;
 
   /**
    * Get the instance of gondola
@@ -31,6 +45,12 @@ public:
    */
   virtual ~Gondola();
 
+  // TODO Doc
+  void addAnchor(anchorInformation_t &anchorInfo);
+
+  // TODO deleteAnchorByNum;
+  // void deleteAnchor(uint8_t num)
+
   /**
   * Get gondolas current positon
   * @return Coordinate with current position
@@ -38,26 +58,11 @@ public:
   Coordinate getCurrentPosition();
 
   /**
-   * Sets the current and the target position
-   * @param initPos Coordinate to set
-   */
-  void setInitialPosition(Coordinate &initPos);
-
-  /**
-   * Get the target position of gondola
-   * @return coordinate as which is target position
-   */
-  Coordinate getTargetPosition();
-
-  /**
    * Set target position of gondola
    * @param targetPos  target position as coordinate
    * @param speed      speed to use during movement to target
    */
-  virtual void setTargetPosition(Coordinate &targetPos, float &speed);
-
-  // TODO Docu
-  void registerMoveFunction(moveFunc func);
+  void setTargetPosition(Coordinate &targetPos, float &speed);
 
 private:
 
@@ -66,23 +71,16 @@ private:
   */
   Gondola();
 
-  /**
-   * CI Command to move gondola
-   * @param s command
-   */
-  bool moveCommand(std::string &s);
-
   // instance
-  static Gondola         *s_Instance;
+  static Gondola                 *s_Instance;
 
   // membervariables
-  Coordinate              m_CurrentPosition;    //!< Current position of gondola
-  Coordinate              m_TargetPosition;     //!< Target position of gondola
-  Anchor                 *m_Anchor;             //!< The one Anchor of this PCB
-  float                   m_Speed;              //!< Allowed speed for movement
-
+  Coordinate                      m_CurrentPosition;    //!< Current position of gondola
+  Coordinate                      m_TargetPosition;     //!< Target position of gondola
+  float                           m_Speed;              //!< Allowed speed for movement
+  Anchor                         *m_HardwareAnchor;     //!< the anchor on this board
   // TODO DOCU
-  moveFunc                m_MoveCommand;
+  std::list<anchorInformation_t>  m_AnchorList;
 };
 
 

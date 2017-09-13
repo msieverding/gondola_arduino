@@ -9,6 +9,12 @@ typedef enum logLevel_e {
   LOG_DEBUG,
 } logLevel_t;
 
+typedef union floatConverter_u {
+  float f;
+  uint8_t b[4];
+  uint32_t u;
+} floatConverter_t;
+
 void setLogLevel(logLevel_t level);
 
 void logWarning(const char *format, ...);

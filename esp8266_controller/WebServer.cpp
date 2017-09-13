@@ -39,26 +39,26 @@ void WebServer::handleRoot()
   std::string answer;
   prepareHeader(answer);
 
-  // if (ConnectionMgr::get()->getMqTTType() == MQTT_SERVER)
-  // {
-  //   if (m_Server.args() > 0)
-  //   {
-  //     Coordinate newCoordinate;
-  //     float speed = 1.0f;
-  //
-  //     if(m_Server.arg("x").length())
-  //       newCoordinate.x = m_Server.arg("x").toFloat();
-  //     if(m_Server.arg("y").length())
-  //       newCoordinate.y = m_Server.arg("y").toFloat();
-  //     if(m_Server.arg("z").length())
-  //       newCoordinate.z = m_Server.arg("z").toFloat();
-  //     if(m_Server.arg("speed").length())
-  //       speed = m_Server.arg("speed").toFloat();
-  //
-  //     Gondola::get()->setTargetPosition(newCoordinate, speed);
-  //   }
-  //   prepareGondolaMovePage(answer);
-  // }
+  if (ConnectionMgr::get()->getWebSocketType() == WEBSOCKET_SERVER)
+  {
+    if (m_Server.args() > 0)
+    {
+      Coordinate newCoordinate;
+      float speed = 1.0f;
+
+      if(m_Server.arg("x").length())
+        newCoordinate.x = m_Server.arg("x").toFloat();
+      if(m_Server.arg("y").length())
+        newCoordinate.y = m_Server.arg("y").toFloat();
+      if(m_Server.arg("z").length())
+        newCoordinate.z = m_Server.arg("z").toFloat();
+      if(m_Server.arg("speed").length())
+        speed = m_Server.arg("speed").toFloat();
+
+      Gondola::get()->setTargetPosition(newCoordinate, speed);
+    }
+    prepareGondolaMovePage(answer);
+  }
 
   m_Server.send(200, "text/html", answer.c_str());
 }
@@ -152,27 +152,6 @@ void WebServer::handleSetupSystem()
     conMgr->changeWebSocket(WEBSOCKET_NONE);
     Config::get()->setCM_WEBSOCKETTYPE(WEBSOCKET_NONE);
   }
-
-  // if (m_Server.arg("CM_MQTTTYPE").equals("MQTT_SERVER"))
-  // {
-  //   conMgr->requestChangeMqTTType(MQTT_SERVER);
-  //   Config::get()->setCM_MQTTTYPE(MQTT_SERVER);
-  // }
-  // else if (m_Server.arg("CM_MQTTTYPE").equals("MQTT_CLIENT"))
-  // {
-  //   conMgr->requestChangeMqTTType(MQTT_CLIENT);
-  //   Config::get()->setCM_MQTTTYPE(MQTT_CLIENT);
-  // }
-  // else if (m_Server.arg("CM_MQTTTYPE").equals("MQTT_CLIENT_ASYNC"))
-  // {
-  //   conMgr->requestChangeMqTTType(MQTT_CLIENT_ASYNC);
-  //   Config::get()->setCM_MQTTTYPE(MQTT_CLIENT_ASYNC);
-  // }
-  // else if (m_Server.arg("CM_MQTTTYPE").equals("MQTT_NONE"))
-  // {
-  //   conMgr->requestChangeMqTTType(MQTT_NONE);
-  //   Config::get()->setCM_MQTTTYPE(MQTT_NONE);
-  // }
 
   config->writeToEEPROM();
 
@@ -322,17 +301,6 @@ void WebServer::prepareSetupSystemPage(std::string &s)
   s.append("<input type=\"radio\" id=\"N\" name=\"CM_WEBSOCKETTYPE\" value=\"WEBSOCKET_NONE\" " + std::string(config->getCM_WEBSOCKETTYPE() == WEBSOCKET_NONE ? "checked" : "") + ">");
   s.append("<label for=\"N\">None</label><br>");
 
-  // s.append("<h4>MQTT setup</h4>");
-  // Master Slave Normal Radio
-  // s.append("<input type=\"radio\" id=\"S\" name=\"CM_MQTTTYPE\" value=\"MQTT_SERVER\" " + std::string(config->getCM_MQTTTYPE() == MQTT_SERVER ? "checked" : "") + ">");
-  // s.append("<label for=\"S\">Server</label><br>");
-  // s.append("<input type=\"radio\" id=\"C\" name=\"CM_MQTTTYPE\" value=\"MQTT_CLIENT\" " + std::string(config->getCM_MQTTTYPE() == MQTT_CLIENT ? "checked" : "") + ">");
-  // s.append("<label for=\"C\">Client</label><br>");
-  // s.append("<input type=\"radio\" id=\"CA\" name=\"CM_MQTTTYPE\" value=\"MQTT_CLIENT_ASYNC\" " + std::string(config->getCM_MQTTTYPE() == MQTT_CLIENT_ASYNC ? "checked" : "") + ">");
-  // s.append("<label for=\"CA\">Asynchronous Client</label><br>");
-  // s.append("<input type=\"radio\" id=\"N\" name=\"CM_MQTTTYPE\" value=\"MQTT_NONE\" " + std::string(config->getCM_MQTTTYPE() == MQTT_NONE ? "checked" : "") + ">");
-  // s.append("<label for=\"N\">None</label><br>");
-
   // Submit
   s.append("<br><button type=\"submit\">Go!</button>");
   s.append("<br>(A new setup will be started!)");
@@ -348,13 +316,14 @@ void WebServer::prepareGondolaMovePage(std::string &s)
   s.append("<html>");
   Coordinate coord = gondola->getCurrentPosition();
 
-  if (gondola->getCurrentPosition() != gondola->getTargetPosition())
-  {
-    s.append("<h1>Gondola is moving</h1>");
-    s.append("Move from: "+ gondola->getCurrentPosition().toString());
-    s.append(" to: "+ gondola->getTargetPosition().toString());
-  }
-  else
+  // TODO
+  // if (gondola->getCurrentPosition() != gondola->getTargetPosition())
+  // {
+  //   s.append("<h1>Gondola is moving</h1>");
+  //   s.append("Move from: "+ gondola->getCurrentPosition().toString());
+  //   s.append(" to: "+ gondola->getTargetPosition().toString());
+  // }
+  // else
   {
     s.append("<br><br>");
     s.append("New position:");

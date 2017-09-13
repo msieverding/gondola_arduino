@@ -6,14 +6,11 @@
 #include <IPAddress.h>
 
 // Forward declaration of connectionType_t from ConnectionMgr
-enum connectionType_s : byte;
-typedef enum connectionType_s connectionType_t;
-// // Forward declaration of mqttType from ConnectionMgr
-// enum mqttType_s : byte;
-// typedef enum mqttType_s mqttType_t;
+enum connectionType_e : byte;
+typedef enum connectionType_e connectionType_t;
 // Forward declaration of webSocketType_t from ConnectionMgr
-enum webSocketType_s : byte;
-typedef enum webSocketType_s webSocketType_t;
+enum webSocketType_e : byte;
+typedef enum webSocketType_e webSocketType_t;
 
 /**
  * Singleton class to store the setup of the application
@@ -114,8 +111,6 @@ public:
   // ConnectionMgr
   void setCM_CONNECTIONTYPE(connectionType_t connectionType);
   connectionType_t getCM_CONNECTIONTYPE() { return CM_CONNECTIONTYPE; }
-  // void setCM_MQTTTYPE(mqttType_t mqttType);
-  // mqttType_t getCM_MQTTTYPE() { return CM_MQTTTYPE; }
   void setCM_WEBSOCKETTYPE(webSocketType_t webSocketType);
   webSocketType_t getCM_WEBSOCKETTYPE() { return CM_WEBSOCKETTYPE; }
 
@@ -127,17 +122,6 @@ public:
   void setGO_POSITION(Coordinate position);
   Coordinate getGO_ANCHORPOS(void) { return GO_ANCHORPOS; }
   void setGO_ANCHORPOS(Coordinate position);
-
-  // MQTT Server
-  uint8_t getMQTT_SERV_CFG() { return MQTT_SERV_CFG; }
-  void setMQTT_SERV_CFG(uint8_t cfg);
-  std::string getMQTT_SERV_DEVICE_NAME() { return MQTT_SERV_DEVICE_NAME; }
-  uint16_t getMQTT_SERV_PORT() { return MQTT_SERV_PORT; }
-  uint8_t getMQTT_SERV_USER_AUTH() { return MQTT_SERV_USER_AUTH; }
-
-  // MQTT Client
-  std::string getMQTT_CLIENT_SERVER() { return MQTT_CLIENT_SERVER; }
-  void setMQTT_CLIENT_SERVER(std::string serv);
 
   // WebSocket
   uint16_t getWSO_PORT() { return WSO_PORT; }
@@ -152,8 +136,6 @@ public:
   // Debug
   uint8_t getDEBUG_LOG() { return DEBUG_LOG; }
   void setDEBUG_LOG(uint8_t level);
-  uint8_t getDEBUG_MQTT() { return DEBUG_MQTT; }
-  void setDEBUG_MQTT(uint8_t level);
 
 private:
   /**
@@ -236,7 +218,6 @@ private:
 
   // ConnectionMgr
   connectionType_t CM_CONNECTIONTYPE;
-  // mqttType_t CM_MQTTTYPE;
   webSocketType_t CM_WEBSOCKETTYPE;
 
   // WebServer
@@ -245,15 +226,6 @@ private:
   // Gondola
   Coordinate GO_POSITION;
   Coordinate GO_ANCHORPOS;
-
-  // MQTT Server
-  uint8_t MQTT_SERV_CFG;
-  std::string MQTT_SERV_DEVICE_NAME;
-  uint16_t MQTT_SERV_PORT;
-  uint8_t MQTT_SERV_USER_AUTH;
-
-  // MQTT Client
-  std::string MQTT_CLIENT_SERVER;
 
   // WebSocket
   uint16_t WSO_PORT;
@@ -265,7 +237,6 @@ private:
 
   // DEBUG
   uint8_t DEBUG_LOG;
-  uint8_t DEBUG_MQTT;
 };
 
 // STEPPER SETTINGS
