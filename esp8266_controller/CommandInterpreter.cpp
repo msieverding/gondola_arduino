@@ -78,7 +78,8 @@ void CommandInterpreter::interprete(std::string &s)
   }
   if (!done)
   {
-    logInfo("Command '%s' not registered. Try help for a list of registered commands\n", s.c_str());
+    if (commandWord.length()) // ignore simple 'Return' presses
+      logInfo("Command '%s' not registered. Try help for a list of registered commands\n", s.c_str());
   }
 }
 
