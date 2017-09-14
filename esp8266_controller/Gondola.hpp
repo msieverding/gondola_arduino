@@ -8,22 +8,29 @@
 #include <functional>
 #include <list>
 
+//!< assume we have less than 7 remote anchors, so that the hardwareAnchor is number 7.
+#define HW_ANCHOR_ID    7
 
-// TODO Doc
+/**
+ * Struct to save all information about an anchor (hardware or remote)
+ * @param _id ID of this anchor.
+ */
 typedef struct anchorInformation_s {
   anchorInformation_s(uint8_t _id)
   : id(_id)
   , anchorPos(0.0f, 0.0f, 0.0f)
   , spooledDistance(0.0f)
   , targetSpooledDistance(0.0f)
-  , speed(1.0f)
+  , travelTime(0)
+  , moveFunc()
   {}
-  uint8_t         id;
-  Coordinate      anchorPos;
-  float           spooledDistance;
-  float           targetSpooledDistance;
-  float           speed;
-  std::function<void (anchorInformation_s&)>  moveFunc;
+  uint8_t         id;                                   //!< ID of the anchor. Could be used for the above protocoll. Actually used for WebSockets
+  Coordinate      anchorPos;                            //!< Installation positon of the anchor
+  float           spooledDistance;                      //!< current spooled distance of the anchor
+  float           targetSpooledDistance;                //!< target spooled distance of the anchor
+  uint32_t        travelTime;                           //!< Given travel time
+  std::function<void (anchorInformation_s&)> moveFunc;  //!< Function to move the anchor. Must set by the protocall above
+  std::function<void (anchorInformation_s&)> initFunc;  //!< Tell client initial spooled distance
 } anchorInformation_t;
 
 
@@ -46,15 +53,34 @@ public:
    */
   virtual ~Gondola();
 
-  // TODO Doc
-  void addAnchor(anchorInformation_t &anchorInfo);
-
-  // TODO Doc;
-  void deleteAnchor(uint8_t num);
-
-  void reportAnchorFinished(uint8_t num);
+  /**
+   * Set the initial position of the gondola
+   * Will use the initFunc of anchorInformation_t
+   *
+   * @param position position to set
+   */
+  void setInitialPosition(Coordinate position);
 
   /**
+   * Add an anchor to the list of gondolas anchor
+   * @param anchorInfo anchor to add
+   */
+  void addAnchor(anchorInformation_t &anchorInfo);
+
+  /**
+   * Delete an anchor from the list of gondolas anchor
+   * Will call 'reportAnchorFinished' to be sure, that no bloked state will appear
+   * @param num   ID of anchor to delete
+   */
+  void deleteAnchor(uint8_t num);
+
+  /**
+   * Report to gondola that an anchor is finished
+   * @param num Id of the anchors
+   */
+  void reportAnchorFinished(uint8_t num);
+
+    /**
   * Get gondolas current positon
   * @return Coordinate with current position
   */
@@ -80,26 +106,39 @@ private:
   */
   Gondola();
 
-  // TODO Doc
+  /**
+   * Command for the command line interpreter to move gondola
+   * @param  s string to interprete
+   * @return   success of command
+   */
   bool moveCommand(std::string &s);
 
-  // TODO Doc
-  void hardwareAnchorReadyCallback();
-
-  // TODO Doc
+  /**
+   * Check if all anchors are ready, or if gondola if still busy
+   */
   void checkForReady();
 
+  /**
+   * moveFunc for the hardware anchor
+   * @param anchorInfo anchorInfo of hardware anchor
+   */
+  void moveHardWareAnchor(anchorInformation_t &anchorInfo);
+
+  /**
+   * initFunc for the hardware anchor
+   * @param anchorInfo anchorInfo of hardware anchor
+   */
+  void initHardWareAnchor(anchorInformation_t &anchorInfo);
+
   // instance
-  static Gondola                 *s_Instance;
+  static Gondola                 *s_Instance;           //!< static instance of gondola
 
   // membervariables
   Coordinate                      m_CurrentPosition;    //!< Current position of gondola
   Coordinate                      m_TargetPosition;     //!< Target position of gondola
-  float                           m_Speed;              //!< Allowed speed for movement
   Anchor                         *m_HardwareAnchor;     //!< the anchor on this board
-  // TODO DOCU
-  std::list<anchorInformation_t>  m_AnchorList;
-  uint8_t                         m_UnfinishedAnchors;
+  std::list<anchorInformation_t>  m_AnchorList;         //!< List of all hardware and remote anchors
+  uint8_t                         m_UnfinishedAnchors;  //!< Bitflied to indicate which anchor is ready and which isn't
 };
 
 

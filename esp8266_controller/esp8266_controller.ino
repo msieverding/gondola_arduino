@@ -7,16 +7,11 @@
 #include "SerialConnection.hpp"
 #include "APConnection.hpp"
 #include "WebServer.hpp"
-
-
 #include "CommandInterpreter.hpp"
 #include "ConnectionMgr.hpp"
 #include "Log.hpp"
 
 IConnection *serial;
-ConnectionMgr *conMgr;
-Anchor *anchor;
-
 
 void setup()
 {
@@ -24,12 +19,12 @@ void setup()
   delay(1000);
   serial = SerialConnection::create(115200);
 
-  Config* config = Config::get();
-  config->readFromEEPROM();
+  Config::get()->readFromEEPROM();
 
-  anchor = Anchor::get();
+  // hardware anchor
+  Anchor::get();
 
-  conMgr = ConnectionMgr::get();
+  ConnectionMgr::get();
 
   wdt_enable(1000);
   // ESP.wdtEnable(1000);
@@ -40,10 +35,8 @@ void loop()
   wdt_reset();
   // ESP.wdtFeed();
 
+  ConnectionMgr::get()->loop();
+  Anchor::get()->loop();
   if (serial)
     serial->loop();
-  if (conMgr)
-    conMgr->loop();
-  if (anchor)
-    anchor->move();
 }

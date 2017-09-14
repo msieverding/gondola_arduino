@@ -56,7 +56,10 @@ public:
   */
   void requestChangeConnection(connectionType_t connectionType);
 
-  // TODO docu
+  /**
+   * Get the current used connection type
+   * @return connection type
+   */
   connectionType_t getConnectionType();
 
   /**
@@ -65,7 +68,10 @@ public:
    */
   void changeWebSocket(webSocketType_t webSocketType);
 
-  // TODO Doc
+  /**
+   * Get the current used WebSocketType
+   * @return current used WebSocketType
+   */
   webSocketType_t getWebSocketType();
 
   /**
@@ -102,10 +108,8 @@ private:
   bool                          m_ChangeConnectionRequest;  //!< indicates a request to change the connection
   IConnection                  *m_Connection;               //!< Pointer to current connection
   // WebSocket
-  webSocketType_t               m_WebSocketType;            // TODO
-  webSocketType_t               m_ChangeWebSocketType;      // TODO
-  bool                          m_ChangeWebSocketRequest;   // TODO
-  IWebSocket                   *m_WebSocket;                //!< WebSocket to provide
+  webSocketType_t               m_WebSocketType;            //!< Current used WebSocket tye
+  IWebSocket                   *m_WebSocket;                //!< Pointer to WebSocket to provide
   // WebServer
   WebServer                     m_WebServer;                //!< Pointer to current WebServer
 };

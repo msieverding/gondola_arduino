@@ -51,13 +51,28 @@ void logInfo(const char *format, ...)
   }
 }
 
+void logVerbose(const char *format, ...)
+{
+  if (s_LogLevel >= LOG_VERBOSE)
+  {
+    char buf[128]; // resulting string limited to 128 chars
+    va_list args;
+    va_start (args, format );
+    vsnprintf(buf, 128, format, args);
+    va_end (args);
+    Serial.print("[VBO] ");
+    Serial.print(buf);
+  }
+}
+
+
 std::string floatToString(float f)
 {
   char buf[20];
   return std::string(dtostrf(f, 4, 2, buf));
 }
 
-float stringtoFloat(std::string s)
+float stringToFloat(std::string s)
 {
   return (float)atof(s.c_str());
 }

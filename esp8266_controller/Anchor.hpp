@@ -4,9 +4,8 @@
 #include "Coordinate.hpp"
 #include "Config.hpp"
 #include <functional>
+#include <Ticker.h>
 
-// TODO check Doc
-//
 /** Struct for pin setup of ESP8266 */
 typedef struct {
   uint8_t en;     //!< enable pin
@@ -20,10 +19,13 @@ typedef struct {
 class Anchor
 {
 public:
-  // TODO Doc
-  typedef std::function<void(void)> readyCallback;
   /**
-   * get the instance
+   * Type for the callback, that should be executed, when movement is finished
+   */
+  typedef std::function<void(void)> readyCallback;
+
+  /**
+   * Get the instance of Anchor
    */
   static Anchor *get();
 
@@ -32,8 +34,21 @@ public:
    */
   virtual ~Anchor();
 
-  // TODO Doc
-  void setTargetSpooledDistance(float targetDistance, float speed);
+  /**
+   * Set the spooled distance initially
+   * @param spooledDistance spooled distance to set
+   */
+  void setInitialSpooledDistance(float spooledDistance);
+
+  /**
+   * Set the new spooling targetDistance.
+   * Anchor will start to move with an ISR driven function that
+   * toggles the pin for the stepper driver
+   * @see move()
+   * @param targetDistance Distance to spool to
+   * @param travelTime     Time that should be needed
+   */
+  void setTargetSpooledDistance(float targetDistance, uint32_t travelTime);
 
   /**
    * start a step with the hardware
@@ -46,30 +61,31 @@ public:
   void endStep();
 
   /**
-   * Returns how many steps are missed
-   * @return number of missed stepps
+   * Get the Mounting position of the anchor
+   * @return Coordinate, where the anchor is mounted
    */
-  long missingSteps();
+  Coordinate getAnchorPos();
+
+   /**
+    * Register a callback, that should be executed, when the movement is finished
+    * @param cb callback to execute
+    */
+  void registerReadyCallback(readyCallback cb);
+
+   /**
+    * Loop that should be executed with high frequency in the main arduino loop
+    *
+    * Makes the movemetn of the stepper motor when requestes
+    */
+  void loop();
 
   /**
-   * Call this function frequently to spool the anchor. Timing is considered within this function
-   */
-   void move();
-
-   // TODO Doc
-   float getCurrentSpooledDistance();
-
-   // TODO Doc
-   float getTargetSpooledDistance();
-
-   // TODO Doc
-   int getStepsTodo();
-
-   // TODO Doc
-   Coordinate getAnchorPos();
-
-   // TODO Doc
-   void registerReadyCallback(readyCallback cb);
+   * Round a float to a given precision
+   * @param f             float to round
+   * @param precision     precision of rounding
+   * @return  rounded f
+  */
+  static float roundPrecision(float f, float precision);
 
 private:
 
@@ -79,35 +95,31 @@ private:
   Anchor();
 
   /**
+   * Callback for timer to toggle pins of stepper
+   */
+  static void move();
+
+  /**
    * Configure the hardware pins
    */
   void configurePins();
 
-  /**
-   * Round a float to a given precision
-   * @param f             float to round
-   * @param precision     precision of rounding
-   * @return  rounded f
-   */
-  float roundPrecision(float f, float precision);
-
-  /**
-   * calculate all details for movement
-   */
-  void calculate(void);
-
   // instance
-  static Anchor    *s_Instance;
+  static Anchor    *s_Instance;                   //!< Instance of the anchor
 
   // membervariables
-  Coordinate        m_AnchorPosition;             //!< Mounting position of anchor
-  pins_t            m_Pins;                       //!< pin setup of this anchor
-  float             m_CurrentSpooledDistance;     //!< Current spooled distance
+  Coordinate        m_AnchorPosition;             //!< Mounting position
+  pins_t            m_Pins;                       //!< pin setup
+  float             m_SpooledDistance;            //!< Current spooled distance
   float             m_TargetSpooledDistance;      //!< Target spooled distance
-  float             m_Speed;                      //!< Speed to spool the rope
-  long              m_StepsTodo;                  //!< step todo to reach the targget position
+  uint32_t          m_StepsTodo;                  //!< necessary steps to reach the target position
+  uint32_t          m_StepsDone;                  //!< steps already done
   int8_t            m_Direction;                  //!< Direction of movement -1 or +1
-  readyCallback     m_ReadyCallback; // TODO Doc
+  readyCallback     m_ReadyCallback;              //!< Callback that should be executed to propagate the finished movement
+  uint32_t          m_MoveStartTime;              //!< Time where movement starts
+  uint32_t          m_TravelTime;                 //!< Time budget for movement
+  bool              m_MovementFinished;           //!< Flag that indicates that the movement is finished. @see move() @see loop()
+  Ticker            m_Timer;                      //!< ISR based timer for movement
 };
 
 #endif /*  */

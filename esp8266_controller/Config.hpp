@@ -5,10 +5,19 @@
 #include "Coordinate.hpp"
 #include <IPAddress.h>
 
-// Forward declaration of connectionType_t from ConnectionMgr
+// reduced in precision (0.05 cm = MIN_PRECISION = 1step = 1.8', 1 cm =
+// 20steps = 36', 10 cm = 200steps = 360')
+// the difference between the old distance and the new one is then
+#define STEP_CM        20
+
+// precision of 1 step in cm
+#define MIN_PRECISION ((float)(1 / ((float)STEP_CM)))
+#define MICROSTEPS 16
+
+//! Forward declaration of connectionType_t from ConnectionMgr
 enum connectionType_e : byte;
 typedef enum connectionType_e connectionType_t;
-// Forward declaration of webSocketType_t from ConnectionMgr
+//! Forward declaration of webSocketType_t from ConnectionMgr
 enum webSocketType_e : byte;
 typedef enum webSocketType_e webSocketType_t;
 
@@ -37,21 +46,29 @@ public:
 
   /**
    * write the WC section to eeprom
+   * @param persist (optional) Doesn't commit to EEPROM when false.
+   * @see writeToEEPROM()
    */
   bool writeWCToEEPROM(bool persist = true);
 
   /**
    * write the AP section to eeprom
+   * @param persist (optional) Doesn't commit to EEPROM when false.
+   * @see writeToEEPROM()
    */
   bool writeAPToEEPROM(bool persist = true);
 
   /**
    * write the GO section to eeprom
+   * @param persist (optional) Doesn't commit to EEPROM when false.
+   * @see writeToEEPROM()
    */
   bool writeGOToEEPROM(bool persist = true);
 
   /**
    * read the setup from the internal EEPROM
+   *
+   * When checksum is invalid, the standart config is loaded
    */
   void readFromEEPROM();
 
@@ -61,7 +78,7 @@ public:
   static void resetConfig();
 
   /**
-   * Print the configuration if log level is LOG_DEBUG
+   * Print the configuration if log level is at least LOG_DEBUG
    */
   void printConfig(void);
 
@@ -183,6 +200,20 @@ private:
    */
   void readCoordinate(Coordinate &coord, uint16_t start);
 
+  /**
+   * Write a float to the EEPROM
+   * @param f     float to persist
+   * @param start start address in EEPROM
+   */
+  void persistFloat(float &f, uint16_t start);
+
+  /**
+   * Read a float from the EEPROM
+   * @param f     Coordinate to read
+   * @param start start address in EEPROM
+   */
+  void readFloat(float &f, uint16_t start);
+
   // Checksum
   /**
    * Calculates and erites the checksum to the EEPROM
@@ -239,19 +270,5 @@ private:
   uint8_t DEBUG_LOG;
 };
 
-// STEPPER SETTINGS
-// https://www.allaboutcircuits.com/tools/stepper-motor-calculator/ and
-// 42BYGHW811 Wantai stepper motor)
-// delay for stepper in microseconds (computer for 32 microsteps, using calculator
-#define STEP_DELAY     9000
-
-// reduced in precision (0.05 cm = MIN_PRECISION = 1step = 1.8', 1 cm =
-// 20steps = 36', 10 cm = 200steps = 360')
-// the difference between the old distance and the new one is then
-#define STEP_CM        20.0f
-
-// precision of 1 step in cm
-#define MIN_PRECISION ((float)(1 / STEP_CM))
-#define MICROSTEPS 16L
 
 #endif /* _CONFIG_HPP_ */

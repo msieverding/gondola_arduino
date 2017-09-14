@@ -41,7 +41,7 @@
 #define EEPROM_GO_ANCHORPOS_START       305
 
 //Debug
-#define EEPROM_DEBUG_LOG_START          308
+#define EEPROM_DEBUG_LOG_START          38
 
 // Checksum
 #define EEPROM_CHECKSUM_DATA_BEGIN      0
@@ -71,8 +71,8 @@ Config::Config()
  , WC_PASSPHRASE("TU_GRAZ_ITI")
  , WC_HOSTNAME("gondola")
  // Access Point
- , AP_IPADDRESS(192, 168, 5, 1)
- , AP_GATEWAY(192, 168, 5, 1)
+ , AP_IPADDRESS(192, 168, 4, 1)
+ , AP_GATEWAY(192, 168, 4, 1)
  , AP_NETMASK(255, 255, 255, 0)
  , AP_SSID("GondolaWiFi")
  , AP_PASSPHRASE("TU_GRAZ_ITI")
@@ -90,7 +90,7 @@ Config::Config()
  // WebSocketServer
  // - none yet
  // WebSocketClient
- , WSO_HOST("192.168.5.1")
+ , WSO_HOST("192.168.4.1")
  , DEBUG_LOG(LOG_INFO)
 {
   EEPROM.begin(EEPROM_LENGTH);
@@ -178,8 +178,8 @@ bool Config::writeAPToEEPROM(bool persist)
 bool Config::writeGOToEEPROM(bool persist)
 {
   // Gondola setup
-  persistCoordinate(GO_POSITION,    EEPROM_GO_POSITION_START);
-  persistCoordinate(GO_ANCHORPOS,   EEPROM_GO_ANCHORPOS_START);
+  persistCoordinate(GO_POSITION,      EEPROM_GO_POSITION_START);
+  persistCoordinate(GO_ANCHORPOS,     EEPROM_GO_ANCHORPOS_START);
 
   if (persist)
   {
@@ -224,8 +224,8 @@ void Config::readFromEEPROM()
   CM_CONNECTIONTYPE = static_cast<connectionType_t>(EEPROM.read(EEPROM_CM_CONNECIONTYPE_START));
   CM_WEBSOCKETTYPE = static_cast<webSocketType_t>(EEPROM.read(EEPROM_CM_WEBSOCKETTYPE_START));
 
-  readCoordinate(GO_POSITION,    EEPROM_GO_POSITION_START);
-  readCoordinate(GO_ANCHORPOS,   EEPROM_GO_ANCHORPOS_START);
+  readCoordinate(GO_POSITION,      EEPROM_GO_POSITION_START);
+  readCoordinate(GO_ANCHORPOS,     EEPROM_GO_ANCHORPOS_START);
 
   DEBUG_LOG = EEPROM.read(EEPROM_DEBUG_LOG_START);
 
@@ -292,6 +292,26 @@ void Config::readCoordinate(Coordinate &coord, uint16_t start)
   coord.x = EEPROM.read(start);
   coord.y = EEPROM.read(start + 1);
   coord.z = EEPROM.read(start + 2);
+}
+
+void Config::persistFloat(float &f, uint16_t start)
+{
+  b4Converter_t converter;
+  converter.f = f;
+  EEPROM.write(start, converter.b[0]);
+  EEPROM.write(start + 1, converter.b[1]);
+  EEPROM.write(start + 2, converter.b[2]);
+  EEPROM.write(start + 3, converter.b[3]);
+}
+
+void Config::readFloat(float &f, uint16_t start)
+{
+  b4Converter_t converter;
+  converter.b[0] = EEPROM.read(start);
+  converter.b[1] = EEPROM.read(start + 1);
+  converter.b[2] = EEPROM.read(start + 2);
+  converter.b[3] = EEPROM.read(start + 3);
+  f = converter.f;
 }
 
 void Config::writeChecksum(uint16_t start)

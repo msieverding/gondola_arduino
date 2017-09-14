@@ -9,7 +9,7 @@ class SerialConnection : public IConnection
 {
 public:
   /**
-   * [create description]
+   * Create the instance of the serial connection
    * @param  baudrate Baudrate to use
    * @param  gondola  gondola to use for requests
    * @return          pointer to Instance

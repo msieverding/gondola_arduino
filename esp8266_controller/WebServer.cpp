@@ -153,6 +153,16 @@ void WebServer::handleSetupSystem()
     Config::get()->setCM_WEBSOCKETTYPE(WEBSOCKET_NONE);
   }
 
+  if (m_Server.arg("GO_POSITION_X").length() && m_Server.arg("GO_POSITION_Y").length() && m_Server.arg("GO_POSITION_Z").length())
+  {
+    Coordinate goPos;
+    goPos.x = stringToFloat(m_Server.arg("GO_POSITION_X").c_str());
+    goPos.y = stringToFloat(m_Server.arg("GO_POSITION_Y").c_str());
+    goPos.z = stringToFloat(m_Server.arg("GO_POSITION_Z").c_str());
+    Config::get()->setGO_POSITION(goPos);
+    Gondola::get()->setInitialPosition(goPos);
+  }
+
   config->writeToEEPROM();
 
   prepareHeader(answer);
@@ -300,6 +310,24 @@ void WebServer::prepareSetupSystemPage(std::string &s)
   s.append("<label for=\"C\">Client</label><br>");
   s.append("<input type=\"radio\" id=\"N\" name=\"CM_WEBSOCKETTYPE\" value=\"WEBSOCKET_NONE\" " + std::string(config->getCM_WEBSOCKETTYPE() == WEBSOCKET_NONE ? "checked" : "") + ">");
   s.append("<label for=\"N\">None</label><br>");
+
+  // Position of Gondola
+  s.append("<h4>Position of gondola (if master)</h4>");
+  s.append("<label for=\"GO_POSITION_X\">X</label>");
+  s.append("<input type=\"text\" id=\"GO_POSITION_X\" name=\"GO_POSITION_X\" value=\"" + floatToString(Config::get()->getGO_POSITION().x) + "\"><br><br>");
+  s.append("<label for=\"GO_POSITION_Y\">X</label>");
+  s.append("<input type=\"text\" id=\"GO_POSITION_Y\" name=\"GO_POSITION_Y\" value=\"" + floatToString(Config::get()->getGO_POSITION().y) + "\"><br><br>");
+  s.append("<label for=\"GO_POSITION_Z\">X</label>");
+  s.append("<input type=\"text\" id=\"GO_POSITION_Z\" name=\"GO_POSITION_Z\" value=\"" + floatToString(Config::get()->getGO_POSITION().z) + "\"><br><br>");
+
+  // Mounting position of anchor
+  s.append("<h4>Mouting position of anchor (if client)</h4>");
+  s.append("<label for=\"GO_ANCHORPOS_X\">X</label>");
+  s.append("<input type=\"text\" id=\"GO_ANCHORPOS_X\" name=\"GO_ANCHORPOS_X\" value=\"" + floatToString(Config::get()->getGO_ANCHORPOS().x) + "\"><br><br>");
+  s.append("<label for=\"GO_ANCHORPOS_Y\">X</label>");
+  s.append("<input type=\"text\" id=\"GO_ANCHORPOS_Y\" name=\"GO_ANCHORPOS_Y\" value=\"" + floatToString(Config::get()->getGO_ANCHORPOS().y) + "\"><br><br>");
+  s.append("<label for=\"GO_ANCHORPOS_Z\">X</label>");
+  s.append("<input type=\"text\" id=\"GO_ANCHORPOS_Z\" name=\"GO_ANCHORPOS_Z\" value=\"" + floatToString(Config::get()->getGO_ANCHORPOS().z) + "\"><br><br>");
 
   // Submit
   s.append("<br><button type=\"submit\">Go!</button>");

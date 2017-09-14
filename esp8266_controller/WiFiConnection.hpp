@@ -45,10 +45,16 @@ private:
    */
   void onEventGotIP(const WiFiEventStationModeGotIP &event);
 
-  // TODO Doc
+  /**
+   * Event handler when the WiFi Connection is established
+   * @param event event to handle
+   */
   void onEventConnected(const WiFiEventStationModeConnected &event);
 
-  // TODO Doc
+  /**
+   * Event handler when the WiFi Connection gets lost
+   * @param event event to handle
+   */
   void onEventDisconnected(const WiFiEventStationModeDisconnected &event);
 
   // Membervariables

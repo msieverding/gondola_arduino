@@ -6,7 +6,7 @@ Anchor *Anchor::s_Instance = NULL;
 
 Anchor *Anchor::get()
 {
-  if (!s_Instance)
+  if (s_Instance == NULL)
     s_Instance = new Anchor();
 
   return s_Instance;
@@ -15,13 +15,18 @@ Anchor *Anchor::get()
 Anchor::Anchor()
  : m_AnchorPosition(Config::get()->getGO_ANCHORPOS())
  , m_Pins({0, 5, 4})
- , m_CurrentSpooledDistance(0 /*TODO get from EEPROM: Coordinate::euclideanDistance(m_AnchorPosition, Config::get()->getGO_POSITION())*/)
- , m_TargetSpooledDistance(m_CurrentSpooledDistance)
- , m_Speed(1.0f)
+ , m_SpooledDistance(0.0f)
+ , m_TargetSpooledDistance(m_SpooledDistance)
  , m_StepsTodo(0)
+ , m_StepsDone(0)
  , m_Direction(1)
+ , m_ReadyCallback()
+ , m_MoveStartTime(0)
+ , m_TravelTime(0)
+ , m_MovementFinished(false)
+ , m_Timer()
 {
-  logDebug("Creating anchor\n");
+  logDebug("Creating anchor at (%s) with spooledDistance (%s)\n", m_AnchorPosition.toString().c_str(), FTOS(m_SpooledDistance));
   configurePins();
 }
 
@@ -31,49 +36,58 @@ Anchor::~Anchor()
   s_Instance = NULL;
 }
 
-void Anchor::setTargetSpooledDistance(float targetDistance, float speed)
+void Anchor::setInitialSpooledDistance(float spooledDistance)
+{
+  m_SpooledDistance = spooledDistance;
+  m_TargetSpooledDistance = m_SpooledDistance;
+  logDebug("Incoming initial spooling '%s'.\n", FTOS(m_SpooledDistance));
+}
+
+void Anchor::setTargetSpooledDistance(float targetDistance, uint32_t travelTime)
 {
   m_TargetSpooledDistance = targetDistance;
-  m_Speed = speed;
+  m_TravelTime = travelTime;
 
-  float distanceTodo = m_TargetSpooledDistance - m_CurrentSpooledDistance;
+  float distanceTodo = m_TargetSpooledDistance - m_SpooledDistance;
+  distanceTodo = roundPrecision(distanceTodo, MIN_PRECISION);   // round to a given precision
+
+  logVerbose("============ Anchor Computing stuff ============\n");
 
   if (distanceTodo == 0)
   {
+    logDebug("Nothing to do.\n");
     if (m_ReadyCallback)
       m_ReadyCallback();
     return;
   }
 
-  logDebug("Spooled: %scm, Delta: %scm\n", floatToString(m_CurrentSpooledDistance).c_str(), floatToString(distanceTodo).c_str());
+  logVerbose("Spooled: %scm, Delta: %scm\n", floatToString(m_SpooledDistance).c_str(), floatToString(distanceTodo).c_str());
 
   if (distanceTodo < 0)
   {
-    // direction_todo = 1;
     digitalWrite(m_Pins.dir, HIGH);
-    // build absolute value
     distanceTodo = abs(distanceTodo);
     m_Direction = -1;
   }
   else
   {
-    // direction_todo = -1;
     digitalWrite(m_Pins.dir, LOW);
     m_Direction = 1;
   }
-  // round to a given precision
-  distanceTodo = roundPrecision(distanceTodo, MIN_PRECISION);
   // calculate number of steps todo
   m_StepsTodo = distanceTodo * STEP_CM;
 
-  logDebug("Rounded to (%scm): %scm, steps: %ld, microsteps: %ld\n", floatToString(MIN_PRECISION).c_str(), floatToString(distanceTodo).c_str(), m_StepsTodo, m_StepsTodo * MICROSTEPS);
+  logVerbose("Rounded to: (%scm): %scm, steps: %ld, microsteps: %ld\n", floatToString(MIN_PRECISION).c_str(), floatToString(distanceTodo).c_str(), m_StepsTodo, m_StepsTodo * MICROSTEPS);
 
   m_StepsTodo *= MICROSTEPS; // we need to account for all microsteps
-}
+  m_StepsDone = 0;
 
-long Anchor::missingSteps()
-{
-  return m_StepsTodo;
+  logDebug("Start: %d\n", millis());
+
+  m_MoveStartTime = millis();
+  m_Timer.attach_ms(1, move);
+
+  logVerbose("======================================================\n");
 }
 
 void Anchor::configurePins()
@@ -84,75 +98,44 @@ void Anchor::configurePins()
   digitalWrite(m_Pins.en, LOW);
 }
 
-void Anchor::startStep()
+inline void Anchor::startStep()
 {
-  // start stepp trigger
-  digitalWrite(m_Pins.stp, HIGH);
+  digitalWrite(m_Pins.stp, HIGH);   // start stepp trigger
 }
 
-void Anchor::endStep()
+inline void Anchor::endStep()
 {
-  // stop step trigger
-  digitalWrite(m_Pins.stp, LOW);
+
+  digitalWrite(m_Pins.stp, LOW);    // stop step trigger
 }
 
 void Anchor::move()
 {
-  static bool init = false;
-  static uint32_t time = 0;
-  // TODO find possibility to decrease speed
-  if (m_StepsTodo == 0 && init == true)
+  uint32_t stepsGoal = ceil(((float)((millis() - s_Instance->m_MoveStartTime) * s_Instance->m_StepsTodo)) / s_Instance->m_TravelTime);
+  if (stepsGoal > s_Instance->m_StepsTodo)
+    stepsGoal = s_Instance->m_StepsTodo;
+  for ( ; s_Instance->m_StepsDone <= stepsGoal; s_Instance->m_StepsDone++)
   {
-    init = false;
-    logDebug("No more steps todo\n");
-    if (m_ReadyCallback)
-      m_ReadyCallback();
-    return;
-  }
-  else if (m_StepsTodo == 0)
-  {
-    return;
-  }
-
-  if (!init)
-  {
-    init = true;
-    time = millis();
-  }
-
-  startStep();
-  delayMicroseconds(STEP_DELAY);
-  endStep();
-  // TODO second delay necessary?
-  // TODO check speed
-  m_StepsTodo--;
-  m_CurrentSpooledDistance += m_Direction * ( 1 / STEP_CM / MICROSTEPS);
-
-  if (millis() >= time)
-  {
-    time += 1000;
-    logDebug("Time %d - CurrentSpooledDistance:'%s'\n", millis(), floatToString(m_CurrentSpooledDistance).c_str());
+    s_Instance->startStep();
+    delayMicroseconds(10); // delay to be sure that the step was done;
+    s_Instance->endStep();
+    delayMicroseconds(10); // delay to be sure that the step was done;
+    s_Instance->m_SpooledDistance += s_Instance->m_Direction * (1.0f / STEP_CM / MICROSTEPS);
+    if (s_Instance->m_StepsTodo == s_Instance->m_StepsDone)
+      s_Instance->m_MovementFinished = true;
   }
 }
 
-float Anchor::roundPrecision(float f, float precision)
+void Anchor::loop()
 {
-  return round(f * (1.0f / precision)) / (1.0f / precision);
-}
-
-float Anchor::getCurrentSpooledDistance()
-{
-  return m_CurrentSpooledDistance;
-}
-
-float Anchor::getTargetSpooledDistance()
-{
-  return m_TargetSpooledDistance;
-}
-
-int Anchor::getStepsTodo()
-{
-  return m_StepsTodo;
+  if (m_MovementFinished == true)
+  {
+    m_MovementFinished = false;
+    m_MoveStartTime = 0;
+    if (m_ReadyCallback)      // Following shouldn't/can't be done in ISR.
+    m_ReadyCallback();
+    logDebug("Finish: %d, m_SpooledDistance=%s.\n", millis(), floatToString(m_SpooledDistance).c_str());
+  }
 }
 
 Coordinate Anchor::getAnchorPos()
@@ -163,4 +146,9 @@ Coordinate Anchor::getAnchorPos()
 void Anchor::registerReadyCallback(readyCallback cb)
 {
   m_ReadyCallback = cb;
+}
+
+float Anchor::roundPrecision(float f, float precision)
+{
+  return round(f * (1.0f / precision)) / (1.0f / precision);
 }

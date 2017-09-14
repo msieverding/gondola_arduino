@@ -14,11 +14,13 @@ public:
    * constructor
    */
   Coordinate();
+
   /**
    * copy constructor
    * @param c coordinate to copy
    */
   Coordinate(const Coordinate &c);
+  
   /**
    * constructor with initial coordinate
    * @param _x x part of coordinate

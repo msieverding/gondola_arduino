@@ -39,7 +39,6 @@ private:
    */
   void setupDNS();
 
-
   // Membervariables
   std::string              m_SSID;              //!< SSID of the provided network
   std::string              m_Passphrase;        //!< Passphrase of te provided netowkr

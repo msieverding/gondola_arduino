@@ -19,12 +19,13 @@ WebSocketServer::~WebSocketServer()
 
 void WebSocketServer::loop()
 {
-  static uint32_t nextTime = 0;
+  static uint32_t nextPing = 0;
 
-  if (millis() >= nextTime)
+  // Ping all clients to detect timeouts
+  if (millis() > nextPing)
   {
-    m_WebSocketServer.sendTXT(0, "I'm Happy!");
-    nextTime = millis() + 5000;
+    m_WebSocketServer.broadcastPing();
+    nextPing += 1000;
   }
 
   m_WebSocketServer.loop();
@@ -62,7 +63,7 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
     if (cmd == WSO_C_REGISTER)
     {
       anchorInformation_t anchorInfo(num);
-      floatConverter_t converter;
+      b4Converter_t converter;
       uint8_t i = 1;
       converter.b[0] = payload[i++];
       converter.b[1] = payload[i++];
@@ -82,21 +83,14 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
       converter.b[3] = payload[i++];
       anchorInfo.anchorPos.z = converter.f;
 
-      converter.b[0] = payload[i++];
-      converter.b[1] = payload[i++];
-      converter.b[2] = payload[i++];
-      converter.b[3] = payload[i++];
-      anchorInfo.spooledDistance = converter.f;
-      anchorInfo.targetSpooledDistance = converter.f;
-
       anchorInfo.moveFunc = std::bind(&WebSocketServer::remoteAnchorMoveFunction, this, std::placeholders::_1);
-      m_Gondola->addAnchor(anchorInfo);
+      anchorInfo.initFunc = std::bind(&WebSocketServer::remoteAnchorInitFunction, this, std::placeholders::_1);
+      m_Gondola->addAnchor(anchorInfo);     // Call will use initFunc
 
       logDebug("Client registered at position(%s)\n", anchorInfo.anchorPos.toString().c_str());
     }
     else if (cmd == WSO_C_REPORT)
     {
-      logDebug("Client '%u' finished moving\n", num);
       m_Gondola->reportAnchorFinished(num);
     }
     break;
@@ -109,12 +103,11 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
 
 void WebSocketServer::remoteAnchorMoveFunction(anchorInformation_t &anchorInfo)
 {
-  logDebug("WebSocketServer::remoteAnchorMoveFunction:: num:'%u'\n", anchorInfo.id);
   uint8_t i = 1;
   uint8_t payload[8 + 1];
-  floatConverter_t converter;
 
   payload[0] = WSO_S_MOVE;
+  b4Converter_t converter;
 
   converter.f = anchorInfo.targetSpooledDistance;
   payload[i++] = converter.b[0];
@@ -122,7 +115,24 @@ void WebSocketServer::remoteAnchorMoveFunction(anchorInformation_t &anchorInfo)
   payload[i++] = converter.b[2];
   payload[i++] = converter.b[3];
 
-  converter.f = anchorInfo.speed;
+  converter.u = anchorInfo.travelTime;
+  payload[i++] = converter.b[0];
+  payload[i++] = converter.b[1];
+  payload[i++] = converter.b[2];
+  payload[i++] = converter.b[3];
+
+  m_WebSocketServer.sendBIN(anchorInfo.id, payload, i);
+}
+
+void WebSocketServer::remoteAnchorInitFunction(anchorInformation_t &anchorInfo)
+{
+  uint8_t i = 1;
+  uint8_t payload[4 + 1];
+
+  payload[0] = WSO_S_SPOOLED_DIST;
+  b4Converter_t converter;
+
+  converter.f = anchorInfo.spooledDistance;
   payload[i++] = converter.b[0];
   payload[i++] = converter.b[1];
   payload[i++] = converter.b[2];

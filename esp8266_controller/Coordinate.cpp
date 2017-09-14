@@ -60,7 +60,6 @@ bool Coordinate::operator!=(Coordinate const& c)
   return false;
 }
 
-// =============== FUNCTIONS ===============
 float Coordinate::euclideanDistance(Coordinate p1, Coordinate p2)
 {
   return sqrt(pow2(p1.x - p2.x) + pow2(p1.y - p2.y) + pow2(p1.z - p2.z));

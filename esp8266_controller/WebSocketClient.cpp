@@ -1,4 +1,5 @@
 #include "WebSocketClient.hpp"
+#include "ConnectionMgr.hpp"
 #include <functional>
 #include "Log.hpp"
 
@@ -9,7 +10,6 @@ WebSocketClient::WebSocketClient(std::string host, uint16_t port)
  , m_Anchor(Anchor::get())
 {
   // Start when WiFi is connected
-  // Event for connection changes
   m_StationGotIPHandler = WiFi.onStationModeGotIP(std::bind(&WebSocketClient::onEventGotIP, this, std::placeholders::_1));
 }
 
@@ -20,7 +20,7 @@ WebSocketClient::~WebSocketClient()
 
 void WebSocketClient::onEventGotIP(const WiFiEventStationModeGotIP &event)
 {
-  logDebug("Started WebSocketClient\n");
+  logDebug("Start WebSocketClient\n");
   // server address, port and URL
 	m_WebSocketClient.begin(m_Host.c_str(), m_Port, "/");
 
@@ -56,9 +56,9 @@ void WebSocketClient::webSocketEvent(WStype_t type, uint8_t * payload, size_t le
 			// send message to server when Connected
 			m_WebSocketClient.sendTXT("Connected");
 
-      byte msg[16 + 1];
+      byte msg[12 + 1];
       uint8_t i = 1;
-      floatConverter_t converter;
+      b4Converter_t converter;
 
       msg[0] = WSO_C_REGISTER;
 
@@ -80,12 +80,6 @@ void WebSocketClient::webSocketEvent(WStype_t type, uint8_t * payload, size_t le
       msg[i++] = converter.b[2];
       msg[i++] = converter.b[3];
 
-      converter.f = m_Anchor->getCurrentSpooledDistance();
-      msg[i++] = converter.b[0];
-      msg[i++] = converter.b[1];
-      msg[i++] = converter.b[2];
-      msg[i++] = converter.b[3];
-
       m_WebSocketClient.sendBIN(msg, i);
       break;
 		}
@@ -101,10 +95,22 @@ void WebSocketClient::webSocketEvent(WStype_t type, uint8_t * payload, size_t le
 
       webSocketCommand_t cmd = static_cast<webSocketCommand_t>(payload[0]);
 
-      if (cmd == WSO_S_MOVE)
+      if (cmd == WSO_S_SPOOLED_DIST)
       {
-        floatConverter_t newSpooledDistance;
-        floatConverter_t speed;
+        b4Converter_t converter;
+        Coordinate goPos;
+        uint8_t i = 1;
+        converter.b[0] = payload[i++];
+        converter.b[1] = payload[i++];
+        converter.b[2] = payload[i++];
+        converter.b[3] = payload[i++];
+
+        Anchor::get()->setInitialSpooledDistance(converter.f);
+      }
+      else if (cmd == WSO_S_MOVE)
+      {
+        b4Converter_t newSpooledDistance;
+        b4Converter_t travelTime;
         uint8_t i = 1;
 
         newSpooledDistance.b[0] = payload[i++];
@@ -112,13 +118,13 @@ void WebSocketClient::webSocketEvent(WStype_t type, uint8_t * payload, size_t le
         newSpooledDistance.b[2] = payload[i++];
         newSpooledDistance.b[3] = payload[i++];
 
-        speed.b[0] = payload[i++];
-        speed.b[1] = payload[i++];
-        speed.b[2] = payload[i++];
-        speed.b[3] = payload[i++];
+        travelTime.b[0] = payload[i++];
+        travelTime.b[1] = payload[i++];
+        travelTime.b[2] = payload[i++];
+        travelTime.b[3] = payload[i++];
 
-        logDebug("Got new spooled distance = '%s' and speed = '%s'\n", floatToString(newSpooledDistance.f).c_str(), floatToString(speed.f).c_str());
-        m_Anchor->setTargetSpooledDistance(newSpooledDistance.f, speed.f);
+        logDebug("Got new spooled distance = '%s' and travel time = '%u'\n", floatToString(newSpooledDistance.f).c_str(), travelTime.u);
+        m_Anchor->setTargetSpooledDistance(newSpooledDistance.f, travelTime.u);
       }
 			break;
     }

@@ -44,12 +44,11 @@ public:
   /**
    * delete a command from the command interpreter
    * @param commandWord     command to react on
-   * @param commandFunction function to call when commandWord was found
    */
   void deleteCommand(std::string commandWord);
 
   /**
-   * interprete a string s
+   * Interprete a string s
    * When a registered command word appears, the given callback is called
    * by this interpreter
    * @param s input string to interprete

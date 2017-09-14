@@ -13,7 +13,9 @@ ConnectionMgr *ConnectionMgr::s_Instance = NULL;
 ConnectionMgr *ConnectionMgr::get()
 {
   if (s_Instance == NULL)
+  {
     s_Instance = new ConnectionMgr();
+  }
 
   return s_Instance;
 }
@@ -24,15 +26,8 @@ ConnectionMgr::ConnectionMgr()
  , m_ChangeConnectionType(CON_NONE)
  , m_ChangeConnectionRequest(false)
  , m_Connection(NULL)
- // // MqTT
- // , m_MqTTType(Config::get()->getCM_MQTTTYPE())
- // , m_changeMqTTType(MQTT_NONE)
- // , m_ChangeMqTTRequest(false)
- // , m_MqTTService(NULL)
  // WebSocket
  , m_WebSocketType(Config::get()->getCM_WEBSOCKETTYPE())
- , m_ChangeWebSocketType(WEBSOCKET_NONE)
- , m_ChangeWebSocketRequest(false)
  , m_WebSocket(NULL)
  // WebServer
  , m_WebServer(Config::get()->getWS_PORT())
@@ -40,7 +35,6 @@ ConnectionMgr::ConnectionMgr()
   CommandInterpreter::get()->addCommand(std::string("contype"), std::bind(&ConnectionMgr::contypeCommand, this, std::placeholders::_1));
 
   changeConnection(m_ConnectionType);
-  // changeMqTTType(m_MqTTType);
   changeWebSocket(m_WebSocketType);
 }
 
@@ -169,6 +163,7 @@ bool ConnectionMgr::contypeCommand(std::string &s)
     if (arg.compare("WIFI") == 0)
     {
       Config::get()->setCM_CONNECTIONTYPE(CON_WIFI_CONNECTION);
+      Config::get()->writeToEEPROM();
       changeConnection(CON_WIFI_CONNECTION);
       return true;
     }
@@ -176,18 +171,21 @@ bool ConnectionMgr::contypeCommand(std::string &s)
     {
       Config::get()->setCM_CONNECTIONTYPE(CON_ACCESS_POINT);
       changeConnection(CON_ACCESS_POINT);
+      Config::get()->writeToEEPROM();
       return true;
     }
     else if (arg.compare("DUAL") == 0)
     {
       Config::get()->setCM_CONNECTIONTYPE(CON_DUAL_CONNECTION);
       changeConnection(CON_DUAL_CONNECTION);
+      Config::get()->writeToEEPROM();
       return true;
     }
     else if (arg.compare("NONE") == 0)
     {
       Config::get()->setCM_CONNECTIONTYPE(CON_NONE);
       changeConnection(CON_NONE);
+      Config::get()->writeToEEPROM();
       return true;
     }
   }
