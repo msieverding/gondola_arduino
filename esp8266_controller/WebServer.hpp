@@ -38,6 +38,7 @@ protected:
 
   // Helper functions to build web pages
   virtual void prepareHeader(std::string &s);
+  virtual void prepareFooter(std::string &s);
   void prepareSetupWiFiPage(std::string &s);
   void prepareSetupSystemPage(std::string &s);
   void prepareGondolaMovePage(std::string &s);

@@ -59,6 +59,7 @@ void WebServer::handleRoot()
     }
     prepareGondolaMovePage(answer);
   }
+  prepareFooter(answer);
 
   m_Server.send(200, "text/html", answer.c_str());
 }
@@ -127,6 +128,7 @@ void WebServer::handleSetupWiFi()
 
   prepareHeader(answer);
   prepareSetupWiFiPage(answer);
+  prepareFooter(answer);
 
   m_Server.send(200, "text/html", answer.c_str());
 }
@@ -167,6 +169,7 @@ void WebServer::handleSetupSystem()
 
   prepareHeader(answer);
   prepareSetupSystemPage(answer);
+  prepareFooter(answer);
 
   m_Server.send(200, "text/html", answer.c_str());
 }
@@ -176,6 +179,7 @@ void WebServer::handleShowAPClients()
   std::string answer;
   prepareHeader(answer);
   prepareShowAPClients(answer);
+  prepareFooter(answer);
 
   m_Server.send(200, "text/html", answer.c_str());
 }
@@ -203,7 +207,8 @@ void WebServer::handleNotFound()
 
 void WebServer::prepareHeader(std::string &s)
 {
-  s.append("<html>");
+  s.append("<!DOCTYPE html><html>");
+  s.append("<body>");
   s.append("<a href=\"/\">Root</a> ");
   s.append("<a href=\"/SetupWiFi\">SetupWiFi</a> ");
   s.append("<a href=\"/SetupSystem\">SetupSystem</a> ");
@@ -212,14 +217,17 @@ void WebServer::prepareHeader(std::string &s)
     s.append("<a href=\"/ShowAPClients\">ShowAPClients</a> ");
   }
   s.append("<hr>");
-  s.append("</html>");
+}
+
+void WebServer::prepareFooter(std::string &s)
+{
+  s.append("</body></html>");
 }
 
 void WebServer::prepareSetupWiFiPage(std::string &s)
 {
   Config *config = Config::get();
 
-  s.append("<html>");
   // Setup for WiFi
   s.append("<h1>WiFi Setup: </h1>");
   s.append("<form>");
@@ -290,7 +298,6 @@ void WebServer::prepareSetupWiFiPage(std::string &s)
   s.append("<br>(A new connection will be established!)");
 
   s.append("</form>");
-  s.append("</html>");
 }
 
 
@@ -298,7 +305,6 @@ void WebServer::prepareSetupSystemPage(std::string &s)
 {
   Config *config = Config::get();
 
-  s.append("<html>");
   s.append("<h1>System setup</h1>");
   s.append("<form>");
   // Setup WebSocket
@@ -315,18 +321,18 @@ void WebServer::prepareSetupSystemPage(std::string &s)
   s.append("<h4>Position of gondola (if master)</h4>");
   s.append("<label for=\"GO_POSITION_X\">X</label>");
   s.append("<input type=\"text\" id=\"GO_POSITION_X\" name=\"GO_POSITION_X\" value=\"" + floatToString(Config::get()->getGO_POSITION().x) + "\"><br><br>");
-  s.append("<label for=\"GO_POSITION_Y\">X</label>");
+  s.append("<label for=\"GO_POSITION_Y\">Y</label>");
   s.append("<input type=\"text\" id=\"GO_POSITION_Y\" name=\"GO_POSITION_Y\" value=\"" + floatToString(Config::get()->getGO_POSITION().y) + "\"><br><br>");
-  s.append("<label for=\"GO_POSITION_Z\">X</label>");
+  s.append("<label for=\"GO_POSITION_Z\">Z</label>");
   s.append("<input type=\"text\" id=\"GO_POSITION_Z\" name=\"GO_POSITION_Z\" value=\"" + floatToString(Config::get()->getGO_POSITION().z) + "\"><br><br>");
 
   // Mounting position of anchor
   s.append("<h4>Mouting position of anchor (if client)</h4>");
   s.append("<label for=\"GO_ANCHORPOS_X\">X</label>");
   s.append("<input type=\"text\" id=\"GO_ANCHORPOS_X\" name=\"GO_ANCHORPOS_X\" value=\"" + floatToString(Config::get()->getGO_ANCHORPOS().x) + "\"><br><br>");
-  s.append("<label for=\"GO_ANCHORPOS_Y\">X</label>");
+  s.append("<label for=\"GO_ANCHORPOS_Y\">Y</label>");
   s.append("<input type=\"text\" id=\"GO_ANCHORPOS_Y\" name=\"GO_ANCHORPOS_Y\" value=\"" + floatToString(Config::get()->getGO_ANCHORPOS().y) + "\"><br><br>");
-  s.append("<label for=\"GO_ANCHORPOS_Z\">X</label>");
+  s.append("<label for=\"GO_ANCHORPOS_Z\">Z</label>");
   s.append("<input type=\"text\" id=\"GO_ANCHORPOS_Z\" name=\"GO_ANCHORPOS_Z\" value=\"" + floatToString(Config::get()->getGO_ANCHORPOS().z) + "\"><br><br>");
 
   // Submit
@@ -334,21 +340,20 @@ void WebServer::prepareSetupSystemPage(std::string &s)
   s.append("<br>(A new setup will be started!)");
 
   s.append("</form>");
-  s.append("</html>");
 }
 
 void WebServer::prepareGondolaMovePage(std::string &s)
 {
   Gondola *gondola = Gondola::get();
 
-  s.append("<html>");
   Coordinate coord = gondola->getCurrentPosition();
 
   if (gondola->getCurrentPosition() != gondola->getTargetPosition())
   {
+    s.append("<head><meta http-equiv=\"Refresh\" content=\"5; URL=/\"></head>");
     s.append("<h1>Gondola is moving</h1>");
     s.append("Move from: "+ gondola->getCurrentPosition().toString());
-    s.append(" to: "+ gondola->getTargetPosition().toString());
+    s.append("<br>to: "+ gondola->getTargetPosition().toString());
   }
   else
   {
@@ -370,14 +375,12 @@ void WebServer::prepareGondolaMovePage(std::string &s)
     s.append("</label>");
     s.append("<br><br>");
     s.append("<button type=\"submit\">Move!</button>");
+    s.append("</form>");
   }
-  s.append("</form>");
-  s.append("</html>");
 }
 
 void WebServer::prepareShowAPClients(std::string &s)
 {
-  s.append("<html>");
   s.append("<h4>Connected devices:</h4>");
   struct station_info *info;
   struct ip_addr *ip;
