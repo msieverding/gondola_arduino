@@ -69,19 +69,16 @@ bool SerialConnection::loglevelCommand(std::string &s)
     if (arg0.compare("info") == 0)
     {
       setLogLevel(LOG_INFO);
-      Config::get()->writeToEEPROM();
       return true;
     }
     else if (arg0.compare("debug") == 0)
     {
       setLogLevel(LOG_DEBUG);
-      Config::get()->writeToEEPROM();
       return true;
     }
     else if (arg0.compare("warning") == 0)
     {
       setLogLevel(LOG_WARNING);
-      Config::get()->writeToEEPROM();
       return true;
     }
     else if (arg0.compare("verbose") == 0)
@@ -93,6 +90,6 @@ bool SerialConnection::loglevelCommand(std::string &s)
   }
 
   logWarning("Unsupported!\n");
-  logWarning("Usage: loglevel level\nLevels:\n\twarning\t only warnings are displayed\n\tinfo\t additional information is displayed\n\tdebug\t addtitional debug output is provided\n");
+  logWarning("Usage: loglevel level\nLevels:\n\twarning\tonly warnings are displayed\n\tinfo\tadditional information is displayed\n\tdebug\taddtitional debug output is provided\nverbose\tall generated output will be printed\n");
   return false;
 }

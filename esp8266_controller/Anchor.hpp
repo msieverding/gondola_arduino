@@ -61,10 +61,16 @@ public:
   void endStep();
 
   /**
-   * Get the Mounting position of the anchor
    * @return Coordinate, where the anchor is mounted
+   * Get the mounting position of the anchor
    */
   Coordinate getAnchorPos();
+
+  /**
+   * Set the mounting position of the anchor
+   * @param anchorPos mounting positiong
+   */
+  void setAnchorPos(Coordinate anchorPos);
 
    /**
     * Register a callback, that should be executed, when the movement is finished

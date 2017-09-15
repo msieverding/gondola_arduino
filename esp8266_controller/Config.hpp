@@ -12,7 +12,7 @@
 
 // precision of 1 step in cm
 #define MIN_PRECISION ((float)(1 / ((float)STEP_CM)))
-#define MICROSTEPS 16
+#define MICROSTEPS 1
 
 //! Forward declaration of connectionType_t from ConnectionMgr
 enum connectionType_e : byte;

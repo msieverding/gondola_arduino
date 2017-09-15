@@ -139,6 +139,25 @@ void WebServer::handleSetupSystem()
   Config *config = Config::get();
   std::string answer;
 
+  if (m_Server.arg("GO_POSITION_X").length() && m_Server.arg("GO_POSITION_Y").length() && m_Server.arg("GO_POSITION_Z").length())
+  {
+    Coordinate goPos;
+    goPos.x = stringToFloat(m_Server.arg("GO_POSITION_X").c_str());
+    goPos.y = stringToFloat(m_Server.arg("GO_POSITION_Y").c_str());
+    goPos.z = stringToFloat(m_Server.arg("GO_POSITION_Z").c_str());
+    Config::get()->setGO_POSITION(goPos);
+    Gondola::get()->setInitialPosition(goPos);
+  }
+
+  if (m_Server.arg("GO_ANCHORPOS_X").length() && m_Server.arg("GO_ANCHORPOS_Y").length() && m_Server.arg("GO_ANCHORPOS_Z").length())
+  {
+    Coordinate goPos;
+    goPos.x = stringToFloat(m_Server.arg("GO_ANCHORPOS_X").c_str());
+    goPos.y = stringToFloat(m_Server.arg("GO_ANCHORPOS_Y").c_str());
+    goPos.z = stringToFloat(m_Server.arg("GO_ANCHORPOS_Z").c_str());
+    Config::get()->setGO_ANCHORPOS(goPos);
+  }
+  
   if (m_Server.arg("CM_WEBSOCKETTYPE").equals("WEBSOCKET_SERVER"))
   {
     conMgr->changeWebSocket(WEBSOCKET_SERVER);
@@ -153,16 +172,6 @@ void WebServer::handleSetupSystem()
   {
     conMgr->changeWebSocket(WEBSOCKET_NONE);
     Config::get()->setCM_WEBSOCKETTYPE(WEBSOCKET_NONE);
-  }
-
-  if (m_Server.arg("GO_POSITION_X").length() && m_Server.arg("GO_POSITION_Y").length() && m_Server.arg("GO_POSITION_Z").length())
-  {
-    Coordinate goPos;
-    goPos.x = stringToFloat(m_Server.arg("GO_POSITION_X").c_str());
-    goPos.y = stringToFloat(m_Server.arg("GO_POSITION_Y").c_str());
-    goPos.z = stringToFloat(m_Server.arg("GO_POSITION_Z").c_str());
-    Config::get()->setGO_POSITION(goPos);
-    Gondola::get()->setInitialPosition(goPos);
   }
 
   config->writeToEEPROM();

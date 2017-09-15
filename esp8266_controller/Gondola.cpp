@@ -45,6 +45,8 @@ void Gondola::setInitialPosition(Coordinate position)
   std::list<anchorInformation_t>::iterator it;
   for (it = m_AnchorList.begin(); it != m_AnchorList.end(); it++)
   {
+    it->spooledDistance = Coordinate::euclideanDistance(it->anchorPos, position);
+    it->targetSpooledDistance = it->spooledDistance;
     it->initFunc(*it);
   }
 }
@@ -126,7 +128,7 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
     it->targetSpooledDistance = Coordinate::euclideanDistance(it->anchorPos, targetPos);
     cmTodo = it->targetSpooledDistance - it->spooledDistance;        //in cm
 
-    logVerbose("AnchorNum: %d\n", (int16_t)it->id);
+    logVerbose("AnchorNum: %d on position %s/%s/%s\n", it->id, FTOS(it->anchorPos.x), FTOS(it->anchorPos.y), FTOS(it->anchorPos.z));
     logVerbose("Spooled: %scm, Delta: %scm\n", floatToString(it->spooledDistance).c_str(), floatToString(cmTodo).c_str());
 
     cmTodoRounded = abs(Anchor::roundPrecision(cmTodo, MIN_PRECISION));
@@ -137,7 +139,7 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
     max_steps = std::max(max_steps, stepsTodo);
   }
 
-  logVerbose("Budget: %ss, Minimum %ss\n", floatToString(travelTime).c_str(), floatToString(max_steps / 1000.f).c_str());
+  logVerbose("Budget: %ss, Minimum %ss\n", floatToString(travelTime).c_str(), floatToString(max_steps / 1000.0f).c_str());
 
   logVerbose("==============================================\n");
 

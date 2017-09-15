@@ -65,13 +65,13 @@ void Anchor::setTargetSpooledDistance(float targetDistance, uint32_t travelTime)
 
   if (distanceTodo < 0)
   {
-    digitalWrite(m_Pins.dir, HIGH);
+    digitalWrite(m_Pins.dir, LOW);
     distanceTodo = abs(distanceTodo);
     m_Direction = -1;
   }
   else
   {
-    digitalWrite(m_Pins.dir, LOW);
+    digitalWrite(m_Pins.dir, HIGH);
     m_Direction = 1;
   }
   // calculate number of steps todo
@@ -141,6 +141,11 @@ void Anchor::loop()
 Coordinate Anchor::getAnchorPos()
 {
   return m_AnchorPosition;
+}
+
+void Anchor::setAnchorPos(Coordinate anchorPos)
+{
+  m_AnchorPosition = anchorPos;
 }
 
 void Anchor::registerReadyCallback(readyCallback cb)
