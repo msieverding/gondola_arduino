@@ -30,7 +30,7 @@ public:
   virtual ~IWebSocket() {}
 
   /**
-   * pure virtual loop function
+   * Pure virtual loop function
    */
   virtual void loop() = 0;
 

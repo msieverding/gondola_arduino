@@ -11,7 +11,7 @@
 #include "WebServer.hpp"
 
 /**
- * Class for a WiFi Connection and an Access Point at the same tine
+ * Class for a WiFi Connection and an Access Point at the same time
  */
 class DualConnection : public IConnection
 {
@@ -27,14 +27,15 @@ public:
    * @param  wc_ssid     SSID of the network to connect
    * @param  wc_pw       Passphrase of the network to connect
    * @param  wc_hostname Hostname of the ESP8266 in this network
-   * @param  wc_ip       static IP to use / 0.0.0.0 for DHCP
-   * @param  wc_gw       static gateway to use / 0.0.0.0 for DHCP
-   * @param  wc_nm       static netmask to use / 0.0.0.0 for DHCP
+   * @param  wc_ip       Static IP to use / 0.0.0.0 for DHCP
+   * @param  wc_gw       Static gateway to use / 0.0.0.0 for DHCP
+   * @param  wc_nm       Static netmask to use / 0.0.0.0 for DHCP
    */
   DualConnection(std::string ap_ssid, std::string ap_pw, IPAddress ap_ip, IPAddress ap_gw, IPAddress ap_nm, std::string ap_url,
                  std::string wc_ssid, std::string wc_pw, std::string wc_hostname, IPAddress wc_ip, IPAddress wc_gw, IPAddress wc_nm);
+
   /**
-   * virtual destructor
+   * Virtual destructor
    */
   virtual ~DualConnection();
 
@@ -42,36 +43,36 @@ public:
    * Loop to call periodically
    */
   virtual void loop();
-private:
 
+private:
   /**
-   * setup the WiFi Connection
+   * Setup the WiFi Connection
    */
   void setupWiFiConnection();
 
   /**
-   * setup mDNS for WiFi Connection
+   * Setup mDNS for the WiFi connection
    */
   void setupMDNS();
 
   /**
-   * Event handler when the WiFi Connection gets an IP
+   * Event handler when the WiFi connection gets an IP
    * @param event event to handle
    */
   void onEventGotIP(const WiFiEventStationModeGotIP &event);
 
   /**
-   * setup the access point
+   * Setup the access point
    */
   void setupAccessPoint();
 
   /**
-   * Setup DNS Serveer for access point
+   * Setup a DNS Server for the access point
    */
   void setupDNS();
 
-  // membervariables
-  // access point
+  // Membervariables
+  // Access point
   std::string              m_AP_SSID;                 //!< Name for access point
   std::string              m_AP_Passphrase;           //!< Passphrase for access point
   IPAddress                m_AP_IPAddress;            //!< IP Address of this chip
@@ -79,7 +80,7 @@ private:
   IPAddress                m_AP_Netmask;              //!< Netmask of network
   std::string              m_AP_URL;                  //!< URL of this chip
   DNSServer                m_AP_DnsServer;            //!< DNS Server to provide
-  // wifi connection
+  // WiFi connection
   std::string              m_WC_SSID;                 //!< SSID of network to connect to
   std::string              m_WC_Passphrase;           //!< Passphrase for Network SSID
   IPAddress                m_WC_IPAddress;            //!< IPAddress of this chip

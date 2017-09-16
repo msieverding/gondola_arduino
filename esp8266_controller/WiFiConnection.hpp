@@ -8,13 +8,13 @@
 #include <ESP8266mDNS.h>
 
 /**
- * Singleton for a WiFi Connection to an established WiFi Network.
+ * Establish a WiFi connection to a WiFi network.
  */
 class WiFiConnection : public IConnection
 {
 public:
   /**
-   * private Constructor
+   * Constructor
    * @param  ssid       SSID of network
    * @param  passphrase Passphrase for network with ssid
    * @param  hostname   Hostname to use during connection
@@ -25,7 +25,7 @@ public:
   WiFiConnection(std::string ssid, std::string passphrase, std::string hostname, IPAddress ip, IPAddress gw, IPAddress nm);
 
   /**
-   * Destructor
+   * Virtual destructor
    */
   virtual ~WiFiConnection();
 
@@ -40,20 +40,20 @@ private:
   void setupMDNS();
 
   /**
-   * Event handler when the WiFi Connection gets an IP
-   * @param event event to handle
+   * Event handler when the WiFi connection gets an IP
+   * @param event Event to handle
    */
   void onEventGotIP(const WiFiEventStationModeGotIP &event);
 
   /**
-   * Event handler when the WiFi Connection is established
-   * @param event event to handle
+   * Event handler when the WiFi connection is established
+   * @param event Event to handle
    */
   void onEventConnected(const WiFiEventStationModeConnected &event);
 
   /**
-   * Event handler when the WiFi Connection gets lost
-   * @param event event to handle
+   * Event handler when the WiFi connection gets lost
+   * @param event Event to handle
    */
   void onEventDisconnected(const WiFiEventStationModeDisconnected &event);
 

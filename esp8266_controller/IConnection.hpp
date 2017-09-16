@@ -3,7 +3,7 @@
 
 /**
  * Interface for connections.
- * Used for WiFiConnection, APConnection and SerialConnection for polymorphie
+ * Used for WiFiConnection, APConnection, DualConnection and SerialConnection for polymorphie
  */
 class IConnection
 {
@@ -11,13 +11,13 @@ public:
   /**
    * Loop to call periodically
    */
-  virtual void loop() {}
+  virtual void loop() {};
 
   /**
-   * Destrcutor
+   * Virtual destrcutor
    */
   virtual ~IConnection() {}
-  
+
 protected:
   /**
    * Constrcutor

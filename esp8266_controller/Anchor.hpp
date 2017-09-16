@@ -113,7 +113,7 @@ private:
   // instance
   static Anchor    *s_Instance;                   //!< Instance of the anchor
 
-  // membervariables
+  // Membervariables
   Coordinate        m_AnchorPosition;             //!< Mounting position
   pins_t            m_Pins;                       //!< pin setup
   float             m_SpooledDistance;            //!< Current spooled distance

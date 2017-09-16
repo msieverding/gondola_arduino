@@ -11,18 +11,18 @@ class Coordinate
 {
 public:
   /**
-   * constructor
+   * Constructor
    */
   Coordinate();
 
   /**
-   * copy constructor
+   * Copy constructor
    * @param c coordinate to copy
    */
   Coordinate(const Coordinate &c);
-  
+
   /**
-   * constructor with initial coordinate
+   * Constructor with initial coordinate
    * @param _x x part of coordinate
    * @param _y y part of coordinate
    * @param _z z part of coordinate
@@ -36,31 +36,31 @@ public:
   std::string toString();
 
   /**
-   * equal operator
-   * @param  c second coordinate
-   * @return    equal
+   * Equality operator
+   * @param  c  second coordinate
+   * @return    equality
    */
   bool operator==(Coordinate const& c);
 
   /**
-   * unequal operator
-   * @param  c second coordinate
-   * @return    unequal
+   * Unequality operator
+   * @param  c s econd coordinate
+   * @return    unequality
    */
   bool operator!=(Coordinate const& c);
 
   /**
    * Calculate euclidean distance of two coordinates
-   * @param  p1 coordinate 1
-   * @param  p2 coordinate 2
-   * @return   euclidean distance
+   * @param  p1  Coordinate 1
+   * @param  p2  Coordinate 2
+   * @return     Euclidean distance
    */
   static float euclideanDistance(Coordinate p1, Coordinate p2);
 
   /**
    * x to the power of 2
    * @param  x  x to square
-   * @return   x^2
+   * @return    x^2
    */
   static float pow2(float x);
 

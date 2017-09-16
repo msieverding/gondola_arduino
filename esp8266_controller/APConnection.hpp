@@ -14,17 +14,17 @@ public:
   /**
    * Constructor
    * @param  ssid       SSID of the access point
-   * @param  passphrase passphrase of the access point
+   * @param  passphrase Passphrase of the access point
    * @param  ip         IP Address of the chip
    * @param  gateway    Gateway to use
    * @param  netmask    Netmask of the network
    * @param  url        URL to provide
-   * @return            pointer to instance of access point
+   * @return            Pointer to instance of access point
    */
   APConnection(std::string ssid, std::string passphrase, IPAddress ip, IPAddress gateway, IPAddress netmask, std::string url);
 
   /**
-   * virtual destructor
+   * Virtual destructor
    */
   virtual ~APConnection();
 

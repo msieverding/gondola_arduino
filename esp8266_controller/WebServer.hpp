@@ -6,15 +6,15 @@
 
 /**
  * Webserver provides HTTP server with a website to access all functions
- * of gondola through a webserver
+ * of gondola through a webserver and to configure the system.
  */
 class WebServer
 {
 public:
   /**
-   * private constructor
+   * Private constructor
    * @param  port               Port to use for the server
-   * @param  configureServer    constrcutor configures server if true
+   * @param  configureServer    constructor configures server if true
    */
   WebServer(uint16_t port, bool configureServer = true);
 
@@ -24,7 +24,7 @@ public:
   virtual ~WebServer();
 
   /**
-   * Call this loop periodically to handle WebServer and DNS requests
+   * Call this loop periodically to handle WebServer
    */
   virtual void loop();
 

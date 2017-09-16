@@ -40,17 +40,17 @@ private:
    * @param payload message content
    * @param length  length of payload
    */
-  void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length);
+  void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length);
 
   /**
-   * function to call, when an anchor should move.
+   * Function to call, when an anchor should move.
    * Is registerd at gonola and called from there
    * @param anchorInfo information about the anchor
    */
   void remoteAnchorMoveFunction(anchorInformation_t &anchorInfo);
 
   /**
-   * function to call, when an anchor should be initialised.
+   * Function to call, when an anchor should be initialised.
    * Is registerd at gonola and called from there
    * @param anchorInfo information about the anchor
    */
