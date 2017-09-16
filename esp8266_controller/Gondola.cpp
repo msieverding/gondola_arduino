@@ -55,7 +55,7 @@ void Gondola::addAnchor(anchorInformation_t &anchorInfo)
 {
   anchorInfo.spooledDistance = Coordinate::euclideanDistance(anchorInfo.anchorPos, m_CurrentPosition);
   anchorInfo.targetSpooledDistance = anchorInfo.spooledDistance;
-  m_AnchorList.push_back(anchorInfo);
+  m_AnchorList.push_front(anchorInfo);        // push new (remote) anchors to the front, so that the hardware anchor starts to spool after the message to the remote anchors was delivered (better synchronisation during spooling)
   anchorInfo.initFunc(anchorInfo);
 }
 
