@@ -1,7 +1,7 @@
 TODO:
+- Change anchorInformation_t to 3 classes: IAnchor, hardwareAnchor, remoteAnchor
 
 Ideas:
-
 - Use NTP for a time (maybe good for debug output, etc..). NTP is used here (https://github.com/Azure/azure-iot-arduino-protocol-http/blob/master/examples/simplesample_http/simplesample_http.ino)
 - Async WebServer (https://github.com/me-no-dev/ESPAsyncWebServer?utm_source=platformio&utm_medium=piohome)
 - WebSocket Server and Cient (https://github.com/Links2004/arduinoWebSockets?utm_source=platformio&utm_medium=piohome)

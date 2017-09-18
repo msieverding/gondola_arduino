@@ -157,7 +157,7 @@ void WebServer::handleSetupSystem()
     goPos.z = stringToFloat(m_Server.arg("GO_ANCHORPOS_Z").c_str());
     Config::get()->setGO_ANCHORPOS(goPos);
   }
-  
+
   if (m_Server.arg("CM_WEBSOCKETTYPE").equals("WEBSOCKET_SERVER"))
   {
     conMgr->changeWebSocket(WEBSOCKET_SERVER);
@@ -224,6 +224,10 @@ void WebServer::prepareHeader(std::string &s)
   if (ConnectionMgr::get()->getConnectionType() == CON_ACCESS_POINT || ConnectionMgr::get()->getConnectionType() == CON_DUAL_CONNECTION)
   {
     s.append("<a href=\"/ShowAPClients\">ShowAPClients</a> ");
+  }
+  else
+  {
+    s.append("<a href=\"https://www.gondola.com\">Server</a> ");
   }
   s.append("<hr>");
 }
@@ -366,8 +370,7 @@ void WebServer::prepareGondolaMovePage(std::string &s)
   }
   else
   {
-    s.append("<br><br>");
-    s.append("New position:");
+    s.append("<h4>New position:</h4>");
     s.append("<form>");
     s.append("<label for=\"x\">X:");
     s.append("<input type=\"text\" id=\"x\" name=\"x\" value=\"" + floatToString(coord.x) + "\">");
@@ -384,7 +387,29 @@ void WebServer::prepareGondolaMovePage(std::string &s)
     s.append("</label>");
     s.append("<br><br>");
     s.append("<button type=\"submit\">Move!</button>");
-    s.append("</form>");
+    s.append("</form><br>");
+  }
+  std::list<anchorInformation_t> anchorList = Gondola::get()->getAnchorList();
+  std::list<anchorInformation_t>::iterator it = anchorList.begin();
+  s.append("<h4>Registerd anchors:</h4>");
+  while(it != anchorList.end())
+  {
+    s.append("ID: ");
+    s.append(String(it->id).c_str());
+    s.append("<br>");
+    s.append("Position: ");
+    s.append(FTOS(it->anchorPos.x));
+    s.append("/");
+    s.append(FTOS(it->anchorPos.y));
+    s.append("/");
+    s.append(FTOS(it->anchorPos.z));
+    s.append("<br>Spooled distance: ");
+    s.append(FTOS(it->spooledDistance));
+    s.append("<br>Target spooled distance:");
+    s.append(FTOS(it->targetSpooledDistance));
+    s.append("<br><br>");
+
+    it++;
   }
 }
 
