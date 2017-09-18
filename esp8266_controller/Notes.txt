@@ -19,7 +19,6 @@ Out of code documentation:
 - Setup ATOM build environment
 - Add libraries (https://www.youtube.com/watch?v=EBlHNBNHESQ)
 - Fetcher checksum in EEPROM
-- Using std::bind with placeholders from #include <functional> with std::placeholder::_1 ..  _N
 - compiler optiization -O3 for maxium speed. Size does not matter on this chip
 
 Unused libraries:

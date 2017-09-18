@@ -125,6 +125,11 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
     speed = 1.0f;
 
   float travelDistance = Coordinate::euclideanDistance(m_CurrentPosition, m_TargetPosition);
+  if (travelDistance == 0)
+  {
+    logDebug("Travel distance = 0. Nothing to do.\n");
+    return;
+  }
 
   logVerbose("============= Gondola Computing all Anchors ==========\n");
 

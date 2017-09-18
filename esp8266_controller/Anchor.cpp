@@ -114,13 +114,14 @@ void Anchor::move()
   uint32_t stepsGoal = ceil(((float)((millis() - s_Instance->m_MoveStartTime) * s_Instance->m_StepsTodo)) / s_Instance->m_TravelTime);
   if (stepsGoal > s_Instance->m_StepsTodo)
     stepsGoal = s_Instance->m_StepsTodo;
-  for ( ; s_Instance->m_StepsDone <= stepsGoal; s_Instance->m_StepsDone++)
+  while (s_Instance->m_StepsDone < stepsGoal)
   {
     s_Instance->startStep();
-    delayMicroseconds(10); // delay to be sure that the step was done;
+    delayMicroseconds(10); // delay to be sure that the step was done
     s_Instance->endStep();
-    delayMicroseconds(10); // delay to be sure that the step was done;
+    delayMicroseconds(10); // delay to be sure that the step was done
     s_Instance->m_SpooledDistance += s_Instance->m_Direction * (1.0f / STEP_CM / MICROSTEPS);
+    s_Instance->m_StepsDone++;
     if (s_Instance->m_StepsTodo == s_Instance->m_StepsDone)
       s_Instance->m_MovementFinished = true;
   }
@@ -133,7 +134,7 @@ void Anchor::loop()
     m_MovementFinished = false;
     m_MoveStartTime = 0;
     if (m_ReadyCallback)      // Following shouldn't/can't be done in ISR.
-    m_ReadyCallback();
+      m_ReadyCallback();
     logDebug("Finish: %d, m_SpooledDistance=%s.\n", millis(), floatToString(m_SpooledDistance).c_str());
   }
 }
