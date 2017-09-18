@@ -6,6 +6,7 @@ WebSocketServer::WebSocketServer(uint16_t port)
  : m_Port(port)
  , m_WebSocketServer(m_Port)
  , m_Gondola(Gondola::get())
+ , m_NextPing(millis())
 {
   logDebug("Started WebSocketServer\n");
   m_WebSocketServer.begin();
@@ -19,13 +20,25 @@ WebSocketServer::~WebSocketServer()
 
 void WebSocketServer::loop()
 {
-  static uint32_t nextPing = 0;
-
-  // Ping all clients to detect timeouts
-  if (millis() > nextPing)
+  // Ping all clients to detect timeouts. See issue: https://github.com/Links2004/arduinoWebSockets/issues/203
+  if (millis() > m_NextPing)
   {
-    m_WebSocketServer.broadcastPing();
-    nextPing += 1000;
+    m_NextPing += 1000;
+    std::list<anchorInformation_t> anchorList = m_Gondola->getAnchorList();
+    std::list<anchorInformation_t>::iterator it = anchorList.begin();
+    while (it != anchorList.end())
+    {
+      if (it->id != HW_ANCHOR_ID)
+      {
+        if (m_WebSocketServer.sendPing(it->id) == false)
+        {
+          logWarning("Detected connection loss to client %d. Force disconnect.\n", it->id);
+          m_WebSocketServer.disconnect((it++)->id);
+          continue;
+        }
+      }
+      it++;
+    }
   }
 
   m_WebSocketServer.loop();
@@ -101,7 +114,7 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
   }
 }
 
-void WebSocketServer::remoteAnchorMoveFunction(anchorInformation_t &anchorInfo)
+bool WebSocketServer::remoteAnchorMoveFunction(anchorInformation_t &anchorInfo)
 {
   uint8_t i = 1;
   uint8_t payload[8 + 1];
@@ -121,10 +134,10 @@ void WebSocketServer::remoteAnchorMoveFunction(anchorInformation_t &anchorInfo)
   payload[i++] = converter.b[2];
   payload[i++] = converter.b[3];
 
-  m_WebSocketServer.sendBIN(anchorInfo.id, payload, i);
+  return m_WebSocketServer.sendBIN(anchorInfo.id, payload, i);
 }
 
-void WebSocketServer::remoteAnchorInitFunction(anchorInformation_t &anchorInfo)
+bool WebSocketServer::remoteAnchorInitFunction(anchorInformation_t &anchorInfo)
 {
   uint8_t i = 1;
   uint8_t payload[4 + 1];
@@ -138,5 +151,5 @@ void WebSocketServer::remoteAnchorInitFunction(anchorInformation_t &anchorInfo)
   payload[i++] = converter.b[2];
   payload[i++] = converter.b[3];
 
-  m_WebSocketServer.sendBIN(anchorInfo.id, payload, i);
+  return m_WebSocketServer.sendBIN(anchorInfo.id, payload, i);
 }

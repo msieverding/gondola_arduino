@@ -27,8 +27,8 @@ Gondola::Gondola()
 
   anchorInformation_t hardwareAnchor(HW_ANCHOR_ID);
   hardwareAnchor.anchorPos = m_HardwareAnchor->getAnchorPos();
-  hardwareAnchor.moveFunc = std::bind(&Gondola::moveHardWareAnchor, this, std::placeholders::_1);
-  hardwareAnchor.initFunc = std::bind(&Gondola::initHardWareAnchor, this, std::placeholders::_1);
+  hardwareAnchor.moveFunc = std::bind(&Gondola::moveHardwareAnchor, this, std::placeholders::_1);
+  hardwareAnchor.initFunc = std::bind(&Gondola::initHardwareAnchor, this, std::placeholders::_1);
   addAnchor(hardwareAnchor);
 }
 
@@ -42,12 +42,21 @@ void Gondola::setInitialPosition(Coordinate position)
 {
   m_CurrentPosition = position;
   m_TargetPosition = position;
-  std::list<anchorInformation_t>::iterator it;
-  for (it = m_AnchorList.begin(); it != m_AnchorList.end(); it++)
+  std::list<anchorInformation_t>::iterator it = m_AnchorList.begin();
+  while(it != m_AnchorList.end())
   {
     it->spooledDistance = Coordinate::euclideanDistance(it->anchorPos, position);
     it->targetSpooledDistance = it->spooledDistance;
-    it->initFunc(*it);
+    if (it->initFunc)
+    {
+      if (it->initFunc(*it) == false)
+      {
+        logWarning("Unable to init anchor %d. No Connection available. Delete it from Gondola.\n", it->id);
+        deleteAnchor((it++)->id);
+        continue;
+      }
+    }
+    it++;
   }
 }
 
@@ -56,7 +65,8 @@ void Gondola::addAnchor(anchorInformation_t &anchorInfo)
   anchorInfo.spooledDistance = Coordinate::euclideanDistance(anchorInfo.anchorPos, m_CurrentPosition);
   anchorInfo.targetSpooledDistance = anchorInfo.spooledDistance;
   m_AnchorList.push_front(anchorInfo);        // push new (remote) anchors to the front, so that the hardware anchor starts to spool after the message to the remote anchors was delivered (better synchronisation during spooling)
-  anchorInfo.initFunc(anchorInfo);
+  if (anchorInfo.initFunc)
+    anchorInfo.initFunc(anchorInfo);
 }
 
 void Gondola::deleteAnchor(uint8_t num)
@@ -66,8 +76,12 @@ void Gondola::deleteAnchor(uint8_t num)
   {
     if (it->id == num)
     {
-      // Finish spooling to unblock system
-      reportAnchorFinished(it->id);
+      if (m_UnfinishedAnchors & (1 << it->id))
+      {
+        // Finish spooling to unblock system
+        logWarning("Anchor %d will be reported as ready to unblock the system. Undefined state reached!\n");
+        reportAnchorFinished(it->id);
+      }
       m_AnchorList.erase(it++);
     }
     else
@@ -146,16 +160,27 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
   travelTime = std::max(travelTime, max_steps / 1000.0f);     // Fastest step is 1 ms(due to timer in Anchor.cpp) so give more time to all motors to have a smooth momvement
   travelTime *= 1000;
 
-  for (it = m_AnchorList.begin(); it != m_AnchorList.end(); it++)
+  it = m_AnchorList.begin();
+  while (it != m_AnchorList.end())
   {
     it->travelTime = travelTime;
     if (it->moveFunc)
     {
-      // TODO maybe moveFunc with boolean return value to identify timeouts
       m_UnfinishedAnchors |= (1 << it->id);
-      it->moveFunc(*it);
+      if (it->moveFunc(*it) == false)
+      {
+        logWarning("No connection to anchor %d possible. Delete anchor from list.\n", it->id);
+        deleteAnchor((it++)->id);
+        continue;
+      }
     }
+    it++;
   }
+}
+
+std::list<anchorInformation_t> Gondola::getAnchorList(void)
+{
+  return m_AnchorList;
 }
 
 bool Gondola::moveCommand(std::string &s)
@@ -199,12 +224,16 @@ void Gondola::checkForReady()
   }
 }
 
-void Gondola::moveHardWareAnchor(anchorInformation_t &anchorInfo)
+bool Gondola::moveHardwareAnchor(anchorInformation_t &anchorInfo)
 {
   m_HardwareAnchor->setTargetSpooledDistance(anchorInfo.targetSpooledDistance, anchorInfo.travelTime);
+  // Return true. Boolean return value only necessary for type.
+  return true;
 }
 
-void Gondola::initHardWareAnchor(anchorInformation_t &anchorInfo)
+bool Gondola::initHardwareAnchor(anchorInformation_t &anchorInfo)
 {
   m_HardwareAnchor->setInitialSpooledDistance(anchorInfo.spooledDistance);
+  // Return true. Boolean return value only necessary for type.
+  return true;
 }

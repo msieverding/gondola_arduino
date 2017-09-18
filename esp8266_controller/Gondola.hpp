@@ -29,8 +29,8 @@ typedef struct anchorInformation_s {
   float           spooledDistance;                      //!< current spooled distance of the anchor
   float           targetSpooledDistance;                //!< target spooled distance of the anchor
   uint32_t        travelTime;                           //!< Given travel time
-  std::function<void (anchorInformation_s&)> moveFunc;  //!< Function to move the anchor. Must set by the protocall above
-  std::function<void (anchorInformation_s&)> initFunc;  //!< Tell client initial spooled distance
+  std::function<bool (anchorInformation_s&)> moveFunc;  //!< Function to move the anchor. Must set by the protocall above
+  std::function<bool (anchorInformation_s&)> initFunc;  //!< Tell client initial spooled distance
 } anchorInformation_t;
 
 
@@ -99,6 +99,12 @@ public:
    */
   void setTargetPosition(Coordinate &targetPos, float &speed);
 
+  /**
+   * Get the list of registered anchors
+   * @return  List of registered anchors
+   */
+  std::list<anchorInformation_t> getAnchorList(void);
+
 private:
 
   /**
@@ -121,14 +127,16 @@ private:
   /**
    * moveFunc for the hardware anchor
    * @param anchorInfo anchorInfo of hardware anchor
+   * @return           success
    */
-  void moveHardWareAnchor(anchorInformation_t &anchorInfo);
+  bool moveHardwareAnchor(anchorInformation_t &anchorInfo);
 
   /**
    * initFunc for the hardware anchor
    * @param anchorInfo anchorInfo of hardware anchor
+   * @return           success
    */
-  void initHardWareAnchor(anchorInformation_t &anchorInfo);
+  bool initHardwareAnchor(anchorInformation_t &anchorInfo);
 
   // instance
   static Gondola                 *s_Instance;           //!< static instance of gondola

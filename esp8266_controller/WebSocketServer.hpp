@@ -46,21 +46,23 @@ private:
    * Function to call, when an anchor should move.
    * Is registerd at gonola and called from there
    * @param anchorInfo information about the anchor
+   * @return           success
    */
-  void remoteAnchorMoveFunction(anchorInformation_t &anchorInfo);
+  bool remoteAnchorMoveFunction(anchorInformation_t &anchorInfo);
 
   /**
    * Function to call, when an anchor should be initialised.
    * Is registerd at gonola and called from there
    * @param anchorInfo information about the anchor
+   * @return           success
    */
-  void remoteAnchorInitFunction(anchorInformation_t &anchorInfo);
+  bool remoteAnchorInitFunction(anchorInformation_t &anchorInfo);
 
   // membervariables
   uint16_t                        m_Port;             //!< Port to use
   WebSocketsServer                m_WebSocketServer;  //!< Server from WebSocketsLibrary
   Gondola                        *m_Gondola;          //!< pointer to Gondola
-
+  uint32_t                        m_NextPing;         //!< Time for next ping
 };
 
 #endif /* _WEB_SOCKET_SERVER_HPP_ */
