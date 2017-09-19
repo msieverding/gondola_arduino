@@ -9,7 +9,7 @@
 #include "Log.hpp"
 #include "Gondola.hpp"
 #include "IWebSocket.hpp"
-
+#include "HardwareAnchor.hpp"
 /**
  * WebSocket Server as Server for gondola
  */
@@ -32,6 +32,9 @@ public:
    */
   virtual void loop();
 
+  // TODO Doc
+  Gondola *getGondola();
+
 private:
   /**
    * Event that is trigered on incomming message
@@ -48,7 +51,7 @@ private:
    * @param anchorInfo information about the anchor
    * @return           success
    */
-  bool remoteAnchorMoveFunction(anchorInformation_t &anchorInfo);
+  bool remoteAnchorMoveFunction(IAnchor *anchor);
 
   /**
    * Function to call, when an anchor should be initialised.
@@ -56,13 +59,17 @@ private:
    * @param anchorInfo information about the anchor
    * @return           success
    */
-  bool remoteAnchorInitFunction(anchorInformation_t &anchorInfo);
+  bool remoteAnchorInitFunction(IAnchor *anchor);
+
+  // TODO Doc
+  bool readyCallbackToGondola(IAnchor *anchor);
 
   // membervariables
   uint16_t                        m_Port;             //!< Port to use
   WebSocketsServer                m_WebSocketServer;  //!< Server from WebSocketsLibrary
-  Gondola                        *m_Gondola;          //!< pointer to Gondola
   uint32_t                        m_NextPing;         //!< Time for next ping
+  HardwareAnchor                  m_Anchor;           // TODO Doc
+  Gondola                         m_Gondola;          //!< pointer to Gondola
 };
 
 #endif /* _WEB_SOCKET_SERVER_HPP_ */

@@ -5,7 +5,7 @@
 
 #define MAX_LENGTH    256
 
-static logLevel_t s_LogLevel = LOG_DEBUG;
+static logLevel_t s_LogLevel = LOG_VERBOSE;
 
 void setLogLevel(logLevel_t level)
 {

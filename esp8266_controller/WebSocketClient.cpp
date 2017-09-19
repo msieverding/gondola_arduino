@@ -7,18 +7,7 @@ WebSocketClient::WebSocketClient(std::string host, uint16_t port)
  : m_Host(host)
  , m_Port(port)
  , m_WebSocketClient()
- , m_Anchor(Anchor::get())
-{
-  // Start when WiFi is connected
-  m_StationGotIPHandler = WiFi.onStationModeGotIP(std::bind(&WebSocketClient::onEventGotIP, this, std::placeholders::_1));
-}
-
-WebSocketClient::~WebSocketClient()
-{
-  m_WebSocketClient.disconnect();
-}
-
-void WebSocketClient::onEventGotIP(const WiFiEventStationModeGotIP &event)
+ , m_Anchor(0)    // NO ID necessary in client
 {
   logDebug("Start WebSocketClient\n");
   // server address, port and URL
@@ -33,12 +22,18 @@ void WebSocketClient::onEventGotIP(const WiFiEventStationModeGotIP &event)
 	// try ever 5000 again if connection has failed
   m_WebSocketClient.setReconnectInterval(5000);
 
-  m_Anchor->registerReadyCallback(std::bind(&WebSocketClient::anchorReadyCallback, this));
+  m_Anchor.registerReadyCallback(std::bind(&WebSocketClient::anchorReadyCallback, this));
+}
+
+WebSocketClient::~WebSocketClient()
+{
+  m_WebSocketClient.disconnect();
 }
 
 void WebSocketClient::loop()
 {
   m_WebSocketClient.loop();
+  m_Anchor.loop();
 }
 
 void WebSocketClient::webSocketEvent(WStype_t type, uint8_t * payload, size_t length)
@@ -62,19 +57,19 @@ void WebSocketClient::webSocketEvent(WStype_t type, uint8_t * payload, size_t le
 
       msg[0] = WSO_C_REGISTER;
 
-      converter.f = m_Anchor->getAnchorPos().x;
+      converter.f = m_Anchor.getAnchorPos().x;
       msg[i++] = converter.b[0];
       msg[i++] = converter.b[1];
       msg[i++] = converter.b[2];
       msg[i++] = converter.b[3];
 
-      converter.f = m_Anchor->getAnchorPos().y;
+      converter.f = m_Anchor.getAnchorPos().y;
       msg[i++] = converter.b[0];
       msg[i++] = converter.b[1];
       msg[i++] = converter.b[2];
       msg[i++] = converter.b[3];
 
-      converter.f = m_Anchor->getAnchorPos().z;
+      converter.f = m_Anchor.getAnchorPos().z;
       msg[i++] = converter.b[0];
       msg[i++] = converter.b[1];
       msg[i++] = converter.b[2];
@@ -105,7 +100,7 @@ void WebSocketClient::webSocketEvent(WStype_t type, uint8_t * payload, size_t le
         converter.b[2] = payload[i++];
         converter.b[3] = payload[i++];
 
-        Anchor::get()->setInitialSpooledDistance(converter.f);
+        m_Anchor.setInitialSpooledDistance(converter.f);
       }
       else if (cmd == WSO_S_MOVE)
       {
@@ -124,7 +119,8 @@ void WebSocketClient::webSocketEvent(WStype_t type, uint8_t * payload, size_t le
         travelTime.b[3] = payload[i++];
 
         logDebug("Got new spooled distance = '%s' and travel time = '%u'\n", floatToString(newSpooledDistance.f).c_str(), travelTime.u);
-        m_Anchor->setTargetSpooledDistance(newSpooledDistance.f, travelTime.u);
+        m_Anchor.setTargetSpooledDistance(newSpooledDistance.f);
+        m_Anchor.startMovement(travelTime.u);
       }
 			break;
     }
@@ -134,8 +130,8 @@ void WebSocketClient::webSocketEvent(WStype_t type, uint8_t * payload, size_t le
   }
 }
 
-void WebSocketClient::anchorReadyCallback()
+bool WebSocketClient::anchorReadyCallback()
 {
   uint8_t payload = WSO_C_REPORT;
-  m_WebSocketClient.sendBIN(&payload, 1);
+  return m_WebSocketClient.sendBIN(&payload, 1);
 }

@@ -28,6 +28,8 @@ public:
    */
   virtual void loop();
 
+  void registerGondola(Gondola *gondola);
+
 protected:
   // HTTP Handler
   virtual void handleRoot();
@@ -46,5 +48,6 @@ protected:
 
   // Membervariables
   ESP8266WebServer          m_Server;
+  Gondola                  *m_Gondola;
 };
 #endif /* _WEB_SERVER_HPP_ */

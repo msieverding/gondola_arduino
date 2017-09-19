@@ -1,20 +1,27 @@
 #include "WebSocketServer.hpp"
 #include <functional>
 #include "Log.hpp"
+#include "RemoteAnchor.hpp"
+#include "HardwareAnchor.hpp"
 
 WebSocketServer::WebSocketServer(uint16_t port)
  : m_Port(port)
  , m_WebSocketServer(m_Port)
- , m_Gondola(Gondola::get())
  , m_NextPing(millis())
+ , m_Anchor(HW_ANCHOR_ID)
+ , m_Gondola()
 {
   logDebug("Started WebSocketServer\n");
   m_WebSocketServer.begin();
   m_WebSocketServer.onEvent(std::bind(&WebSocketServer::webSocketEvent, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+
+  m_Anchor.registerReadyCallback(std::bind(&WebSocketServer::readyCallbackToGondola, this, std::placeholders::_1));
+  m_Gondola.addAnchor(&m_Anchor);
 }
 
 WebSocketServer::~WebSocketServer()
 {
+  logDebug("Destructor WebSocketServer\n");
   m_WebSocketServer.disconnect();
 }
 
@@ -24,16 +31,18 @@ void WebSocketServer::loop()
   if (millis() > m_NextPing)
   {
     m_NextPing += 1000;
-    std::list<anchorInformation_t> anchorList = m_Gondola->getAnchorList();
-    std::list<anchorInformation_t>::iterator it = anchorList.begin();
+    std::list<IAnchor *> anchorList = m_Gondola.getAnchorList();
+    std::list<IAnchor *>::iterator it = anchorList.begin();
     while (it != anchorList.end())
     {
-      if (it->id != HW_ANCHOR_ID)
+      IAnchor *anchor = *it;
+      if (anchor->getID() != HW_ANCHOR_ID)
       {
-        if (m_WebSocketServer.sendPing(it->id) == false)
+        if (m_WebSocketServer.sendPing(anchor->getID()) == false)
         {
-          logWarning("Detected connection loss to client %d. Force disconnect.\n", it->id);
-          m_WebSocketServer.disconnect((it++)->id);
+          logWarning("Detected connection loss to client %d. Force disconnect.\n", anchor->getID());
+          it++;   // increment here, because current it wil be deleted during disconnect
+          m_WebSocketServer.disconnect(anchor->getID());
           continue;
         }
       }
@@ -42,6 +51,12 @@ void WebSocketServer::loop()
   }
 
   m_WebSocketServer.loop();
+  m_Anchor.loop();
+}
+
+Gondola *WebSocketServer::getGondola()
+{
+  return &m_Gondola;
 }
 
 void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
@@ -50,7 +65,7 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
  {
   case WStype_DISCONNECTED:
     logDebug("[%u] Disconnected!\n", num);
-    m_Gondola->deleteAnchor(num);
+    m_Gondola.deleteAnchor(num);
     break;
 
   case WStype_CONNECTED:
@@ -75,36 +90,40 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
 
     if (cmd == WSO_C_REGISTER)
     {
-      anchorInformation_t anchorInfo(num);
+      RemoteAnchor *anchor = new RemoteAnchor(num);
+      Coordinate anchorPos;
       b4Converter_t converter;
       uint8_t i = 1;
       converter.b[0] = payload[i++];
       converter.b[1] = payload[i++];
       converter.b[2] = payload[i++];
       converter.b[3] = payload[i++];
-      anchorInfo.anchorPos.x = converter.f;
+      anchorPos.x = converter.f;
 
       converter.b[0] = payload[i++];
       converter.b[1] = payload[i++];
       converter.b[2] = payload[i++];
       converter.b[3] = payload[i++];
-      anchorInfo.anchorPos.y = converter.f;
+      anchorPos.y = converter.f;
 
       converter.b[0] = payload[i++];
       converter.b[1] = payload[i++];
       converter.b[2] = payload[i++];
       converter.b[3] = payload[i++];
-      anchorInfo.anchorPos.z = converter.f;
+      anchorPos.z = converter.f;
+      anchor->setAnchorPos(anchorPos);
 
-      anchorInfo.moveFunc = std::bind(&WebSocketServer::remoteAnchorMoveFunction, this, std::placeholders::_1);
-      anchorInfo.initFunc = std::bind(&WebSocketServer::remoteAnchorInitFunction, this, std::placeholders::_1);
-      m_Gondola->addAnchor(anchorInfo);     // Call will use initFunc
+      anchor->registerInitCallback(std::bind(&WebSocketServer::remoteAnchorInitFunction, this, std::placeholders::_1));
+      anchor->registerMoveCallback(std::bind(&WebSocketServer::remoteAnchorMoveFunction, this, std::placeholders::_1));
+      anchor->registerReadyCallback(std::bind(&WebSocketServer::readyCallbackToGondola, this, std::placeholders::_1));
+      m_Gondola.addAnchor(anchor);
 
-      logDebug("Client registered at position(%s)\n", anchorInfo.anchorPos.toString().c_str());
+      logDebug("Client registered at position(%s)\n", anchor->getAnchorPos().toString().c_str());
     }
     else if (cmd == WSO_C_REPORT)
     {
-      m_Gondola->reportAnchorFinished(num);
+      IAnchor *anchor = m_Gondola.getAnchor(num);
+      anchor->executeReadyCallback();
     }
     break;
   }
@@ -114,7 +133,7 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
   }
 }
 
-bool WebSocketServer::remoteAnchorMoveFunction(anchorInformation_t &anchorInfo)
+bool WebSocketServer::remoteAnchorMoveFunction(IAnchor *anchor)
 {
   uint8_t i = 1;
   uint8_t payload[8 + 1];
@@ -122,22 +141,22 @@ bool WebSocketServer::remoteAnchorMoveFunction(anchorInformation_t &anchorInfo)
   payload[0] = WSO_S_MOVE;
   b4Converter_t converter;
 
-  converter.f = anchorInfo.targetSpooledDistance;
+  converter.f = anchor->getTargetSpooledDistance();
   payload[i++] = converter.b[0];
   payload[i++] = converter.b[1];
   payload[i++] = converter.b[2];
   payload[i++] = converter.b[3];
 
-  converter.u = anchorInfo.travelTime;
+  converter.u = anchor->getTravelTime();
   payload[i++] = converter.b[0];
   payload[i++] = converter.b[1];
   payload[i++] = converter.b[2];
   payload[i++] = converter.b[3];
 
-  return m_WebSocketServer.sendBIN(anchorInfo.id, payload, i);
+  return m_WebSocketServer.sendBIN(anchor->getID(), payload, i);
 }
 
-bool WebSocketServer::remoteAnchorInitFunction(anchorInformation_t &anchorInfo)
+bool WebSocketServer::remoteAnchorInitFunction(IAnchor *anchor)
 {
   uint8_t i = 1;
   uint8_t payload[4 + 1];
@@ -145,11 +164,18 @@ bool WebSocketServer::remoteAnchorInitFunction(anchorInformation_t &anchorInfo)
   payload[0] = WSO_S_SPOOLED_DIST;
   b4Converter_t converter;
 
-  converter.f = anchorInfo.spooledDistance;
+  converter.f = anchor->getSpooledDistance();
   payload[i++] = converter.b[0];
   payload[i++] = converter.b[1];
   payload[i++] = converter.b[2];
   payload[i++] = converter.b[3];
 
-  return m_WebSocketServer.sendBIN(anchorInfo.id, payload, i);
+  return m_WebSocketServer.sendBIN(anchor->getID(), payload, i);
+}
+
+bool WebSocketServer::readyCallbackToGondola(IAnchor *anchor)
+{
+  logDebug("readyCallbackToGondola\n");
+  m_Gondola.reportAnchorFinished(anchor->getID());
+  return true;
 }

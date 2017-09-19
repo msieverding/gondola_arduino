@@ -4,55 +4,42 @@
 #include "Gondola.hpp"
 #include "CommandInterpreter.hpp"
 
-Gondola *Gondola::s_Instance = NULL;
-
-Gondola* Gondola::get()
-{
-  if (!s_Instance)
-    s_Instance = new Gondola();
-
-  return s_Instance;
-}
-
 Gondola::Gondola()
  : m_CurrentPosition(Config::get()->getGO_POSITION())
  , m_TargetPosition(m_CurrentPosition)
- , m_HardwareAnchor(Anchor::get())
  , m_AnchorList()
  , m_UnfinishedAnchors(0)
 {
   logDebug("Creating gondola at: %s\n", m_CurrentPosition.toString().c_str());
   CommandInterpreter::get()->addCommand("move", std::bind(&Gondola::moveCommand, this, std::placeholders::_1));
-  m_HardwareAnchor->registerReadyCallback(std::bind(&Gondola::reportAnchorFinished, this, HW_ANCHOR_ID));
-
-  anchorInformation_t hardwareAnchor(HW_ANCHOR_ID);
-  hardwareAnchor.anchorPos = m_HardwareAnchor->getAnchorPos();
-  hardwareAnchor.moveFunc = std::bind(&Gondola::moveHardwareAnchor, this, std::placeholders::_1);
-  hardwareAnchor.initFunc = std::bind(&Gondola::initHardwareAnchor, this, std::placeholders::_1);
-  addAnchor(hardwareAnchor);
 }
 
 Gondola::~Gondola()
 {
+  logDebug("Destructor Gondola\n");
   CommandInterpreter::get()->deleteCommand("move");
-  s_Instance = NULL;
+  std::list<IAnchor *>::iterator it = m_AnchorList.begin();
+  while (it != m_AnchorList.end())
+  {
+    logDebug("Delete Anchor %d from list\n", (*it)->getID());
+    deleteAnchor(it++);
+  }
 }
 
 void Gondola::setInitialPosition(Coordinate position)
 {
   m_CurrentPosition = position;
   m_TargetPosition = position;
-  std::list<anchorInformation_t>::iterator it = m_AnchorList.begin();
-  while(it != m_AnchorList.end())
+  std::list<IAnchor *>::iterator it = m_AnchorList.begin();
+  while (it != m_AnchorList.end())
   {
-    it->spooledDistance = Coordinate::euclideanDistance(it->anchorPos, position);
-    it->targetSpooledDistance = it->spooledDistance;
-    if (it->initFunc)
+    IAnchor *anchor = *it;
+    if (anchor->getID() != HW_ANCHOR_ID)
     {
-      if (it->initFunc(*it) == false)
+      if (anchor->setInitialSpooledDistance(Coordinate::euclideanDistance(anchor->getAnchorPos(), m_CurrentPosition)) == false)
       {
-        logWarning("Unable to init anchor %d. No Connection available. Delete it from Gondola.\n", it->id);
-        deleteAnchor((it++)->id);
+        logWarning("Unable to init anchor %d. No Connection available. Delete it from Gondola.\n", anchor->getID());
+        deleteAnchor(it++);
         continue;
       }
     }
@@ -60,48 +47,53 @@ void Gondola::setInitialPosition(Coordinate position)
   }
 }
 
-void Gondola::addAnchor(anchorInformation_t &anchorInfo)
+void Gondola::addAnchor(IAnchor *anchor)
 {
-  anchorInfo.spooledDistance = Coordinate::euclideanDistance(anchorInfo.anchorPos, m_CurrentPosition);
-  anchorInfo.targetSpooledDistance = anchorInfo.spooledDistance;
-  m_AnchorList.push_front(anchorInfo);        // push new (remote) anchors to the front, so that the hardware anchor starts to spool after the message to the remote anchors was delivered (better synchronisation during spooling)
-  if (anchorInfo.initFunc)
-    anchorInfo.initFunc(anchorInfo);
+  anchor->setInitialSpooledDistance(Coordinate::euclideanDistance(anchor->getAnchorPos(), m_CurrentPosition));
+  m_AnchorList.push_front(anchor);        // push new (remote) anchors to the front, so that the hardware anchor starts to spool after the message to the remote anchors was delivered (better synchronisation during spooling)
 }
 
-void Gondola::deleteAnchor(uint8_t num)
+void Gondola::deleteAnchor(std::list<IAnchor *>::iterator it)
 {
-  std::list<anchorInformation_t>::iterator it = m_AnchorList.begin();
+  IAnchor *anchor = *it;
+  if (anchor->getID() != HW_ANCHOR_ID)
+  {
+    logDebug("Destruct Anchor %d\n", anchor->getID());
+    delete(anchor);
+  }
+  logDebug("Erase Anchor %d from list\n", anchor->getID());
+  m_AnchorList.erase(it);
+}
+
+void Gondola::deleteAnchor(uint8_t id)
+{
+  std::list<IAnchor *>::iterator it = m_AnchorList.begin();
   while (it != m_AnchorList.end())
   {
-    if (it->id == num)
+    IAnchor *anchor = *it;
+    if (anchor->getID() == id)
     {
-      if (m_UnfinishedAnchors & (1 << it->id))
-      {
-        // Finish spooling to unblock system
-        logWarning("Anchor %d will be reported as ready to unblock the system. Undefined state reached!\n");
-        reportAnchorFinished(it->id);
-      }
-      m_AnchorList.erase(it++);
+      deleteAnchor(it++);
+      continue;
     }
-    else
-    {
-      it++;
-    }
+    it++;
   }
 }
 
-void Gondola::reportAnchorFinished(uint8_t num)
+void Gondola::reportAnchorFinished(uint8_t id)
 {
-  logVerbose("Anchor '%d' finished moving\n", num);
-  std::list<anchorInformation_t>::iterator it;
+  logVerbose("Anchor '%d' finished moving\n", id);
+  std::list<IAnchor *>::iterator it;
   for (it = m_AnchorList.begin(); it != m_AnchorList.end(); it++)
   {
-    if (it->id == num)
+    IAnchor *anchor = *it;
+    if (anchor->getID() == id)
     {
       noInterrupts();
-      it->spooledDistance = it->targetSpooledDistance;
-      m_UnfinishedAnchors &= ~(1 << it->id);
+      // TODO what todo here
+      // old code:
+      // it->spooledDistance = it->targetSpooledDistance;
+      m_UnfinishedAnchors &= ~(1 << anchor->getID());
       interrupts();
     }
   }
@@ -135,55 +127,44 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
 
   float travelTime = travelDistance / speed;
   logVerbose("TravelDistance: %s, TravelTime: %s\n", FTOS(travelDistance), FTOS(travelTime));
-  uint32_t max_steps = 0;
+  uint32_t maxSteps = 0;
 
   // prepare to spool
-  std::list<anchorInformation_t>::iterator it;
+  std::list<IAnchor *>::iterator it;
   for (it = m_AnchorList.begin(); it != m_AnchorList.end(); it++)
   {
-    float cmTodo, cmTodoRounded;
     uint32_t stepsTodo;
+    IAnchor *anchor = *it;
 
-    it->targetSpooledDistance = Coordinate::euclideanDistance(it->anchorPos, targetPos);
-    cmTodo = it->targetSpooledDistance - it->spooledDistance;        //in cm
+    stepsTodo = anchor->setTargetSpooledDistance(Coordinate::euclideanDistance(anchor->getAnchorPos(), targetPos));
 
-    logVerbose("AnchorNum: %d on position %s/%s/%s\n", it->id, FTOS(it->anchorPos.x), FTOS(it->anchorPos.y), FTOS(it->anchorPos.z));
-    logVerbose("Spooled: %scm, Delta: %scm\n", floatToString(it->spooledDistance).c_str(), floatToString(cmTodo).c_str());
-
-    cmTodoRounded = abs(Anchor::roundPrecision(cmTodo, MIN_PRECISION));
-    stepsTodo = (cmTodoRounded * STEP_CM);
-
-    logVerbose("Rounded to: (%scm): %scm, steps: %ld, microsteps: %ld\n", floatToString(MIN_PRECISION).c_str(), floatToString(cmTodoRounded).c_str(), stepsTodo, stepsTodo * MICROSTEPS);
-    stepsTodo *= MICROSTEPS;
-    max_steps = std::max(max_steps, stepsTodo);
+    maxSteps = std::max(maxSteps, stepsTodo);
   }
 
-  logVerbose("Budget: %ss, Minimum %ss\n", floatToString(travelTime).c_str(), floatToString(max_steps / 1000.0f).c_str());
+  // TODO change value of 1000.0f to a realistic one
+  logVerbose("Budget: %ss, Minimum %ss\n", FTOS(travelTime), FTOS(maxSteps / 1000.0f));
 
-  logVerbose("==============================================\n");
+  logVerbose("======================================================\n");
 
-  travelTime = std::max(travelTime, max_steps / 1000.0f);     // Fastest step is 1 ms(due to timer in Anchor.cpp) so give more time to all motors to have a smooth momvement
+  travelTime = std::max(travelTime, maxSteps / 1000.0f);     // Fastest step is 1 ms(due to timer in Anchor.cpp) so give more time to all motors to have a smooth momvement
   travelTime *= 1000;
 
   it = m_AnchorList.begin();
   while (it != m_AnchorList.end())
   {
-    it->travelTime = travelTime;
-    if (it->moveFunc)
+    IAnchor *anchor = *it;
+    m_UnfinishedAnchors |= (1 << anchor->getID());
+    if (anchor->startMovement(travelTime) == false)
     {
-      m_UnfinishedAnchors |= (1 << it->id);
-      if (it->moveFunc(*it) == false)
-      {
-        logWarning("No connection to anchor %d possible. Delete anchor from list.\n", it->id);
-        deleteAnchor((it++)->id);
-        continue;
-      }
+      logWarning("No connection to anchor %d possible. Delete anchor from list.\n", anchor->getID());
+      deleteAnchor(it++);
+      continue;
     }
     it++;
   }
 }
 
-std::list<anchorInformation_t> Gondola::getAnchorList(void)
+std::list<IAnchor *> Gondola::getAnchorList(void)
 {
   return m_AnchorList;
 }
@@ -229,16 +210,17 @@ void Gondola::checkForReady()
   }
 }
 
-bool Gondola::moveHardwareAnchor(anchorInformation_t &anchorInfo)
+IAnchor *Gondola::getAnchor(uint8_t id)
 {
-  m_HardwareAnchor->setTargetSpooledDistance(anchorInfo.targetSpooledDistance, anchorInfo.travelTime);
-  // Return true. Boolean return value only necessary for type.
-  return true;
-}
-
-bool Gondola::initHardwareAnchor(anchorInformation_t &anchorInfo)
-{
-  m_HardwareAnchor->setInitialSpooledDistance(anchorInfo.spooledDistance);
-  // Return true. Boolean return value only necessary for type.
-  return true;
+  std::list<IAnchor *>::iterator it = m_AnchorList.begin();
+  while (it != m_AnchorList.end())
+  {
+    IAnchor *anchor = *it;
+    if (anchor->getID() == id)
+    {
+      return anchor;
+    }
+    it++;
+  }
+  return NULL;
 }

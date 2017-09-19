@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <WebSocketsClient.h>
-#include "Anchor.hpp"
+#include "HardwareAnchor.hpp"
 #include "IWebSocket.hpp"
 
 /**
@@ -41,20 +41,13 @@ private:
   /**
    * Is registered at anchor to inform server about the finished movement
    */
-  void anchorReadyCallback();
-
-  /**
-   * Event is called, when WiFi station got an IP
-   * @param event Event to handle
-   */
-  void onEventGotIP(const WiFiEventStationModeGotIP &event);
+  bool anchorReadyCallback();
 
   // membervariables
   std::string             m_Host;                     //!< WebSocket host
   uint16_t                m_Port;                     //!< WebSocket port
   WebSocketsClient        m_WebSocketClient;          //!< Client instance of WebSocketsLibrary
-  Anchor                 *m_Anchor;                   //!< Hardware anchor
-  WiFiEventHandler        m_StationGotIPHandler;      //!< Handler is called, when this station got an IP
+  HardwareAnchor          m_Anchor;                   //!< Hardware anchor
 };
 
 #endif /* _WEB_SOCKET_CLIENT_HPP_ */

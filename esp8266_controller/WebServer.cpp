@@ -34,6 +34,11 @@ void WebServer::loop()
   m_Server.handleClient();
 }
 
+void WebServer::registerGondola(Gondola *gondola)
+{
+  m_Gondola = gondola;
+}
+
 void WebServer::handleRoot()
 {
   std::string answer;
@@ -55,7 +60,8 @@ void WebServer::handleRoot()
       if(m_Server.arg("speed").length())
         speed = m_Server.arg("speed").toFloat();
 
-      Gondola::get()->setTargetPosition(newCoordinate, speed);
+      if (m_Gondola)
+        m_Gondola->setTargetPosition(newCoordinate, speed);
     }
     prepareGondolaMovePage(answer);
   }
@@ -146,7 +152,7 @@ void WebServer::handleSetupSystem()
     goPos.y = stringToFloat(m_Server.arg("GO_POSITION_Y").c_str());
     goPos.z = stringToFloat(m_Server.arg("GO_POSITION_Z").c_str());
     Config::get()->setGO_POSITION(goPos);
-    Gondola::get()->setInitialPosition(goPos);
+    // Gondola::get()->setInitialPosition(goPos); // TODO
   }
 
   if (m_Server.arg("GO_ANCHORPOS_X").length() && m_Server.arg("GO_ANCHORPOS_Y").length() && m_Server.arg("GO_ANCHORPOS_Z").length())
@@ -357,16 +363,17 @@ void WebServer::prepareSetupSystemPage(std::string &s)
 
 void WebServer::prepareGondolaMovePage(std::string &s)
 {
-  Gondola *gondola = Gondola::get();
+  if (m_Gondola == NULL)
+    return;
 
-  Coordinate coord = gondola->getCurrentPosition();
+  Coordinate coord = m_Gondola->getCurrentPosition();
 
-  if (gondola->getCurrentPosition() != gondola->getTargetPosition())
+  if (m_Gondola->getCurrentPosition() != m_Gondola->getTargetPosition())
   {
     s.append("<head><meta http-equiv=\"Refresh\" content=\"5; URL=/\"></head>");
     s.append("<h1>Gondola is moving</h1>");
-    s.append("Move from: "+ gondola->getCurrentPosition().toString());
-    s.append("<br>to: "+ gondola->getTargetPosition().toString());
+    s.append("Move from: " + m_Gondola->getCurrentPosition().toString());
+    s.append("<br>to: " + m_Gondola->getTargetPosition().toString());
   }
   else
   {
@@ -383,30 +390,31 @@ void WebServer::prepareGondolaMovePage(std::string &s)
     s.append("</label>");
     s.append("<br><br>");
     s.append("<label for=\"speed\">Speed:");
-    s.append("<input type=\"text\" id=\"speed\" name=\"speed\" value=\"1.0\">");
+    s.append("<input type=\"text\" id=\"speed\" name=\"speed\" value=\"5.0\">");
     s.append("</label>");
     s.append("<br><br>");
     s.append("<button type=\"submit\">Move!</button>");
     s.append("</form><br>");
   }
-  std::list<anchorInformation_t> anchorList = Gondola::get()->getAnchorList();
-  std::list<anchorInformation_t>::iterator it = anchorList.begin();
+  std::list<IAnchor *> anchorList = m_Gondola->getAnchorList();
+  std::list<IAnchor *>::iterator it = anchorList.begin();
   s.append("<h4>Registerd anchors:</h4>");
   while(it != anchorList.end())
   {
+    IAnchor *anchor = *it;
     s.append("ID: ");
-    s.append(String(it->id).c_str());
+    s.append(String(anchor->getID()).c_str());
     s.append("<br>");
     s.append("Position: ");
-    s.append(FTOS(it->anchorPos.x));
+    s.append(FTOS(anchor->getAnchorPos().x));
     s.append("/");
-    s.append(FTOS(it->anchorPos.y));
+    s.append(FTOS(anchor->getAnchorPos().y));
     s.append("/");
-    s.append(FTOS(it->anchorPos.z));
+    s.append(FTOS(anchor->getAnchorPos().z));
     s.append("<br>Spooled distance: ");
-    s.append(FTOS(it->spooledDistance));
+    s.append(FTOS(anchor->getSpooledDistance()));
     s.append("<br>Target spooled distance:");
-    s.append(FTOS(it->targetSpooledDistance));
+    s.append(FTOS(anchor->getTargetSpooledDistance()));
     s.append("<br><br>");
 
     it++;

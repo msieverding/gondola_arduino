@@ -2,7 +2,6 @@
 #include "Config.hpp"
 // Own classes and libraries
 #include "Gondola.hpp"
-#include "Anchor.hpp"
 #include "WiFiConnection.hpp"
 #include "SerialConnection.hpp"
 #include "APConnection.hpp"
@@ -21,9 +20,6 @@ void setup()
 
   Config::get()->readFromEEPROM();
 
-  // hardware anchor
-  Anchor::get();
-
   ConnectionMgr::get();
 
   wdt_enable(1000);
@@ -36,7 +32,6 @@ void loop()
   // ESP.wdtFeed();
 
   ConnectionMgr::get()->loop();
-  Anchor::get()->loop();
   if (serial)
     serial->loop();
 }
