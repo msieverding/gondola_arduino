@@ -10,7 +10,7 @@ static logLevel_t s_LogLevel = LOG_VERBOSE;
 void setLogLevel(logLevel_t level)
 {
   s_LogLevel = level;
-  Config::get()->setDEBUG_LOG(level);
+  Config::get()->setLOG_LEVEL(level);
   Config::get()->writeToEEPROM();
 }
 

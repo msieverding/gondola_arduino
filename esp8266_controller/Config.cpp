@@ -38,15 +38,14 @@
 #define EEPROM_CM_WEBSOCKETTYPE_START   301
 
 #define EEPROM_GO_POSITION_START        302
-#define EEPROM_GO_ANCHORPOS_START       305
-
+#define EEPROM_GO_ANCHORPOS_START       314
 //Debug
-#define EEPROM_DEBUG_LOG_START          38
+#define EEPROM_LOG_LEVEL_START          326
 
 // Checksum
 #define EEPROM_CHECKSUM_DATA_BEGIN      0
-#define EEPROM_CHECKSUM_DATA_END        308
-#define EEPROM_CHECKSUM_START           309
+#define EEPROM_CHECKSUM_DATA_END        326
+#define EEPROM_CHECKSUM_START           327
 
 Config *Config::s_Instance = NULL;
 
@@ -91,7 +90,7 @@ Config::Config()
  // - none yet
  // WebSocketClient
  , WSO_HOST("192.168.4.1")
- , DEBUG_LOG(LOG_INFO)
+ , LOG_LEVEL(LOG_INFO)
 {
   EEPROM.begin(EEPROM_LENGTH);
 }
@@ -126,7 +125,7 @@ bool Config::writeToEEPROM()
 
   writeGOToEEPROM(false);
 
-  EEPROM.write(EEPROM_DEBUG_LOG_START, DEBUG_LOG);
+  EEPROM.write(EEPROM_LOG_LEVEL_START, static_cast<uint8_t>(LOG_LEVEL));
 
   writeChecksum(EEPROM_CHECKSUM_START);
 
@@ -227,7 +226,7 @@ void Config::readFromEEPROM()
   readCoordinate(GO_POSITION,      EEPROM_GO_POSITION_START);
   readCoordinate(GO_ANCHORPOS,     EEPROM_GO_ANCHORPOS_START);
 
-  DEBUG_LOG = EEPROM.read(EEPROM_DEBUG_LOG_START);
+  LOG_LEVEL = static_cast<logLevel_t>(EEPROM.read(EEPROM_LOG_LEVEL_START));
 
   printConfig();
 }
@@ -282,16 +281,16 @@ void Config::readIPAddress(IPAddress &ip, uint16_t start)
 
 void Config::persistCoordinate(Coordinate &coord, uint16_t start)
 {
-  EEPROM.write(start, coord.x);
-  EEPROM.write(start + 1, coord.y);
-  EEPROM.write(start + 2, coord.z);
+  persistFloat(coord.x, start);
+  persistFloat(coord.y, start + 4);
+  persistFloat(coord.z, start + 8);
 }
 
 void Config::readCoordinate(Coordinate &coord, uint16_t start)
 {
-  coord.x = EEPROM.read(start);
-  coord.y = EEPROM.read(start + 1);
-  coord.z = EEPROM.read(start + 2);
+  readFloat(coord.x, start);
+  readFloat(coord.y, start + 4);
+  readFloat(coord.z, start + 8);
 }
 
 void Config::persistFloat(float &f, uint16_t start)
@@ -377,7 +376,7 @@ void Config::printConfig(void)
   // WebSocket
   logDebug("WSO_PORT:           %u\n", WSO_PORT);
   logDebug("WSO_HOST:           %s\n", WSO_HOST.c_str());
-  logDebug("DEBUG_LOG:          %u\n", DEBUG_LOG);
+  logDebug("LOG_LEVEL:          %u\n", static_cast<uint8_t>(LOG_LEVEL));
 }
 
 // WiFi Connection
@@ -521,7 +520,7 @@ void Config::setWSO_HOST(std::string host)
 }
 
 // Debug
-void Config::setDEBUG_LOG(uint8_t level)
+void Config::setLOG_LEVEL(logLevel_t level)
 {
-  DEBUG_LOG = level;
+  LOG_LEVEL = level;
 }

@@ -19,6 +19,7 @@ void setup()
   serial = SerialConnection::create(115200);
 
   Config::get()->readFromEEPROM();
+  setLogLevel(Config::get()->getLOG_LEVEL());
 
   ConnectionMgr::get();
 

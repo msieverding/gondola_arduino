@@ -152,7 +152,7 @@ void WebServer::handleSetupSystem()
     goPos.y = stringToFloat(m_Server.arg("GO_POSITION_Y").c_str());
     goPos.z = stringToFloat(m_Server.arg("GO_POSITION_Z").c_str());
     Config::get()->setGO_POSITION(goPos);
-    // Gondola::get()->setInitialPosition(goPos); // TODO
+    // Information will be distributed to server/clients due to change of webSocket below
   }
 
   if (m_Server.arg("GO_ANCHORPOS_X").length() && m_Server.arg("GO_ANCHORPOS_Y").length() && m_Server.arg("GO_ANCHORPOS_Z").length())
@@ -162,22 +162,23 @@ void WebServer::handleSetupSystem()
     goPos.y = stringToFloat(m_Server.arg("GO_ANCHORPOS_Y").c_str());
     goPos.z = stringToFloat(m_Server.arg("GO_ANCHORPOS_Z").c_str());
     Config::get()->setGO_ANCHORPOS(goPos);
+    // Information will be distributed to server/clients due to change of webSocket below
   }
 
   if (m_Server.arg("CM_WEBSOCKETTYPE").equals("WEBSOCKET_SERVER"))
   {
-    conMgr->changeWebSocket(WEBSOCKET_SERVER);
     Config::get()->setCM_WEBSOCKETTYPE(WEBSOCKET_SERVER);
+    conMgr->changeWebSocket(WEBSOCKET_SERVER);
   }
   else if (m_Server.arg("CM_WEBSOCKETTYPE").equals("WEBSOCKET_CLIENT"))
   {
-    conMgr->changeWebSocket(WEBSOCKET_CLIENT);
     Config::get()->setCM_WEBSOCKETTYPE(WEBSOCKET_CLIENT);
+    conMgr->changeWebSocket(WEBSOCKET_CLIENT);
   }
   else if (m_Server.arg("CM_WEBSOCKETTYPE").equals("WEBSOCKET_NONE"))
   {
-    conMgr->changeWebSocket(WEBSOCKET_NONE);
     Config::get()->setCM_WEBSOCKETTYPE(WEBSOCKET_NONE);
+    conMgr->changeWebSocket(WEBSOCKET_NONE);
   }
 
   config->writeToEEPROM();
@@ -233,7 +234,7 @@ void WebServer::prepareHeader(std::string &s)
   }
   else
   {
-    s.append("<a href=\"https://www.gondola.com\">Server</a> ");
+    s.append("<a href=\"http://www.gondola.com\">Server</a> ");
   }
   s.append("<hr>");
 }
@@ -338,20 +339,20 @@ void WebServer::prepareSetupSystemPage(std::string &s)
 
   // Position of Gondola
   s.append("<h4>Position of gondola (if master)</h4>");
-  s.append("<label for=\"GO_POSITION_X\">X</label>");
+  s.append("<label for=\"GO_POSITION_X\">X (cm): </label>");
   s.append("<input type=\"text\" id=\"GO_POSITION_X\" name=\"GO_POSITION_X\" value=\"" + floatToString(Config::get()->getGO_POSITION().x) + "\"><br><br>");
-  s.append("<label for=\"GO_POSITION_Y\">Y</label>");
+  s.append("<label for=\"GO_POSITION_Y\">Y (cm): </label>");
   s.append("<input type=\"text\" id=\"GO_POSITION_Y\" name=\"GO_POSITION_Y\" value=\"" + floatToString(Config::get()->getGO_POSITION().y) + "\"><br><br>");
-  s.append("<label for=\"GO_POSITION_Z\">Z</label>");
+  s.append("<label for=\"GO_POSITION_Z\">Z (cm): </label>");
   s.append("<input type=\"text\" id=\"GO_POSITION_Z\" name=\"GO_POSITION_Z\" value=\"" + floatToString(Config::get()->getGO_POSITION().z) + "\"><br><br>");
 
   // Mounting position of anchor
   s.append("<h4>Mouting position of anchor (if client)</h4>");
-  s.append("<label for=\"GO_ANCHORPOS_X\">X</label>");
+  s.append("<label for=\"GO_ANCHORPOS_X\">X (cm): </label>");
   s.append("<input type=\"text\" id=\"GO_ANCHORPOS_X\" name=\"GO_ANCHORPOS_X\" value=\"" + floatToString(Config::get()->getGO_ANCHORPOS().x) + "\"><br><br>");
-  s.append("<label for=\"GO_ANCHORPOS_Y\">Y</label>");
+  s.append("<label for=\"GO_ANCHORPOS_Y\">Y (cm): </label>");
   s.append("<input type=\"text\" id=\"GO_ANCHORPOS_Y\" name=\"GO_ANCHORPOS_Y\" value=\"" + floatToString(Config::get()->getGO_ANCHORPOS().y) + "\"><br><br>");
-  s.append("<label for=\"GO_ANCHORPOS_Z\">Z</label>");
+  s.append("<label for=\"GO_ANCHORPOS_Z\">Z (cm): </label>");
   s.append("<input type=\"text\" id=\"GO_ANCHORPOS_Z\" name=\"GO_ANCHORPOS_Z\" value=\"" + floatToString(Config::get()->getGO_ANCHORPOS().z) + "\"><br><br>");
 
   // Submit
@@ -379,13 +380,13 @@ void WebServer::prepareGondolaMovePage(std::string &s)
   {
     s.append("<h4>New position:</h4>");
     s.append("<form>");
-    s.append("<label for=\"x\">X:");
+    s.append("<label for=\"x\">X (cm): ");
     s.append("<input type=\"text\" id=\"x\" name=\"x\" value=\"" + floatToString(coord.x) + "\">");
     s.append("</label>");
-    s.append("<label for=\"y\">Y:");
+    s.append("<label for=\"y\">Y (cm): ");
     s.append("<input type=\"text\" id=\"y\" name=\"y\" value=\"" + floatToString(coord.y) + "\">");
     s.append("</label>");
-    s.append("<label for=\"z\">Z:");
+    s.append("<label for=\"z\">Z (cm): ");
     s.append("<input type=\"text\" id=\"z\" name=\"z\" value=\"" + floatToString(coord.z) + "\">");
     s.append("</label>");
     s.append("<br><br>");
@@ -405,15 +406,15 @@ void WebServer::prepareGondolaMovePage(std::string &s)
     s.append("ID: ");
     s.append(String(anchor->getID()).c_str());
     s.append("<br>");
-    s.append("Position: ");
+    s.append("Position X/Y/Z (cm): ");
     s.append(FTOS(anchor->getAnchorPos().x));
     s.append("/");
     s.append(FTOS(anchor->getAnchorPos().y));
     s.append("/");
     s.append(FTOS(anchor->getAnchorPos().z));
-    s.append("<br>Spooled distance: ");
+    s.append("<br>Spooled distance (cm): ");
     s.append(FTOS(anchor->getSpooledDistance()));
-    s.append("<br>Target spooled distance:");
+    s.append("<br>Target spooled distance (cm):");
     s.append(FTOS(anchor->getTargetSpooledDistance()));
     s.append("<br><br>");
 

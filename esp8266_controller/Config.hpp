@@ -4,6 +4,7 @@
 #include <string>
 #include "Coordinate.hpp"
 #include <IPAddress.h>
+#include "Log.hpp"
 
 // reduced in precision (0.05 cm = MIN_PRECISION = 1step = 1.8', 1 cm =
 // 20steps = 36', 10 cm = 200steps = 360')
@@ -151,8 +152,8 @@ public:
   void setWSO_HOST(std::string host);
 
   // Debug
-  uint8_t getDEBUG_LOG() { return DEBUG_LOG; }
-  void setDEBUG_LOG(uint8_t level);
+  logLevel_t getLOG_LEVEL() { return LOG_LEVEL; }
+  void setLOG_LEVEL(logLevel_t level);
 
 private:
   /**
@@ -267,7 +268,7 @@ private:
   std::string WSO_HOST;
 
   // DEBUG
-  uint8_t DEBUG_LOG;
+  logLevel_t LOG_LEVEL;
 };
 
 
