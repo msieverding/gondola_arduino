@@ -78,6 +78,9 @@ public:
    */
   webSocketType_t getWebSocketType();
 
+  // TODO Doc
+  WebServer &getWebServer();
+
   /**
    * Call loop() frequently to handle change requests
    * -> Handle change of connection type

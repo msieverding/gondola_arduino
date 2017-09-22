@@ -90,6 +90,6 @@ bool SerialConnection::loglevelCommand(std::string &s)
   }
 
   logWarning("Unsupported!\n");
-  logWarning("Usage: loglevel level\nLevels:\n\twarning\tonly warnings are displayed\n\tinfo\tadditional information is displayed\n\tdebug\taddtitional debug output is provided\nverbose\tall generated output will be printed\n");
+  logWarning("Usage: loglevel level\nLevels:\n\twarning\tonly warnings are displayed\n\tinfo\tadditional information is displayed\n\tdebug\taddtitional debug output is provided\n\tverbose\tall generated output will be printed\n");
   return false;
 }

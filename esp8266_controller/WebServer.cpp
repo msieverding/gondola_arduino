@@ -9,6 +9,8 @@ extern "C"{
   #include "user_interface.h"
 }
 
+#define LOG_SIZE    1000
+
 WebServer::WebServer(uint16_t port, bool configureServer)
  : m_Server(port)
 {
@@ -18,6 +20,7 @@ WebServer::WebServer(uint16_t port, bool configureServer)
     m_Server.on("/SetupWiFi", std::bind(&WebServer::handleSetupWiFi, this));
     m_Server.on("/SetupSystem", std::bind(&WebServer::handleSetupSystem, this));
     m_Server.on("/ShowAPClients", std::bind(&WebServer::handleShowAPClients, this));
+    m_Server.on("/Console", std::bind(&WebServer::handleConsole, this));
     m_Server.onNotFound(std::bind(&WebServer::handleNotFound, this));
     m_Server.begin();
     logInfo("HTTP Server configured and started\n");
@@ -207,7 +210,17 @@ void WebServer::handleShowAPClients()
 {
   std::string answer;
   prepareHeader(answer);
-  prepareShowAPClients(answer);
+  prepareShowAPClientsPage(answer);
+  prepareFooter(answer);
+
+  m_Server.send(200, "text/html", answer.c_str());
+}
+
+void WebServer::handleConsole()
+{
+  std::string answer;
+  prepareHeader(answer);
+  prepareConsolePage(answer);
   prepareFooter(answer);
 
   m_Server.send(200, "text/html", answer.c_str());
@@ -249,6 +262,7 @@ void WebServer::prepareHeader(std::string &s)
   {
     s.append("<a href=\"http://www.gondola.com\">Server</a> ");
   }
+  s.append("<a href=\"/Console\">Console</a> ");
   s.append("<hr>");
 }
 
@@ -447,7 +461,7 @@ void WebServer::prepareGondolaMovePage(std::string &s)
   }
 }
 
-void WebServer::prepareShowAPClients(std::string &s)
+void WebServer::prepareShowAPClientsPage(std::string &s)
 {
   s.append("<h4>Connected devices:</h4>");
   struct station_info *info;
@@ -473,5 +487,15 @@ void WebServer::prepareShowAPClients(std::string &s)
 
     info = STAILQ_NEXT(info, next);
     i++;
+  }
+}
+
+void WebServer::prepareConsolePage(std::string &s)
+{
+  std::list<std::string> &list = getLogPageList();
+  for (std::list<std::string>::iterator it = list.begin(); it != list.end(); it++)
+  {
+    if (it->length())
+      s.append(*it);
   }
 }

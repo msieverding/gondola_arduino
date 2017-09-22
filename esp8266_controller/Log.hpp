@@ -2,6 +2,7 @@
 #define _LOG_HPP_
 
 #include <string>
+#include <list>
 
 /**
  * Enumeration for the different log levels
@@ -27,6 +28,12 @@ typedef union b4Converter_u {
  * @param level level to set
  */
 void setLogLevel(logLevel_t level);
+
+// TODO Doc
+void addLogPageString(std::string &s);
+
+// TODO Doc
+std::list<std::string> &getLogPageList();
 
 /**
  * Log a warning message

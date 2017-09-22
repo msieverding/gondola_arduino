@@ -3,6 +3,7 @@
 #include "Log.hpp"
 #include "RemoteAnchor.hpp"
 #include "HardwareAnchor.hpp"
+#include "ConnectionMgr.hpp"
 
 WebSocketServer::WebSocketServer(uint16_t port)
  : m_Port(port)
@@ -20,11 +21,13 @@ WebSocketServer::WebSocketServer(uint16_t port)
 
   m_Anchor.registerReadyCallback(std::bind(&WebSocketServer::readyCallbackToGondola, this, std::placeholders::_1));
   m_Gondola.addAnchor(&m_Anchor);
+
+  ConnectionMgr::get()->getWebServer().registerGondola(&m_Gondola);
 }
 
 WebSocketServer::~WebSocketServer()
 {
-
+  ConnectionMgr::get()->getWebServer().registerGondola(NULL);
 }
 
 void WebSocketServer::loop()

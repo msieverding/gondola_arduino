@@ -19,7 +19,7 @@ public:
 
   /**
    * constructor
-   * TODO
+   * TODO Doc
    */
   IAnchor(uint8_t id, Coordinate anchorPosition, float spooledDistance, float targetSpooledDistance, float ropeOffset);
 

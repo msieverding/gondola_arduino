@@ -28,6 +28,7 @@ public:
    */
   virtual void loop();
 
+  // TODO Doc
   void registerGondola(Gondola *gondola);
 
 protected:
@@ -37,6 +38,7 @@ protected:
   virtual void handleSetupSystem();
   virtual void handleShowAPClients();
   virtual void handleNotFound();
+  virtual void handleConsole();
 
   // Helper functions to build web pages
   virtual void prepareHeader(std::string &s);
@@ -44,9 +46,11 @@ protected:
   void prepareSetupWiFiPage(std::string &s);
   void prepareSetupSystemPage(std::string &s);
   void prepareGondolaMovePage(std::string &s);
-  void prepareShowAPClients(std::string &s);
+  void prepareShowAPClientsPage(std::string &s);
+  void prepareConsolePage(std::string &s);
 
   // Membervariables
+  // TODO Doc vars
   ESP8266WebServer          m_Server;
   Gondola                  *m_Gondola;
 };

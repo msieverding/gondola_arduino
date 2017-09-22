@@ -32,6 +32,7 @@ ConnectionMgr::ConnectionMgr()
  // WebServer
  , m_WebServer(Config::get()->getWS_PORT())
 {
+  s_Instance = this;          // set static variable here, since changeConnection creates a WebSocketServer which will use ConnectionMgr::get()
   CommandInterpreter::get()->addCommand(std::string("contype"), std::bind(&ConnectionMgr::contypeCommand, this, std::placeholders::_1));
 
   changeConnection(m_ConnectionType);
@@ -109,17 +110,12 @@ void ConnectionMgr::changeWebSocket(webSocketType_t webSocketType)
     delete(m_WebSocket);
     m_WebSocket = NULL;
   }
-  m_WebServer.registerGondola(NULL);
 
   switch (m_WebSocketType)
   {
     case WEBSOCKET_SERVER:
-      {
-        WebSocketServer *tmp = new WebSocketServer(Config::get()->getWSO_PORT());
-        m_WebServer.registerGondola(tmp->getGondola());
-        m_WebSocket = tmp;
-        break;
-      }
+      m_WebSocket = new WebSocketServer(Config::get()->getWSO_PORT());
+      break;
 
     case WEBSOCKET_CLIENT:
       m_WebSocket = new WebSocketClient(Config::get()->getWSO_HOST(), Config::get()->getWSO_PORT());
@@ -137,6 +133,11 @@ void ConnectionMgr::changeWebSocket(webSocketType_t webSocketType)
 webSocketType_t ConnectionMgr::getWebSocketType()
 {
   return m_WebSocketType;
+}
+
+WebServer &ConnectionMgr::getWebServer()
+{
+  return m_WebServer;
 }
 
 void ConnectionMgr::loop()
