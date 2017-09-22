@@ -10,6 +10,9 @@ WebSocketClient::WebSocketClient(std::string host, uint16_t port)
  , m_Anchor(0)    // NO ID necessary in client
 {
   logDebug("Start WebSocketClient and connect to '%s:%d'\n", m_Host.c_str(), m_Port);
+#if (WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP8266_ASYNC)
+  logDebug("WebSocketClient runs in asynchronous mode!\n");
+#endif
   // server address, port and URL
 	m_WebSocketClient.begin(m_Host.c_str(), m_Port, "/");
 
@@ -19,20 +22,24 @@ WebSocketClient::WebSocketClient(std::string host, uint16_t port)
 	// // use HTTP Basic Authorization this is optional remove if not needed
 	// m_WebSocketClient.setAuthorization("user", "Password");
 
+#if (WEBSOCKETS_NETWORK_TYPE != NETWORK_ESP8266_ASYNC)
 	// try every 30s again if connection has failed
   m_WebSocketClient.setReconnectInterval(30000);
+#endif
 
   m_Anchor.registerReadyCallback(std::bind(&WebSocketClient::anchorReadyCallback, this));
 }
 
 WebSocketClient::~WebSocketClient()
 {
-  m_WebSocketClient.disconnect();
+
 }
 
 void WebSocketClient::loop()
 {
+#if (WEBSOCKETS_NETWORK_TYPE != NETWORK_ESP8266_ASYNC)
   m_WebSocketClient.loop();
+#endif
   m_Anchor.loop();
 }
 
@@ -92,7 +99,6 @@ void WebSocketClient::webSocketEvent(WStype_t type, uint8_t * payload, size_t le
 		case WStype_BIN:
     {
 			logDebug("[WSc] get binary length: %u\n", length);
-			hexdump(payload, length);
 
       webSocketCommand_t cmd = static_cast<webSocketCommand_t>(payload[0]);
 

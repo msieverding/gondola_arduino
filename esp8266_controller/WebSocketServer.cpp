@@ -12,6 +12,9 @@ WebSocketServer::WebSocketServer(uint16_t port)
  , m_Gondola()
 {
   logDebug("Started WebSocketServer on port '%d'\n", m_Port);
+#if (WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP8266_ASYNC)
+  logDebug("WebSocketServer runs in asynchronous mode!\n");
+#endif
   m_WebSocketServer.begin();
   m_WebSocketServer.onEvent(std::bind(&WebSocketServer::webSocketEvent, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
@@ -21,8 +24,7 @@ WebSocketServer::WebSocketServer(uint16_t port)
 
 WebSocketServer::~WebSocketServer()
 {
-  logDebug("Destructor WebSocketServer\n");
-  m_WebSocketServer.disconnect();
+
 }
 
 void WebSocketServer::loop()
@@ -43,6 +45,10 @@ void WebSocketServer::loop()
           logWarning("Detected connection loss to client %d. Force disconnect.\n", anchor->getID());
           it++;   // increment here, because current it wil be deleted during disconnect
           m_WebSocketServer.disconnect(anchor->getID());
+#if (WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP8266_ASYNC)
+          // Manual fired disconnect event is needed in async mode
+          webSocketEvent(anchor->getID(), WStype_DISCONNECTED, NULL, 0);
+#endif
           continue;
         }
       }
@@ -50,7 +56,9 @@ void WebSocketServer::loop()
     }
   }
 
+#if (WEBSOCKETS_NETWORK_TYPE != NETWORK_ESP8266_ASYNC)
   m_WebSocketServer.loop();
+#endif
   m_Anchor.loop();
 }
 
@@ -84,10 +92,8 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
   case WStype_BIN:
   {
     logDebug("[%u] get binary length: %u\n", num, length);
-    hexdump(payload, length);
 
     webSocketCommand_t cmd = static_cast<webSocketCommand_t>(payload[0]);
-
     if (cmd == WSO_C_REGISTER)
     {
       RemoteAnchor *anchor = new RemoteAnchor(num);

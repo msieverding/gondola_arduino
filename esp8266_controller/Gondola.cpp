@@ -17,7 +17,6 @@ Gondola::Gondola()
 
 Gondola::~Gondola()
 {
-  logDebug("Destructor Gondola\n");
   CommandInterpreter::get()->deleteCommand("move");
   std::list<IAnchor *>::iterator it = m_AnchorList.begin();
   while (it != m_AnchorList.end())
@@ -61,7 +60,6 @@ void Gondola::deleteAnchor(std::list<IAnchor *>::iterator it)
   IAnchor *anchor = *it;
   if (anchor->getID() != HW_ANCHOR_ID)
   {
-    logDebug("Destruct Anchor %d\n", anchor->getID());
     delete(anchor);
   }
   logDebug("Erase Anchor %d from list\n", anchor->getID());
