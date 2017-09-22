@@ -9,7 +9,7 @@ WebSocketClient::WebSocketClient(std::string host, uint16_t port)
  , m_WebSocketClient()
  , m_Anchor(0)    // NO ID necessary in client
 {
-  logDebug("Start WebSocketClient\n");
+  logDebug("Start WebSocketClient and connect to '%s:%d'\n", m_Host.c_str(), m_Port);
   // server address, port and URL
 	m_WebSocketClient.begin(m_Host.c_str(), m_Port, "/");
 
@@ -19,8 +19,8 @@ WebSocketClient::WebSocketClient(std::string host, uint16_t port)
 	// // use HTTP Basic Authorization this is optional remove if not needed
 	// m_WebSocketClient.setAuthorization("user", "Password");
 
-	// try ever 5000 again if connection has failed
-  m_WebSocketClient.setReconnectInterval(5000);
+	// try every 30s again if connection has failed
+  m_WebSocketClient.setReconnectInterval(30000);
 
   m_Anchor.registerReadyCallback(std::bind(&WebSocketClient::anchorReadyCallback, this));
 }

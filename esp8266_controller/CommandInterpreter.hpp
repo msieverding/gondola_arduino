@@ -97,6 +97,9 @@ private:
    */
   bool configResetCommand(std::string &s);
 
+  // TODO Doc
+  bool configPrintCommand(std::string &s);
+
   // Instance
   static CommandInterpreter  *s_Instance;         //!< Instance of singleton
 

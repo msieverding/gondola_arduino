@@ -1,15 +1,8 @@
 TODO:
 - Output on WebBrowser Page...
-- Test for a memory leack with the esp free heap (name?) function
 - check class diagramm (anchor is missing and some things changed. See commits)
-- 1 std. config server and 2 std. config client
-- Consistent Configuration opportunities. (IP can be changed, but websocket server ip not.. useless...)
- - Also total spool is not needed any more. delete it.
 - calc system boundaries with anchor positions
- - if it's available after movement reload after 500 ms and than after m_Gondola->getMovetime() - 500
 - Check if what marco said about the spooled distance and the steps and the error... don't know how to say it^^
-
-
 
 Possible tests:
 - Given rope length with different weights (as different angles. Maybe calc load factor)
@@ -51,3 +44,4 @@ Used libraries:
 
 Usefull sources:
 - Linear regression: https://de.mathworks.com/help/matlab/data_analysis/linear-regression.html
+- TODO MATLAB source for polynomial reression

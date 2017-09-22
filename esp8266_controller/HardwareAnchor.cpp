@@ -13,7 +13,7 @@ HardwareAnchor::HardwareAnchor(uint8_t id)
  , m_MovementFinished(false)
  , m_Timer()
 {
-  logDebug("Creating HardwareAnchor at (%s) with total spool (%s) and a spooled offset of (%s)\n", m_AnchorPosition.toString().c_str(), FTOS(m_RopeOffset));
+  logDebug("Creating HardwareAnchor at (%s) with a spooled offset of (%s)\n", m_AnchorPosition.toString().c_str(), FTOS(m_RopeOffset));
   configurePins();
   s_MoveInstance = this;
 }

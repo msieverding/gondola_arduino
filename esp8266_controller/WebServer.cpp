@@ -173,6 +173,11 @@ void WebServer::handleSetupSystem()
     // Information will be distributed to server/clients due to change of webSocket below
   }
 
+  if (m_Server.arg("WSO_HOST").length())
+  {
+    Config::get()->setWSO_HOST(m_Server.arg("WSO_HOST").c_str());
+  }
+
   if (m_Server.arg("CM_WEBSOCKETTYPE").equals("WEBSOCKET_SERVER"))
   {
     Config::get()->setCM_WEBSOCKETTYPE(WEBSOCKET_SERVER);
@@ -345,6 +350,11 @@ void WebServer::prepareSetupSystemPage(std::string &s)
   s.append("<input type=\"radio\" id=\"N\" name=\"CM_WEBSOCKETTYPE\" value=\"WEBSOCKET_NONE\" " + std::string(config->getCM_WEBSOCKETTYPE() == WEBSOCKET_NONE ? "checked" : "") + ">");
   s.append("<label for=\"N\">None</label><br>");
 
+  // Host for WebSocket Connection
+  s.append("<h4>WebSocket host (if client)</h4>");
+  s.append("<label for=\"WSO_HOST\">URL/IP: </label>");
+  s.append("<input type=\"text\" id=\"WSO_HOST\" name=\"WSO_HOST\" value=\"" + Config::get()->getWSO_HOST() + "\"><br><br>");
+
   // Position of Gondola
   s.append("<h4>Position of gondola (if master)</h4>");
   s.append("<label for=\"GO_POSITION_X\">X (cm): </label>");
@@ -355,7 +365,7 @@ void WebServer::prepareSetupSystemPage(std::string &s)
   s.append("<input type=\"text\" id=\"GO_POSITION_Z\" name=\"GO_POSITION_Z\" value=\"" + floatToString(Config::get()->getGO_POSITION().z) + "\"><br><br>");
 
   // Mounting position of anchor
-  s.append("<h4>Mouting position of anchor</h4>");
+  s.append("<h4>Mounting position of anchor</h4>");
   s.append("<label for=\"GO_ANCHORPOS_X\">X (cm): </label>");
   s.append("<input type=\"text\" id=\"GO_ANCHORPOS_X\" name=\"GO_ANCHORPOS_X\" value=\"" + floatToString(Config::get()->getGO_ANCHORPOS().x) + "\"><br><br>");
   s.append("<label for=\"GO_ANCHORPOS_Y\">Y (cm): </label>");

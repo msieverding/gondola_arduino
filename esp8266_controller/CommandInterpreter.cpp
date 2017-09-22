@@ -21,12 +21,14 @@ CommandInterpreter::CommandInterpreter()
 {
   addCommand("help", std::bind(&CommandInterpreter::helpCommand, this, std::placeholders::_1));
   addCommand("configReset", std::bind(&CommandInterpreter::configResetCommand, this, std::placeholders::_1));
+  addCommand("configPrint", std::bind(&CommandInterpreter::configPrintCommand, this, std::placeholders::_1));
 }
 
 CommandInterpreter::~CommandInterpreter()
 {
   deleteCommand("help");
   deleteCommand("configReset");
+  deleteCommand("configPrint");
   s_Instance = NULL;
 }
 
@@ -156,5 +158,12 @@ bool CommandInterpreter::configResetCommand(std::string &s)
   logWarning("ConnectionMgr will reset now!\n");
   ConnectionMgr::reset();
   logWarning("Done.\n");
+  return true;
+}
+
+bool CommandInterpreter::configPrintCommand(std::string &s)
+{
+  logDebug("CI: configResetPrint\n");
+  Config::get()->printConfig();
   return true;
 }

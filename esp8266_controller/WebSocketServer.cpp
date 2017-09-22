@@ -11,7 +11,7 @@ WebSocketServer::WebSocketServer(uint16_t port)
  , m_Anchor(HW_ANCHOR_ID)
  , m_Gondola()
 {
-  logDebug("Started WebSocketServer\n");
+  logDebug("Started WebSocketServer on port '%d'\n", m_Port);
   m_WebSocketServer.begin();
   m_WebSocketServer.onEvent(std::bind(&WebSocketServer::webSocketEvent, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 

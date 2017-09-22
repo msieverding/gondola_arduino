@@ -43,13 +43,17 @@
 #define EEPROM_GO_ANCHORPOS_START       314
 #define EEPROM_GO_ROPEOFFSET_START      326
 
-//Debug
-#define EEPROM_LOG_LEVEL_START          330
+// WebSocketClient
+#define EEPROM_WSO_HOST_START           330
+#define EEPROM_WSO_HOST_LENGTH          20
+
+// Debug
+#define EEPROM_LOG_LEVEL_START          350
 
 // Checksum
 #define EEPROM_CHECKSUM_DATA_BEGIN      0
-#define EEPROM_CHECKSUM_DATA_END        330
-#define EEPROM_CHECKSUM_START           334
+#define EEPROM_CHECKSUM_DATA_END        350
+#define EEPROM_CHECKSUM_START           351
 
 Config *Config::s_Instance = NULL;
 
@@ -90,7 +94,7 @@ Config::Config()
  // WebSocketServer
  // - none yet
  // WebSocketClient
- , WSO_HOST("192.168.4.1")
+ , WSO_HOST("www.gondola.com")
  // Logging
  , LOG_LEVEL(LOG_VERBOSE)
 {
@@ -126,6 +130,8 @@ bool Config::writeToEEPROM()
   EEPROM.write(EEPROM_CM_WEBSOCKETTYPE_START, static_cast<uint8_t>(CM_WEBSOCKETTYPE));
 
   writeGOToEEPROM(false);
+
+  persistString(WSO_HOST, EEPROM_WSO_HOST_START, EEPROM_WSO_HOST_LENGTH);
 
   EEPROM.write(EEPROM_LOG_LEVEL_START, static_cast<uint8_t>(LOG_LEVEL));
 
@@ -229,6 +235,8 @@ void Config::readFromEEPROM()
   readCoordinate(GO_POSITION,      EEPROM_GO_POSITION_START);
   readCoordinate(GO_ANCHORPOS,     EEPROM_GO_ANCHORPOS_START);
   readFloat(     GO_ROPEOFFSET,    EEPROM_GO_ROPEOFFSET_START);
+
+  readString(    WSO_HOST,         EEPROM_WSO_HOST_START,        EEPROM_WSO_HOST_LENGTH);
 
   LOG_LEVEL = static_cast<logLevel_t>(EEPROM.read(EEPROM_LOG_LEVEL_START));
 
