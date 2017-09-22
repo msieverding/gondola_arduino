@@ -165,6 +165,22 @@ void WebServer::handleSetupSystem()
     // Information will be distributed to server/clients due to change of webSocket below
   }
 
+  if (m_Server.arg("GO_ROPELENGTH").length())
+  {
+    float ropeLength;
+    ropeLength = stringToFloat(m_Server.arg("GO_ROPELENGTH").c_str());
+    Config::get()->setGO_ROPELENGTH(ropeLength);
+    // Information will be distributed to server/clients due to change of webSocket below
+  }
+
+  if (m_Server.arg("GO_ROPEOFFSET").length())
+  {
+    float ropeOffset;
+    ropeOffset = stringToFloat(m_Server.arg("GO_ROPEOFFSET").c_str());
+    Config::get()->setGO_ROPEOFFSET(ropeOffset);
+    // Information will be distributed to server/clients due to change of webSocket below
+  }
+
   if (m_Server.arg("CM_WEBSOCKETTYPE").equals("WEBSOCKET_SERVER"))
   {
     Config::get()->setCM_WEBSOCKETTYPE(WEBSOCKET_SERVER);
@@ -354,7 +370,10 @@ void WebServer::prepareSetupSystemPage(std::string &s)
   s.append("<input type=\"text\" id=\"GO_ANCHORPOS_Y\" name=\"GO_ANCHORPOS_Y\" value=\"" + floatToString(Config::get()->getGO_ANCHORPOS().y) + "\"><br><br>");
   s.append("<label for=\"GO_ANCHORPOS_Z\">Z (cm): </label>");
   s.append("<input type=\"text\" id=\"GO_ANCHORPOS_Z\" name=\"GO_ANCHORPOS_Z\" value=\"" + floatToString(Config::get()->getGO_ANCHORPOS().z) + "\"><br><br>");
-
+  s.append("<label for=\"GO_ROPELENGTH\">Total rope length (cm): </label>");
+  s.append("<input type=\"text\" id=\"GO_ROPELENGTH\" name=\"GO_ROPELENGTH\" value=\"" + floatToString(Config::get()->getGO_ROPELENGTH()) + "\"><br><br>");
+  s.append("<label for=\"GO_ROPEOFFSET\">Spooled offset (cm): </label>");
+  s.append("<input type=\"text\" id=\"GO_ROPEOFFSET\" name=\"GO_ROPEOFFSET\" value=\"" + floatToString(Config::get()->getGO_ROPEOFFSET()) + "\"><br><br>");
   // Submit
   s.append("<br><button type=\"submit\">Go!</button>");
   s.append("<br>(A new setup will be started!)");
@@ -371,7 +390,11 @@ void WebServer::prepareGondolaMovePage(std::string &s)
 
   if (m_Gondola->getCurrentPosition() != m_Gondola->getTargetPosition())
   {
-    s.append("<head><meta http-equiv=\"Refresh\" content=\"5; URL=/\"></head>");
+    uint32_t travelTime = static_cast<uint32_t>(m_Gondola->getTravelTime() + 1);    // round to next int
+    if (travelTime == 0)
+      travelTime = 1000;
+    String travelTimeStr((travelTime + 1000) / 1000);                               // round to next second
+    s.append("<head><meta http-equiv=\"Refresh\" content=\"" + std::string(travelTimeStr.c_str()) + "; URL=/\"></head>");
     s.append("<h1>Gondola is moving</h1>");
     s.append("Move from: " + m_Gondola->getCurrentPosition().toString());
     s.append("<br>to: " + m_Gondola->getTargetPosition().toString());
@@ -412,6 +435,10 @@ void WebServer::prepareGondolaMovePage(std::string &s)
     s.append(FTOS(anchor->getAnchorPos().y));
     s.append("/");
     s.append(FTOS(anchor->getAnchorPos().z));
+    s.append("<br>Rope Length (cm): ");
+    s.append(FTOS(anchor->getRopeLength()));
+    s.append("<br>Rope Offset (cm): ");
+    s.append(FTOS(anchor->getRopeOffset()));
     s.append("<br>Spooled distance (cm): ");
     s.append(FTOS(anchor->getSpooledDistance()));
     s.append("<br>Target spooled distance (cm):");

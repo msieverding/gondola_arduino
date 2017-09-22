@@ -4,7 +4,7 @@
 HardwareAnchor *s_MoveInstance = NULL;
 
 HardwareAnchor::HardwareAnchor(uint8_t id)
- : IAnchor(id, Config::get()->getGO_ANCHORPOS(), 0.0f , 0.0f)
+ : IAnchor(id, Config::get()->getGO_ANCHORPOS(), 0.0f , 0.0f, Config::get()->getGO_ROPELENGTH(), Config::get()->getGO_ROPEOFFSET())
  , m_Pins({0, 5, 4})
  , m_StepsTodo(0)
  , m_StepsDone(0)
@@ -13,7 +13,7 @@ HardwareAnchor::HardwareAnchor(uint8_t id)
  , m_MovementFinished(false)
  , m_Timer()
 {
-  logDebug("Creating HardwareAnchor at (%s)\n", m_AnchorPosition.toString().c_str());
+  logDebug("Creating HardwareAnchor at (%s) with total spool (%s) and a spooled offset of (%s)\n", m_AnchorPosition.toString().c_str(), FTOS(m_RopeLength), FTOS(m_RopeOffset));
   configurePins();
   s_MoveInstance = this;
 }

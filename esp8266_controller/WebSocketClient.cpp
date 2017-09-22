@@ -51,7 +51,7 @@ void WebSocketClient::webSocketEvent(WStype_t type, uint8_t * payload, size_t le
 			// send message to server when Connected
 			m_WebSocketClient.sendTXT("Connected");
 
-      byte msg[12 + 1];
+      byte msg[20 + 1];
       uint8_t i = 1;
       b4Converter_t converter;
 
@@ -70,6 +70,18 @@ void WebSocketClient::webSocketEvent(WStype_t type, uint8_t * payload, size_t le
       msg[i++] = converter.b[3];
 
       converter.f = m_Anchor.getAnchorPos().z;
+      msg[i++] = converter.b[0];
+      msg[i++] = converter.b[1];
+      msg[i++] = converter.b[2];
+      msg[i++] = converter.b[3];
+
+      converter.f = m_Anchor.getRopeOffset();
+      msg[i++] = converter.b[0];
+      msg[i++] = converter.b[1];
+      msg[i++] = converter.b[2];
+      msg[i++] = converter.b[3];
+
+      converter.f = m_Anchor.getRopeLength();
       msg[i++] = converter.b[0];
       msg[i++] = converter.b[1];
       msg[i++] = converter.b[2];

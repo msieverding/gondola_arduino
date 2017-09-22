@@ -140,6 +140,10 @@ public:
   void setGO_POSITION(Coordinate position);
   Coordinate getGO_ANCHORPOS(void) { return GO_ANCHORPOS; }
   void setGO_ANCHORPOS(Coordinate position);
+  float getGO_ROPEOFFSET(void) { return GO_ROPEOFFSET; }
+  void setGO_ROPEOFFSET(float offset);
+  float getGO_ROPELENGTH(void) { return GO_ROPELENGTH; }
+  void setGO_ROPELENGTH(float length);
 
   // WebSocket
   uint16_t getWSO_PORT() { return WSO_PORT; }
@@ -258,6 +262,8 @@ private:
   // Gondola
   Coordinate GO_POSITION;
   Coordinate GO_ANCHORPOS;
+  float GO_ROPEOFFSET;
+  float GO_ROPELENGTH;
 
   // WebSocket
   uint16_t WSO_PORT;

@@ -113,12 +113,24 @@ void WebSocketServer::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payloa
       anchorPos.z = converter.f;
       anchor->setAnchorPos(anchorPos);
 
+      converter.b[0] = payload[i++];
+      converter.b[1] = payload[i++];
+      converter.b[2] = payload[i++];
+      converter.b[3] = payload[i++];
+      anchor->setRopeOffset(converter.f);
+
+      converter.b[0] = payload[i++];
+      converter.b[1] = payload[i++];
+      converter.b[2] = payload[i++];
+      converter.b[3] = payload[i++];
+      anchor->setRopeLength(converter.f);
+
       anchor->registerInitCallback(std::bind(&WebSocketServer::remoteAnchorInitFunction, this, std::placeholders::_1));
       anchor->registerMoveCallback(std::bind(&WebSocketServer::remoteAnchorMoveFunction, this, std::placeholders::_1));
       anchor->registerReadyCallback(std::bind(&WebSocketServer::readyCallbackToGondola, this, std::placeholders::_1));
       m_Gondola.addAnchor(anchor);
 
-      logDebug("Client registered at position(%s)\n", anchor->getAnchorPos().toString().c_str());
+      logDebug("Client registered at position(%s), ropeLength: %s, ropeOffset %s\n", anchor->getAnchorPos().toString().c_str(), FTOS(anchor->getRopeLength()), FTOS(anchor->getRopeOffset()));
     }
     else if (cmd == WSO_C_REPORT)
     {

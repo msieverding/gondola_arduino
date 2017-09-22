@@ -9,6 +9,7 @@ Gondola::Gondola()
  , m_TargetPosition(m_CurrentPosition)
  , m_AnchorList()
  , m_UnfinishedAnchors(0)
+ , m_TravelTime(0.0f)
 {
   logDebug("Creating gondola at: %s\n", m_CurrentPosition.toString().c_str());
   CommandInterpreter::get()->addCommand("move", std::bind(&Gondola::moveCommand, this, std::placeholders::_1));
@@ -36,7 +37,8 @@ void Gondola::setInitialPosition(Coordinate position)
     IAnchor *anchor = *it;
     if (anchor->getID() != HW_ANCHOR_ID)
     {
-      if (anchor->setInitialSpooledDistance(Coordinate::euclideanDistance(anchor->getAnchorPos(), m_CurrentPosition)) == false)
+      float spooledDistance = calculateCorrectedSpooling(anchor, Coordinate::euclideanDistance(anchor->getAnchorPos(), m_CurrentPosition));
+      if (anchor->setInitialSpooledDistance(spooledDistance) == false)
       {
         logWarning("Unable to init anchor %d. No Connection available. Delete it from Gondola.\n", anchor->getID());
         deleteAnchor(it++);
@@ -49,7 +51,8 @@ void Gondola::setInitialPosition(Coordinate position)
 
 void Gondola::addAnchor(IAnchor *anchor)
 {
-  anchor->setInitialSpooledDistance(Coordinate::euclideanDistance(anchor->getAnchorPos(), m_CurrentPosition));
+  float spooledDistance = calculateCorrectedSpooling(anchor, Coordinate::euclideanDistance(anchor->getAnchorPos(), m_CurrentPosition));
+  anchor->setInitialSpooledDistance(spooledDistance);
   m_AnchorList.push_front(anchor);        // push new (remote) anchors to the front, so that the hardware anchor starts to spool after the message to the remote anchors was delivered (better synchronisation during spooling)
 }
 
@@ -89,10 +92,8 @@ void Gondola::reportAnchorFinished(uint8_t id)
     IAnchor *anchor = *it;
     if (anchor->getID() == id)
     {
+      // TODO why atomic?
       noInterrupts();
-      // TODO what todo here
-      // old code:
-      // it->spooledDistance = it->targetSpooledDistance;
       m_UnfinishedAnchors &= ~(1 << anchor->getID());
       interrupts();
     }
@@ -110,6 +111,11 @@ Coordinate Gondola::getTargetPosition()
   return m_TargetPosition;
 }
 
+float Gondola::getTravelTime()
+{
+  return m_TravelTime;
+}
+
 void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
 {
   m_TargetPosition = targetPos;
@@ -125,8 +131,8 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
 
   logVerbose("============= Gondola Computing all Anchors ==========\n");
 
-  float travelTime = travelDistance / speed;
-  logVerbose("TravelDistance: %s, TravelTime: %s\n", FTOS(travelDistance), FTOS(travelTime));
+  m_TravelTime = travelDistance / speed;
+  logVerbose("TravelDistance: %s, TravelTime: %s\n", FTOS(travelDistance), FTOS(m_TravelTime));
   uint32_t maxSteps = 0;
 
   // prepare to spool
@@ -135,26 +141,29 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
   {
     uint32_t stepsTodo;
     IAnchor *anchor = *it;
+    float targetSpooledDistance = Coordinate::euclideanDistance(anchor->getAnchorPos(), targetPos);
 
-    stepsTodo = anchor->setTargetSpooledDistance(Coordinate::euclideanDistance(anchor->getAnchorPos(), targetPos));
+    float correctedSpooledDistance = calculateCorrectedSpooling(anchor, targetSpooledDistance);
+    stepsTodo = anchor->setTargetSpooledDistance(correctedSpooledDistance);
+    logVerbose("targetSpooledDistance: %s, correctedSpooledDistance: %s\n", FTOS(targetSpooledDistance), FTOS(correctedSpooledDistance));
 
     maxSteps = std::max(maxSteps, stepsTodo);
   }
 
   // TODO change value of 1000.0f to a realistic one
-  logVerbose("Budget: %ss, Minimum %ss\n", FTOS(travelTime), FTOS(maxSteps / 1000.0f));
+  logVerbose("Budget: %ss, Minimum %ss\n", FTOS(m_TravelTime), FTOS(maxSteps / 1000.0f));
 
   logVerbose("======================================================\n");
 
-  travelTime = std::max(travelTime, maxSteps / 1000.0f);     // Fastest step is 1 ms(due to timer in Anchor.cpp) so give more time to all motors to have a smooth momvement
-  travelTime *= 1000;
+  m_TravelTime = std::max(m_TravelTime, maxSteps / 1000.0f);     // Fastest step is 1 ms(due to timer in Anchor.cpp) so give more time to all motors to have a smooth momvement
+  m_TravelTime *= 1000;
 
   it = m_AnchorList.begin();
   while (it != m_AnchorList.end())
   {
     IAnchor *anchor = *it;
     m_UnfinishedAnchors |= (1 << anchor->getID());
-    if (anchor->startMovement(travelTime) == false)
+    if (anchor->startMovement(m_TravelTime) == false)
     {
       logWarning("No connection to anchor %d possible. Delete anchor from list.\n", anchor->getID());
       deleteAnchor(it++);
@@ -208,6 +217,39 @@ void Gondola::checkForReady()
     Config::get()->setGO_POSITION(m_CurrentPosition);
     Config::get()->writeGOToEEPROM(true);
   }
+}
+
+float Gondola::calculateCorrectedSpooling(IAnchor *anchor, float targetSpooledDistance)
+{
+  // Err = b0 + b1 * ropeOnSpool
+  // float b0 = 29.48154;
+  // float b1 = -0.0321;
+  // // Error at zero
+  // float estimatedErrZero = b0 + b1 * (anchor->getRopeLength() - anchor->getRopeOffset());
+  // // Error at targetSpooledDistance
+  // float estimatedErrTarget = b0 + b1 * (anchor->getRopeLength() - anchor->getRopeOffset() - targetSpooledDistance);
+  // // Error in Movement
+  // float estimatedErr = estimatedErrTarget - estimatedErrZero;
+  // // Distance to regulate
+  // float correctedDistance = targetSpooledDistance - estimatedErr;
+
+  // Err = b0 * realSpooledRope^2 + b1 * realSpooledRope + b2
+  float b0 = -0.000024216423411;
+  float b1 = 0.051005307386112;
+  float b2 = 0.472932330827063;
+  float ropeOffset = anchor->getRopeOffset();
+  // Error at coordinate zero
+  float estimatedErrZero = b0 * ropeOffset * ropeOffset + b1 * ropeOffset + b2;
+  float ropeSpooledAtTarget = ropeOffset + targetSpooledDistance;
+  // Error at target coordinate
+  float estimatedErrTarget = b0 * ropeSpooledAtTarget * ropeSpooledAtTarget + b1 * ropeSpooledAtTarget + b2;
+  // Estimated Error in movement
+  float estimatedErr = estimatedErrTarget - estimatedErrZero;
+  float correctedDistance = targetSpooledDistance - estimatedErr;
+
+  logVerbose("Err estimation: estimatedErrZero: %s, estimatedErrTarget %s, estimatedErr %s\n", FTOS(estimatedErrZero), FTOS(estimatedErrTarget), FTOS(estimatedErr));
+  logVerbose("Err estimation: targetSpooledDistance: %s, correctedDistance: %s\n", FTOS(targetSpooledDistance), FTOS(correctedDistance));
+  return correctedDistance;
 }
 
 IAnchor *Gondola::getAnchor(uint8_t id)

@@ -1,9 +1,18 @@
 TODO:
-- Change anchorInformation_t to 3 classes: IAnchor, hardwareAnchor, remoteAnchor
-- Check Server link on Client WebServer header. Doens't work..
 - Output on WebBrowser Page...
-- WebSocket Client dosn't register at Server after change of AnchorPos (Problem is at server imo)
 - Test for a memory leack with the esp free heap (name?) function
+- check class diagramm (anchor is missing and some things changed. See commits)
+- 1 std. config server and 2 std. config client
+- Consistent Configuration opportunities. (IP can be changed, but websocket server ip not.. useless...)
+- calc system boundaries with anchor positions
+- reload webpage after m_Gondola->getMoveTime()
+ - if it's available after movement reload after 500 ms and than after m_Gondola->getMovetime() - 500
+- Check if what marco said about the spooled distance and the steps and the error... don't know how to say it^^
+
+
+
+Possible tests:
+- Given rope length with different weights (as different angles. Maybe calc load factor)
 
 Ideas:
 - Use NTP for a time (maybe good for debug output, etc..). NTP is used here (https://github.com/Azure/azure-iot-arduino-protocol-http/blob/master/examples/simplesample_http/simplesample_http.ino)
@@ -38,3 +47,7 @@ Unused libraries:
 
 Used libraries:
 - WebSocket Server and Cient (https://github.com/Links2004/arduinoWebSockets?utm_source=platformio&utm_medium=piohome)
+
+
+Usefull sources:
+- Linear regression: https://de.mathworks.com/help/matlab/data_analysis/linear-regression.html

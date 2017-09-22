@@ -21,7 +21,7 @@ public:
    * constructor
    * TODO
    */
-  IAnchor(uint8_t id, Coordinate _AnchorPosition, float _SpooledDistance, float _TargetSpooledDistance);
+  IAnchor(uint8_t id, Coordinate anchorPosition, float spooledDistance, float targetSpooledDistance, float ropeLength, float ropeOffset);
 
   /**
    * vitual Destructor
@@ -90,6 +90,18 @@ public:
   // TODO Doc
   uint8_t getID();
 
+  // TODO Doc
+  float getRopeOffset();
+
+  // TODO Doc
+  void setRopeOffset(float offset);
+
+  // TODO Doc
+  float getRopeLength();
+
+  // TODO Doc
+  void setRopeLength(float length);
+
   /**
    * Round a float to a given precision
    * @param f             float to round
@@ -97,6 +109,7 @@ public:
    * @return  rounded f
   */
   static float roundPrecision(float f, float precision);
+
 
 protected:
 
@@ -108,6 +121,8 @@ protected:
   callback          m_InitCallback;               //!< Callback to set an initial spooled distance
   callback          m_ReadyCallback;              //!< Callback that should be executed to propagate the finished movement
   uint32_t          m_TravelTime;                 //!< Time budget for movement
+  float             m_RopeLength;                 //!< Total rope length
+  float             m_RopeOffset;                 //!< Spool that is spooled from motor to anchor
 };
 
 #endif /* _I_ANCHOR_HPP_ */

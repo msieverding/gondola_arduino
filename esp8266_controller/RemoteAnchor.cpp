@@ -3,7 +3,7 @@
 #include <functional>
 
 RemoteAnchor::RemoteAnchor(uint8_t id)
- : IAnchor(id, {0.0f, 0.0f, 0.0f}, 0.0f, 0.0f)
+ : IAnchor(id, {0.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f)
  , m_MoveCallback()
 {
 
@@ -22,7 +22,7 @@ uint32_t RemoteAnchor::setTargetSpooledDistance(float targetDistance)
    */
   m_TargetSpooledDistance = targetDistance;
 
-  float distanceTodo = m_TargetSpooledDistance - m_SpooledDistance;
+  float distanceTodo = abs(m_TargetSpooledDistance - m_SpooledDistance);
   distanceTodo = roundPrecision(distanceTodo, MIN_PRECISION);   // round to a given precision
 
   logVerbose("============ Anchor Computing stuff ==================\n");
