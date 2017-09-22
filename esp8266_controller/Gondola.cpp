@@ -221,18 +221,6 @@ void Gondola::checkForReady()
 
 float Gondola::calculateCorrectedSpooling(IAnchor *anchor, float targetSpooledDistance)
 {
-  // Err = b0 + b1 * ropeOnSpool
-  // float b0 = 29.48154;
-  // float b1 = -0.0321;
-  // // Error at zero
-  // float estimatedErrZero = b0 + b1 * (anchor->getRopeLength() - anchor->getRopeOffset());
-  // // Error at targetSpooledDistance
-  // float estimatedErrTarget = b0 + b1 * (anchor->getRopeLength() - anchor->getRopeOffset() - targetSpooledDistance);
-  // // Error in Movement
-  // float estimatedErr = estimatedErrTarget - estimatedErrZero;
-  // // Distance to regulate
-  // float correctedDistance = targetSpooledDistance - estimatedErr;
-
   // Err = b0 * realSpooledRope^2 + b1 * realSpooledRope + b2
   float b0 = -0.000024216423411;
   float b1 = 0.051005307386112;

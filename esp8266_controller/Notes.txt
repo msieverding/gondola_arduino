@@ -4,8 +4,8 @@ TODO:
 - check class diagramm (anchor is missing and some things changed. See commits)
 - 1 std. config server and 2 std. config client
 - Consistent Configuration opportunities. (IP can be changed, but websocket server ip not.. useless...)
+ - Also total spool is not needed any more. delete it.
 - calc system boundaries with anchor positions
-- reload webpage after m_Gondola->getMoveTime()
  - if it's available after movement reload after 500 ms and than after m_Gondola->getMovetime() - 500
 - Check if what marco said about the spooled distance and the steps and the error... don't know how to say it^^
 

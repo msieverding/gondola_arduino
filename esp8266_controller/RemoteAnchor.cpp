@@ -3,7 +3,7 @@
 #include <functional>
 
 RemoteAnchor::RemoteAnchor(uint8_t id)
- : IAnchor(id, {0.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, 0.0f)
+ : IAnchor(id, {0.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f)
  , m_MoveCallback()
 {
 

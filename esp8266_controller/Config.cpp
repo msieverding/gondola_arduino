@@ -42,15 +42,14 @@
 #define EEPROM_GO_POSITION_START        302
 #define EEPROM_GO_ANCHORPOS_START       314
 #define EEPROM_GO_ROPEOFFSET_START      326
-#define EEPROM_GO_ROPELENGTH_START      330
 
 //Debug
-#define EEPROM_LOG_LEVEL_START          334
+#define EEPROM_LOG_LEVEL_START          330
 
 // Checksum
 #define EEPROM_CHECKSUM_DATA_BEGIN      0
-#define EEPROM_CHECKSUM_DATA_END        334
-#define EEPROM_CHECKSUM_START           335
+#define EEPROM_CHECKSUM_DATA_END        330
+#define EEPROM_CHECKSUM_START           334
 
 Config *Config::s_Instance = NULL;
 
@@ -67,10 +66,6 @@ Config::Config()
  : WC_IPADDRESS(0, 0, 0, 0)
  , WC_GATEWAY(0, 0, 0, 0)
  , WC_NETMASK(0, 0, 0, 0)
- // , WC_SSID("Virus.exe")
- // , WC_PASSPHRASE("10542284208956097103")
- // , WC_SSID("Marvins iPhone")
- // , WC_PASSPHRASE("marvin123")
  , WC_SSID("GondolaWiFi")
  , WC_PASSPHRASE("TU_GRAZ_ITI")
  , WC_HOSTNAME("gondola")
@@ -90,13 +85,13 @@ Config::Config()
  , GO_POSITION(0.0, 0.0, 0.0)
  , GO_ANCHORPOS(0.0, 0.0, 0.0)
  , GO_ROPEOFFSET(0.0f)
- , GO_ROPELENGTH(1000.0f)
  // WebSocket
  , WSO_PORT(443)
  // WebSocketServer
  // - none yet
  // WebSocketClient
  , WSO_HOST("192.168.4.1")
+ // Logging
  , LOG_LEVEL(LOG_VERBOSE)
 {
   EEPROM.begin(EEPROM_LENGTH);
@@ -186,7 +181,6 @@ bool Config::writeGOToEEPROM(bool persist)
   // Gondola setup
   persistCoordinate(GO_POSITION,      EEPROM_GO_POSITION_START);
   persistCoordinate(GO_ANCHORPOS,     EEPROM_GO_ANCHORPOS_START);
-  persistFloat(     GO_ROPELENGTH,    EEPROM_GO_ROPELENGTH_START);
   persistFloat(     GO_ROPEOFFSET,    EEPROM_GO_ROPEOFFSET_START);
 
   if (persist)
@@ -234,7 +228,6 @@ void Config::readFromEEPROM()
 
   readCoordinate(GO_POSITION,      EEPROM_GO_POSITION_START);
   readCoordinate(GO_ANCHORPOS,     EEPROM_GO_ANCHORPOS_START);
-  readFloat(     GO_ROPELENGTH,    EEPROM_GO_ROPELENGTH_START);
   readFloat(     GO_ROPEOFFSET,    EEPROM_GO_ROPEOFFSET_START);
 
   LOG_LEVEL = static_cast<logLevel_t>(EEPROM.read(EEPROM_LOG_LEVEL_START));
@@ -384,7 +377,6 @@ void Config::printConfig(void)
   // Gondola
   logDebug("GO_POSITION:        %s\n", GO_POSITION.toString().c_str());
   logDebug("GO_ANCHORPOS:       %s\n", GO_ANCHORPOS.toString().c_str());
-  logDebug("GO_ROPELENGTH:      %s\n", FTOS(GO_ROPELENGTH));
   logDebug("GO_ROPEOFFSET       %s\n", FTOS(GO_ROPEOFFSET));
   // WebSocket
   logDebug("WSO_PORT:           %u\n", WSO_PORT);
@@ -522,11 +514,6 @@ void Config::setGO_ANCHORPOS(Coordinate position)
 void Config::setGO_ROPEOFFSET(float offset)
 {
   GO_ROPEOFFSET = offset;
-}
-
-void Config::setGO_ROPELENGTH(float length)
-{
-  GO_ROPELENGTH = length;
 }
 
 // WebSocket

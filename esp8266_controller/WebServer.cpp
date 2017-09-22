@@ -165,14 +165,6 @@ void WebServer::handleSetupSystem()
     // Information will be distributed to server/clients due to change of webSocket below
   }
 
-  if (m_Server.arg("GO_ROPELENGTH").length())
-  {
-    float ropeLength;
-    ropeLength = stringToFloat(m_Server.arg("GO_ROPELENGTH").c_str());
-    Config::get()->setGO_ROPELENGTH(ropeLength);
-    // Information will be distributed to server/clients due to change of webSocket below
-  }
-
   if (m_Server.arg("GO_ROPEOFFSET").length())
   {
     float ropeOffset;
@@ -363,15 +355,13 @@ void WebServer::prepareSetupSystemPage(std::string &s)
   s.append("<input type=\"text\" id=\"GO_POSITION_Z\" name=\"GO_POSITION_Z\" value=\"" + floatToString(Config::get()->getGO_POSITION().z) + "\"><br><br>");
 
   // Mounting position of anchor
-  s.append("<h4>Mouting position of anchor (if client)</h4>");
+  s.append("<h4>Mouting position of anchor</h4>");
   s.append("<label for=\"GO_ANCHORPOS_X\">X (cm): </label>");
   s.append("<input type=\"text\" id=\"GO_ANCHORPOS_X\" name=\"GO_ANCHORPOS_X\" value=\"" + floatToString(Config::get()->getGO_ANCHORPOS().x) + "\"><br><br>");
   s.append("<label for=\"GO_ANCHORPOS_Y\">Y (cm): </label>");
   s.append("<input type=\"text\" id=\"GO_ANCHORPOS_Y\" name=\"GO_ANCHORPOS_Y\" value=\"" + floatToString(Config::get()->getGO_ANCHORPOS().y) + "\"><br><br>");
   s.append("<label for=\"GO_ANCHORPOS_Z\">Z (cm): </label>");
   s.append("<input type=\"text\" id=\"GO_ANCHORPOS_Z\" name=\"GO_ANCHORPOS_Z\" value=\"" + floatToString(Config::get()->getGO_ANCHORPOS().z) + "\"><br><br>");
-  s.append("<label for=\"GO_ROPELENGTH\">Total rope length (cm): </label>");
-  s.append("<input type=\"text\" id=\"GO_ROPELENGTH\" name=\"GO_ROPELENGTH\" value=\"" + floatToString(Config::get()->getGO_ROPELENGTH()) + "\"><br><br>");
   s.append("<label for=\"GO_ROPEOFFSET\">Spooled offset (cm): </label>");
   s.append("<input type=\"text\" id=\"GO_ROPEOFFSET\" name=\"GO_ROPEOFFSET\" value=\"" + floatToString(Config::get()->getGO_ROPEOFFSET()) + "\"><br><br>");
   // Submit
@@ -435,8 +425,6 @@ void WebServer::prepareGondolaMovePage(std::string &s)
     s.append(FTOS(anchor->getAnchorPos().y));
     s.append("/");
     s.append(FTOS(anchor->getAnchorPos().z));
-    s.append("<br>Rope Length (cm): ");
-    s.append(FTOS(anchor->getRopeLength()));
     s.append("<br>Rope Offset (cm): ");
     s.append(FTOS(anchor->getRopeOffset()));
     s.append("<br>Spooled distance (cm): ");

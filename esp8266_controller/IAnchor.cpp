@@ -1,7 +1,7 @@
 #include "IAnchor.hpp"
 #include "Log.hpp"
 
-IAnchor::IAnchor(uint8_t id, Coordinate anchorPosition, float spooledDistance, float targetSpooledDistance, float ropeLength, float ropeOffset)
+IAnchor::IAnchor(uint8_t id, Coordinate anchorPosition, float spooledDistance, float targetSpooledDistance, float ropeOffset)
  : m_ID(id)
  , m_AnchorPosition(anchorPosition)
  , m_SpooledDistance(spooledDistance)
@@ -9,7 +9,6 @@ IAnchor::IAnchor(uint8_t id, Coordinate anchorPosition, float spooledDistance, f
  , m_InitCallback()
  , m_ReadyCallback()
  , m_TravelTime(0)
- , m_RopeLength(ropeLength)
  , m_RopeOffset(ropeOffset)
 {
 
@@ -91,18 +90,6 @@ float IAnchor::getRopeOffset()
 void IAnchor::setRopeOffset(float offset)
 {
   m_RopeOffset = offset;
-}
-
-// TODO Doc
-float IAnchor::getRopeLength()
-{
-  return m_RopeLength;
-}
-
-// TODO Doc
-void IAnchor::setRopeLength(float length)
-{
-  m_RopeLength = length;
 }
 
 float IAnchor::roundPrecision(float f, float precision)
