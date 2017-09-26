@@ -25,10 +25,9 @@ HardwareAnchor::~HardwareAnchor()
 
 uint32_t HardwareAnchor::setTargetSpooledDistance(float targetDistance)
 {
-  m_TargetSpooledDistance = targetDistance;
-
-  float distanceTodo = m_TargetSpooledDistance - m_SpooledDistance;
-  distanceTodo = roundPrecision(distanceTodo, MIN_PRECISION);   // round to a given precision
+  float distanceTodo = targetDistance - m_SpooledDistance;
+  distanceTodo = roundPrecision(distanceTodo, MIN_PRECISION);   // round to a given precision (1 step)
+  m_TargetSpooledDistance = m_SpooledDistance + distanceTodo;
 
   logVerbose("============ Anchor Computing stuff ==================\n");
   logVerbose("Anchor ID: %d on position: %s\n", m_ID, m_AnchorPosition.toString().c_str());
