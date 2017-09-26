@@ -73,7 +73,7 @@ public:
   Coordinate getTargetPosition();
 
   // TODO Doc
-  float getTravelTime();
+  uint32_t getTravelTime();
 
   /**
    * Set target position of gondola
@@ -112,7 +112,7 @@ private:
   Coordinate                      m_TargetPosition;     //!< Target position of gondola
   std::list<IAnchor *>            m_AnchorList;         //!< List of all hardware and remote anchors
   uint8_t                         m_UnfinishedAnchors;  //!< Bitflied to indicate which anchor is ready and which isn't
-  float                           m_TravelTime; // TODO Doc
+  uint32_t                        m_TravelTime; // TODO Doc
 };
 
 

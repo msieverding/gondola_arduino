@@ -9,7 +9,7 @@ Gondola::Gondola()
  , m_TargetPosition(m_CurrentPosition)
  , m_AnchorList()
  , m_UnfinishedAnchors(0)
- , m_TravelTime(0.0f)
+ , m_TravelTime(0)
 {
   logDebug("Creating gondola at: %s\n", m_CurrentPosition.toString().c_str());
   CommandInterpreter::get()->addCommand("move", std::bind(&Gondola::moveCommand, this, std::placeholders::_1));
@@ -109,7 +109,7 @@ Coordinate Gondola::getTargetPosition()
   return m_TargetPosition;
 }
 
-float Gondola::getTravelTime()
+uint32_t Gondola::getTravelTime()
 {
   return m_TravelTime;
 }
@@ -129,8 +129,8 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
 
   logVerbose("============= Gondola Computing all Anchors ==========\n");
 
-  m_TravelTime = travelDistance / speed;
-  logVerbose("TravelDistance: %s, TravelTime: %s\n", FTOS(travelDistance), FTOS(m_TravelTime));
+  float travelTime = travelDistance / speed;
+  logVerbose("TravelDistance: %s, TravelTime: %s\n", FTOS(travelDistance), FTOS(travelTime));
   uint32_t maxSteps = 0;
 
   // prepare to spool
@@ -149,12 +149,13 @@ void Gondola::setTargetPosition(Coordinate &targetPos, float &speed)
   }
 
   // TODO change value of 1000.0f to a realistic one
-  logVerbose("Budget: %ss, Minimum %ss\n", FTOS(m_TravelTime), FTOS(maxSteps / 1000.0f));
+  logVerbose("Budget: %ss, Minimum %ss\n", FTOS(travelTime), FTOS(maxSteps / 1000.0f));
 
   logVerbose("======================================================\n");
 
-  m_TravelTime = std::max(m_TravelTime, maxSteps / 1000.0f);     // Fastest step is 1 ms(due to timer in Anchor.cpp) so give more time to all motors to have a smooth momvement
-  m_TravelTime *= 1000;
+  travelTime = std::max(travelTime, maxSteps / 1000.0f);
+  travelTime *= 1000;
+  m_TravelTime = static_cast<uint32_t>(travelTime);
 
   it = m_AnchorList.begin();
   while (it != m_AnchorList.end())

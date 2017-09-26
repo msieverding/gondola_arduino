@@ -25,12 +25,6 @@ public:
   ~HardwareAnchor();
 
   /**
-   * Set the mounting position of the anchor
-   * @param anchorPos mounting positiong
-   */
-  void setAnchorPos(Coordinate anchorPos);
-
-  /**
    * Set the new spooling targetDistance.
    * Anchor will start to move with an ISR driven function that
    * toggles the pin for the stepper driver
