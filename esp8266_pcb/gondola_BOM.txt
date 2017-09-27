@@ -1,0 +1,25 @@
+Stückliste exportiert aus C:/Users/Marvin/Documents/eagle/Gondola/gondola.sch am 27.09.2017 15:02
+
+Part      Value            Device             Package          Description                          MF MPN      OC_FARNELL OC_NEWARK
+C1        100µF            CPOL-US153CLV-0605 153CLV-0605      POLARIZED CAPACITOR, American symbol                                 
+D1        1N4004           1N4004             DO41-10          DIODE                                                                
+F1        3A               PTCFUSE            LITTLEFUSE       LITTLEFUSE                                                           
+JP1                        PINHD-2X3          2X03             PIN HEADER                                                           
+LED1_12IN                  LEDCHIP-LED0805    CHIP-LED0805     LED                                                                  
+LED2_12V                   LEDCHIP-LED0805    CHIP-LED0805     LED                                                                  
+LED3_5V                    LEDCHIP-LED0805    CHIP-LED0805     LED                                                                  
+LED4_3V3                   LEDCHIP-LED0805    CHIP-LED0805     LED                                                                  
+LED5_SW                    LEDCHIP-LED0805    CHIP-LED0805     LED                                                                  
+R1        4.7k             R-US_R0805         R0805            RESISTOR, American symbol                                            
+R2        4.7k             R-US_R0805         R0805            RESISTOR, American symbol                                            
+R3        1.2k             R-US_R0805         R0805            RESISTOR, American symbol                                            
+R4        330              R-US_R0805         R0805            RESISTOR, American symbol                                            
+R5        330              R-US_R0805         R0805            RESISTOR, American symbol                                            
+R6        10k              R-US_R0805         R0805            RESISTOR, American symbol                                            
+R7        100k             R-US_R0805         R0805            RESISTOR, American symbol                                            
+S1                         31-XX              B3F-31XX         OMRON SWITCH                            B3F-3100 959704     36M3582  
+U$1       A4988BREAKOUT    A4988BREAKOUT      A4988BREAKOUT                                                                         
+U$2       ADAFRUIT_ESP8266 ADAFRUIT_ESP8266   ADAFRUIT_ESP8266                                                                      
+U$3       ROHM_BP5293-XX   ROHM_BP5293-XX     ROHM_BP5293-XX                                                                        
+X1        1751248          1751248            1751248          MKDS 1/ 2-3,5 Printklemme                        unknown    unknown  
+X2        1751264          1751264            1751264          MKDS 1/ 4-3,5 Printklemme               1751264  unknown    10R0934  
