@@ -18,8 +18,13 @@ public:
   typedef std::function<bool(IAnchor *)> callback;
 
   /**
-   * constructor
-   * TODO Doc
+   * Constructor
+   * Values can be changed after construction.
+   * @param id                    id of the anchor
+   * @param anchorPosition        position of the anchor
+   * @param spooledDistance       current spooled distance of the anchor
+   * @param targetSpooledDistance target spooled distance of the anchor
+   * @param ropeOffset            offset between motor and anchor in cm
    */
   IAnchor(uint8_t id, Coordinate anchorPosition, float spooledDistance, float targetSpooledDistance, float ropeOffset);
 
@@ -28,7 +33,10 @@ public:
    */
   virtual ~IAnchor();
 
-  // TODO Doc
+  /**
+   * Set the mounting position of the anchor
+   * @param anchorPos mounting position
+   */
   void setAnchorPos(Coordinate anchorPos);
 
   /**
@@ -37,13 +45,22 @@ public:
    */
   Coordinate getAnchorPos();
 
-  // TODO DOc
+  /**
+   * Get the current spooled distance
+   * @return spooled distance
+   */
   float getSpooledDistance();
 
-  // TODO Doc
+  /**
+   * Get the target spooled distance
+   * @return target spooled distance
+   */
   float getTargetSpooledDistance();
 
-  // TODO DOc
+  /**
+   * Get the time budget for the current movement
+   * @return travel time
+   */
   uint32_t getTravelTime();
 
   /**
@@ -59,8 +76,13 @@ public:
    */
   virtual uint32_t setTargetSpooledDistance(float targetDistance) = 0;
 
-  // TODO Doc
-  // * @param travelTime     Time that should be needed
+  /**
+   * Start the movement.
+   * target spooled distance must be set with setTargetSpooledDistance before to
+   * setup the movement
+   * @param  traveltime time budget for the movement
+   * @return            success. Could be false if communication fails
+   */
   virtual bool startMovement(uint32_t traveltime) = 0;
 
   /**
@@ -69,7 +91,10 @@ public:
    */
   void registerInitCallback(callback cb);
 
-  // TODO Doc
+  /**
+   * Execute the initCallback if registered
+   * @return return of init callback
+   */
   virtual bool executeInitCallback();
 
   /**
@@ -78,8 +103,12 @@ public:
    */
   void registerReadyCallback(callback cb);
 
-  // TODO Doc
+  /**
+   * Execute the readyCallback if registered
+   * @return return of readyCallback
+   */
   virtual bool executeReadyCallback();
+
   /**
    * Loop that should be executed with high frequency in the main arduino loop
    *
@@ -87,13 +116,22 @@ public:
    */
   virtual void loop() = 0;
 
-  // TODO Doc
+  /**
+   * Get the ID of the anchor
+   * @return Id of this anchor
+   */
   uint8_t getID();
 
-  // TODO Doc
+  /**
+   * Get the rope offset of the anchor
+   * @return rope offset
+   */
   float getRopeOffset();
 
-  // TODO Doc
+  /**
+   * Set the rope offset of the anchor
+   * @param offset offset in cm
+   */
   void setRopeOffset(float offset);
 
   /**

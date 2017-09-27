@@ -88,16 +88,22 @@ private:
   /**
    * CI command to get help
    * @param s command
+   * @return  success
    */
   bool helpCommand(std::string &s);
 
   /**
    * CI command to reset the configuration
    * @param s line to interprete
+   * @return  success
    */
   bool configResetCommand(std::string &s);
 
-  // TODO Doc
+  /**
+   * CI command to print the configuraion
+   * @param  s line to interprete
+   * @return   success
+   */
   bool configPrintCommand(std::string &s);
 
   // Instance

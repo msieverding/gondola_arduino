@@ -1,8 +1,5 @@
 TODO:
-- check class diagramm (anchor is missing and some things changed. See commits)
 - calc system boundaries with anchor positions
-- Check if what marco said about the spooled distance and the steps and the error... don't know how to say it^^
-- check all TODOs docs
 - check all TODOs
 - Maybe it's possible to change webSocket type only if it changes thorugh registrations like gondola on webserver. Good or not?
 

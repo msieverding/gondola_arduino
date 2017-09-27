@@ -34,7 +34,12 @@ public:
    */
   virtual uint32_t setTargetSpooledDistance(float targetDistance);
 
-  // TODO Doc
+  /**
+   * Start the movement.
+   * Call setTargetSpooledDistance before to setup the movement
+   * @param  travelTime time budget for travlling
+   * @return            ever true
+   */
   virtual bool startMovement(uint32_t travelTime);
 
   /**

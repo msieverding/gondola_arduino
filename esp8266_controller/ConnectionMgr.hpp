@@ -78,7 +78,10 @@ public:
    */
   webSocketType_t getWebSocketType();
 
-  // TODO Doc
+  /**
+   * Get a reference to the web server
+   * @return reference to web server
+   */
   WebServer &getWebServer();
 
   /**

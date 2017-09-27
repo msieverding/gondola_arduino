@@ -29,10 +29,16 @@ typedef union b4Converter_u {
  */
 void setLogLevel(logLevel_t level);
 
-// TODO Doc
+/**
+ * Ad a string to the logpage
+ * @param s string to add
+ */
 void addLogPageString(std::string &s);
 
-// TODO Doc
+/**
+ * Get the list of strings from the logpage
+ * @return list of strings
+ */
 std::list<std::string> &getLogPageList();
 
 /**

@@ -28,7 +28,10 @@ public:
    */
   virtual void loop();
 
-  // TODO Doc
+  /**
+   * regiter a gondola to the webserer
+   * @param gondola pointer to gondola
+   */
   void registerGondola(Gondola *gondola);
 
 protected:
@@ -50,8 +53,7 @@ protected:
   void prepareConsolePage(std::string &s);
 
   // Membervariables
-  // TODO Doc vars
-  ESP8266WebServer          m_Server;
-  Gondola                  *m_Gondola;
+  ESP8266WebServer          m_Server;   //!< Web server to handle
+  Gondola                  *m_Gondola;  //!< registered gondola to use for the web pages
 };
 #endif /* _WEB_SERVER_HPP_ */

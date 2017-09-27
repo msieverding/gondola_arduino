@@ -436,7 +436,7 @@ void WebServer::prepareGondolaMovePage(std::string &s)
   }
   std::list<IAnchor *> anchorList = m_Gondola->getAnchorList();
   std::list<IAnchor *>::iterator it = anchorList.begin();
-  s.append("<h4>Registerd anchors:</h4>");
+  s.append("<h4>Registered anchors:</h4>");
   while(it != anchorList.end())
   {
     IAnchor *anchor = *it;

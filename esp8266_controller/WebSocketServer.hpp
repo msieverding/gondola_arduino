@@ -32,7 +32,10 @@ public:
    */
   virtual void loop();
 
-  // TODO Doc
+  /**
+   * Get the gondola of this server
+   * @return pointer to gondola
+   */
   Gondola *getGondola();
 
 private:
@@ -47,7 +50,7 @@ private:
 
   /**
    * Function to call, when an anchor should move.
-   * Is registerd at gonola and called from there
+   * Is registered at gonola and called from there
    * @param anchorInfo information about the anchor
    * @return           success
    */
@@ -55,20 +58,24 @@ private:
 
   /**
    * Function to call, when an anchor should be initialised.
-   * Is registerd at gonola and called from there
+   * Is registered at gonola and called from there
    * @param anchorInfo information about the anchor
    * @return           success
    */
   bool remoteAnchorInitFunction(IAnchor *anchor);
 
-  // TODO Doc
+  /**
+   * Send gondola, that an anchor finished the movement
+   * @param  anchor anchor that finished
+   * @return        ever true
+   */
   bool readyCallbackToGondola(IAnchor *anchor);
 
   // membervariables
   uint16_t                        m_Port;             //!< Port to use
   WebSocketsServer                m_WebSocketServer;  //!< Server from WebSocketsLibrary
   uint32_t                        m_NextPing;         //!< Time for next ping
-  HardwareAnchor                  m_Anchor;           // TODO Doc
+  HardwareAnchor                  m_Anchor;           //!< HardwareAnchor of this board
   Gondola                         m_Gondola;          //!< pointer to Gondola
 };
 

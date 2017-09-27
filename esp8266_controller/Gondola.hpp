@@ -44,7 +44,12 @@ public:
    */
   void addAnchor(IAnchor *anchor);
 
-  // TODO Doc
+  /**
+  * Delete an anchor from the list of gondolas anchor
+  * Will call 'reportAnchorFinished' to be sure, that no bloked state will appear
+  * @param it   list iterator to delete.
+  * ATTENTION: After function call it is useless! It has to be incremented before
+  */
   void deleteAnchor(std::list<IAnchor *>::iterator it);
 
   /**
@@ -72,7 +77,10 @@ public:
   */
   Coordinate getTargetPosition();
 
-  // TODO Doc
+  /**
+   * Get the travel time
+   * @return budget for travelling
+   */
   uint32_t getTravelTime();
 
   /**
@@ -88,7 +96,11 @@ public:
    */
   std::list<IAnchor *> getAnchorList(void);
 
-  // TODO Doc
+  /**
+   * Get an anchor from the list
+   * @param  id  id of the anchor to get
+   * @return     pointer to anchor with id
+   */
   IAnchor *getAnchor(uint8_t id);
 private:
 
@@ -104,7 +116,12 @@ private:
    */
   void checkForReady();
 
-  // TODO Doc
+  /**
+   * Correct the spooled distance with a calculated error estimation function.
+   * @param  anchor                Anchor that should spool
+   * @param  targetSpooledDistance Distance that sould be spooled
+   * @return                       corrected distance, that anchor must 'think' to spool the real targetSpooledDistance
+   */
   float calculateCorrectedSpooling(IAnchor *anchor, float targetSpooledDistance);
 
   // membervariables
@@ -112,7 +129,7 @@ private:
   Coordinate                      m_TargetPosition;     //!< Target position of gondola
   std::list<IAnchor *>            m_AnchorList;         //!< List of all hardware and remote anchors
   uint8_t                         m_UnfinishedAnchors;  //!< Bitflied to indicate which anchor is ready and which isn't
-  uint32_t                        m_TravelTime; // TODO Doc
+  uint32_t                        m_TravelTime;         //!< Time budget for travelling
 };
 
 
