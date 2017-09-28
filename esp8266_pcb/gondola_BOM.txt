@@ -1,25 +1,30 @@
-Stückliste exportiert aus C:/Users/Marvin/Documents/eagle/Gondola/gondola.sch am 27.09.2017 15:02
+Stückliste exportiert aus C:/Users/Marvin/Desktop/Projektarbeit/gondola/esp8266_pcb/gondola.sch am 28.09.2017 11:50
 
-Part      Value            Device             Package          Description                          MF MPN      OC_FARNELL OC_NEWARK
-C1        100µF            CPOL-US153CLV-0605 153CLV-0605      POLARIZED CAPACITOR, American symbol                                 
-D1        1N4004           1N4004             DO41-10          DIODE                                                                
-F1        3A               PTCFUSE            LITTLEFUSE       LITTLEFUSE                                                           
-JP1                        PINHD-2X3          2X03             PIN HEADER                                                           
-LED1_12IN                  LEDCHIP-LED0805    CHIP-LED0805     LED                                                                  
+Part      Value            Device             Package          Description                          MF MPN      OC_FARNELL OC_NEWARK       	HST_NR			LINK
+C1        100µF            CPOL-US153CLV-0605 153CLV-0605      POLARIZED CAPACITOR, American symbol                                 		EEE-FPV101XAP		http://www.mouser.at/ProductDetail/Panasonic/EEE-FPV101XAP/?qs=d1CqaRUMZD%2fZv%252bRM%2f4gWcQ%3d%3d
+D1        1N4004           1N4004             DO41-10          DIODE                                                                		1N4004			http://www.mouser.at/ProductDetail/Taiwan-Semiconductor/1N4004/?qs=sGAEpiMZZMuMAfj%252bWfX4nEEHllp3mZcc
+F1        3A               PTCFUSE            LITTLEFUSE       LITTLEFUSE                                                           		0251003.NRT1L		http://www.mouser.at/ProductDetail/Littelfuse/0251003NRT1L/?qs=sGAEpiMZZMsNIlwy3aAdUVxIQvxhy%252bigjJODcNTpTIU%3d
+JP1                        PINHD-2X3          2X03             PIN HEADER                                                           		90131-0123		http://www.mouser.at/ProductDetail/Molex/90131-0123/?qs=sGAEpiMZZMs%252bGHln7q6pm8NDWwBzqQCNXJduvOqWvWU%3d
+LED1_12IN                  LEDCHIP-LED0805    CHIP-LED0805     LED                                                                  		APTD2012LQBC/D		http://www.mouser.at/ProductDetail/Kingbright/APTD2012LQBC-D/?qs=sGAEpiMZZMseGfSY3csMkdgyOOAg6kv2CptftPROgzCBLpfw1gsQLw%3d%3d
 LED2_12V                   LEDCHIP-LED0805    CHIP-LED0805     LED                                                                  
 LED3_5V                    LEDCHIP-LED0805    CHIP-LED0805     LED                                                                  
 LED4_3V3                   LEDCHIP-LED0805    CHIP-LED0805     LED                                                                  
-LED5_SW                    LEDCHIP-LED0805    CHIP-LED0805     LED                                                                  
-R1        4.7k             R-US_R0805         R0805            RESISTOR, American symbol                                            
+LED5_SW                    LEDCHIP-LED0805    CHIP-LED0805     LED                                                                  		
+R1        4.7k             R-US_R0805         R0805            RESISTOR, American symbol                                            		CRCW08054K70FKEA	http://www.mouser.at/ProductDetail/Vishay/CRCW08054K70FKEA/?qs=sGAEpiMZZMtlubZbdhIBIGv9EycWg%2fv41oDnZ791nqo%3d
 R2        4.7k             R-US_R0805         R0805            RESISTOR, American symbol                                            
-R3        1.2k             R-US_R0805         R0805            RESISTOR, American symbol                                            
-R4        330              R-US_R0805         R0805            RESISTOR, American symbol                                            
-R5        330              R-US_R0805         R0805            RESISTOR, American symbol                                            
-R6        10k              R-US_R0805         R0805            RESISTOR, American symbol                                            
+R3        1.2k             R-US_R0805         R0805            RESISTOR, American symbol      							PCF0805-13-1K2BT1	http://www.mouser.at/ProductDetail/Welwyn-Components-TT-Electronics/PCF0805-13-1K2BT1/?qs=sGAEpiMZZMtlubZbdhIBIIAU%252bTKc9KNnoElTP0PX4ak%3d
+R4        330              R-US_R0805         R0805            RESISTOR, American symbol                                            		
+R5        330              R-US_R0805         R0805            RESISTOR, American symbol                                            		TNPW0805330RBEEA	http://www.mouser.at/ProductDetail/Vishay/TNPW0805330RBEEA/?qs=sGAEpiMZZMtlubZbdhIBIOWmFWFo%2fy2VZdYtSu521%2f0%3d
+R6        100k             R-US_R0805         R0805            RESISTOR, American symbol                                            		AS08J1003ET		http://www.mouser.at/ProductDetail/Ohmite/AS08J1003ET/?qs=sGAEpiMZZMu61qfTUdNhGy%252bdF0ZJ8Y3M8fGc325%2f0etM2Lklrr%2fKaw%3d%3d
 R7        100k             R-US_R0805         R0805            RESISTOR, American symbol                                            
-S1                         31-XX              B3F-31XX         OMRON SWITCH                            B3F-3100 959704     36M3582  
+S1                         31-XX              B3F-31XX         OMRON SWITCH                            B3F-3100 959704     36M3582  		B3F-3100		http://www.mouser.at/ProductDetail/Omron/B3F-3100/?qs=%2fha2pyFaduhB%252bhZD%2fPw3dectFMbAmk%2fkncdMlt7jQco%3d
 U$1       A4988BREAKOUT    A4988BREAKOUT      A4988BREAKOUT                                                                         
-U$2       ADAFRUIT_ESP8266 ADAFRUIT_ESP8266   ADAFRUIT_ESP8266                                                                      
-U$3       ROHM_BP5293-XX   ROHM_BP5293-XX     ROHM_BP5293-XX                                                                        
-X1        1751248          1751248            1751248          MKDS 1/ 2-3,5 Printklemme                        unknown    unknown  
-X2        1751264          1751264            1751264          MKDS 1/ 4-3,5 Printklemme               1751264  unknown    10R0934  
+          Socket           															90147-1108		http://www.mouser.at/ProductDetail/Molex/90147-1108/?qs=sGAEpiMZZMs%252bGHln7q6pm8uos17B4BQA142auKfsfWQ%3d
+	  Sockete
+U$2       ADAFRUIT_ESP8266 ADAFRUIT_ESP8266   ADAFRUIT_ESP8266                                                                      		2471			http://www.mouser.at/ProductDetail/Adafruit/2471/?qs=sGAEpiMZZMsMyYRRhGMFNv8XdA3gRE94c8%2f8cFdmWaw%3d
+          Socket																90147-1110		http://www.mouser.at/ProductDetail/Molex/90147-1110/?qs=sGAEpiMZZMs%252bGHln7q6pm8uos17B4BQACUB5f0QwiLQ%3d
+          Socket
+U$3       ROHM_BP5293-XX   ROHM_BP5293-XX     ROHM_BP5293-XX                                                                        		BP5293-50		http://www.mouser.at/ProductDetail/ROHM-Semiconductor/BP5293-50/?qs=sGAEpiMZZMtitjHzVIkrqcn1FsEISagRLVsms61wmnSG%2fEr7p9Cg8A%3d%3d
+X1        1751248          1751248            1751248          MKDS 1/ 2-3,5 Printklemme                        unknown    unknown  		1751248			http://www.mouser.at/ProductDetail/Phoenix-Contact/1751248/?qs=%2fha2pyFadui6I2EMUp4ROw20wUE8JnFVUzMf7oKoM9g%3d
+X2        1751264          1751264            1751264          MKDS 1/ 4-3,5 Printklemme               1751264  unknown    10R0934  		1751264			http://www.mouser.at/ProductDetail/Phoenix-Contact/1751264/?qs=sGAEpiMZZMvlX3nhDDO4AHsTWtmeCzinL%252bzNtyc29QA%3d
+Cable	  FTDI Cable       Adafruit USB FTDI                                                                                                    954			http://www.mouser.at/ProductDetail/Adafruit/954/?qs=sGAEpiMZZMsMyYRRhGMFNg7907eNh002i%2fEnSsNEsb4%3d

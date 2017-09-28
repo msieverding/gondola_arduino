@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
@@ -9883,13 +9883,14 @@ diameter 5 mm, grid 2.54 mm</description>
 <text x="4.191" y="26.543" size="1.27" layer="21" rot="R270">Adafruit HUZZAH</text>
 </package>
 <package name="ROHM_BP5293-XX">
-<pad name="1" x="2.54" y="0" drill="0.6"/>
-<pad name="3" x="-2.54" y="0" drill="0.6"/>
-<pad name="2" x="0" y="0" drill="0.6"/>
-<wire x1="8.5" y1="1" x2="-8.5" y2="1" width="0.127" layer="21"/>
-<wire x1="8.5" y1="1" x2="8.5" y2="-3.7" width="0.127" layer="21"/>
-<wire x1="-8.5" y1="1" x2="-8.5" y2="-3.7" width="0.127" layer="21"/>
-<wire x1="-8.5" y1="-3.7" x2="8.5" y2="-3.7" width="0.127" layer="21"/>
+<pad name="VIN" x="-2.54" y="-2.54" drill="0.6" rot="R180"/>
+<pad name="VOUT" x="2.54" y="-2.54" drill="0.6" rot="R180"/>
+<pad name="GND" x="0" y="-2.54" drill="0.6" rot="R180"/>
+<wire x1="-8.5" y1="-3.54" x2="8.5" y2="-3.54" width="0.127" layer="21"/>
+<wire x1="-8.5" y1="-3.54" x2="-8.5" y2="1.16" width="0.127" layer="21"/>
+<wire x1="8.5" y1="-3.54" x2="8.5" y2="1.16" width="0.127" layer="21"/>
+<wire x1="8.5" y1="1.16" x2="-8.5" y2="1.16" width="0.127" layer="21"/>
+<rectangle x1="-8.509" y1="-3.556" x2="-6.604" y2="-2.032" layer="21" rot="R180"/>
 </package>
 </packages>
 <symbols>
@@ -9974,9 +9975,9 @@ diameter 5 mm, grid 2.54 mm</description>
 <devices>
 <device name="" package="ROHM_BP5293-XX">
 <connects>
-<connect gate="G$1" pin="GND" pad="2"/>
-<connect gate="G$1" pin="VIN" pad="1"/>
-<connect gate="G$1" pin="VOUT" pad="3"/>
+<connect gate="G$1" pin="GND" pad="GND"/>
+<connect gate="G$1" pin="VIN" pad="VIN"/>
+<connect gate="G$1" pin="VOUT" pad="VOUT"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -10436,7 +10437,7 @@ general purpose rectifier, 1 A</description>
 <part name="GND3" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="R7" library="adafruit" deviceset="R-US_" device="R0805" value="100k"/>
 <part name="GND5" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
-<part name="R6" library="adafruit" deviceset="R-US_" device="R0805" value="10k"/>
+<part name="R6" library="adafruit" deviceset="R-US_" device="R0805" value="100k"/>
 <part name="+3V2" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+3V3" device=""/>
 <part name="C1" library="adafruit" deviceset="CPOL-US" device="153CLV-0605" value="100µF"/>
 <part name="P+9" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+12V" device=""/>
@@ -10507,7 +10508,7 @@ general purpose rectifier, 1 A</description>
 <instance part="P+2" gate="1" x="109.22" y="-83.82"/>
 <instance part="U$3" gate="G$1" x="66.04" y="-104.14"/>
 <instance part="P+3" gate="1" x="53.34" y="-83.82"/>
-<instance part="P+4" gate="1" x="-27.94" y="35.56"/>
+<instance part="P+4" gate="1" x="-27.94" y="45.72"/>
 <instance part="GND6" gate="1" x="5.08" y="2.54"/>
 <instance part="LED3_5V" gate="G$1" x="119.38" y="-114.3"/>
 <instance part="R3" gate="G$1" x="119.38" y="-99.06" rot="R90"/>
@@ -10785,7 +10786,7 @@ general purpose rectifier, 1 A</description>
 </segment>
 <segment>
 <pinref part="P+4" gate="1" pin="+5V"/>
-<wire x1="-27.94" y1="33.02" x2="-27.94" y2="17.78" width="0.1524" layer="91"/>
+<wire x1="-27.94" y1="43.18" x2="-27.94" y2="17.78" width="0.1524" layer="91"/>
 <pinref part="U$2" gate="G$1" pin="VBAT"/>
 <wire x1="-27.94" y1="17.78" x2="12.7" y2="17.78" width="0.1524" layer="91"/>
 </segment>
